@@ -227,9 +227,9 @@ export const directions: Direction[] = [
 ];
 
 export const candidateNames = [
+  "Kreo",
   "Ondo",
   "Hazi",
-  "Kreo",
   "Ekin",
   "Hivo",
   "Stakk",
