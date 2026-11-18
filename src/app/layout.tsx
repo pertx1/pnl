@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import { JetBrains_Mono, Space_Grotesk } from "next/font/google";
+import { NextIntlClientProvider } from "next-intl";
+import { getLocale } from "next-intl/server";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "@/components/ui/sonner";
 import { cn } from "@/lib/utils";
@@ -16,18 +18,21 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false },
 };
 
-export default function RootLayout({ children }: LayoutProps<"/">) {
+export default async function RootLayout({ children }: LayoutProps<"/">) {
+  const locale = await getLocale();
   return (
     <html
-      lang="es"
+      lang={locale}
       suppressHydrationWarning
       className={cn("h-full antialiased", spaceGrotesk.variable, jetbrainsMono.variable)}
     >
       <body className="min-h-full">
-        <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={false} disableTransitionOnChange>
-          {children}
-          <Toaster />
-        </ThemeProvider>
+        <NextIntlClientProvider>
+          <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={false} disableTransitionOnChange>
+            {children}
+            <Toaster />
+          </ThemeProvider>
+        </NextIntlClientProvider>
       </body>
     </html>
   );
