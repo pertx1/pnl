@@ -45,3 +45,26 @@ Mantenido por el subagente `seguridad-legal`. Cada módulo añade una entrada **
   (ambos ofrecen DPA con cláusulas contractuales tipo para transferencias internacionales).
 - Riesgos: conflicto de marca "Kreo"; despliegues de vercel.app accesibles con enlace.
 - Mitigaciones: comprobación EUIPO/OEPM pendiente; Vercel Authentication activa en las URLs de Vercel; `noindex` global.
+
+## Fase 1 · Auth, workspaces, proyectos, brand kit y créditos — 2026-11-18 — Estado: ⚠️ aprobado con condiciones
+- APIs usadas: Supabase Auth (email + contraseña) y Postgres/Storage de Supabase (UE, Frankfurt). Ninguna red social todavía.
+- Datos guardados:
+  - `auth.users` (Supabase): email, hash de contraseña, metadatos de registro (nombre, idioma, fecha de aceptación de términos).
+  - `profiles`: nombre, idioma, avatar (vacío), `marketing_opt_in` (siempre false hasta tener doble opt-in).
+  - Workspaces, miembros con rol, proyectos, brand kits (texto de marca, colores, fuentes, enlaces a posts de ejemplo; **sin descargar contenido de terceros**).
+  - Créditos: saldo + ledger inmutable. Registro de actividad sin datos personales en `metadata`.
+- Cookies: sesión de Supabase (`sb-*`, estrictamente necesaria), `NEXT_LOCALE` (idioma elegido) y `kreo_ws` (workspace activo, httpOnly). Todas técnicas → exentas de consentimiento (LSSI 22.2); a listar en la política de cookies.
+- Seguridad verificada:
+  - RLS en todas las tablas; prueba con un usuario ajeno: 0 filas visibles y 0 actualizaciones posibles.
+  - Escrituras sensibles solo vía funciones `SECURITY DEFINER` con `search_path` vacío y comprobación de rol.
+  - Créditos: cobro atómico (bloqueo de fila), idempotente por clave; `grant_credits` solo para el servidor (el usuario recibe "permission denied").
+  - `plan_id` del workspace no lo puede cambiar el usuario (solo el servidor/Stripe).
+  - Validación con zod en todas las acciones; redirecciones internas solo hacia `/app` (sin open redirect); errores traducidos sin filtrar mensajes internos.
+  - Bucket `brand-assets` privado, por workspace, sin SVG (evita scripts embebidos), máx. 5 MB.
+- Riesgos / condiciones pendientes antes del lanzamiento:
+  1. **Email transaccional propio (SMTP)**: el de Supabase solo es para pruebas. Necesario para confirmación de cuenta y recuperación de contraseña.
+  2. **Recuperar contraseña, exportar datos y borrar cuenta** (derechos RGPD): pendientes en esta fase.
+  3. **2FA (TOTP)** opcional: pendiente en esta fase.
+  4. Textos legales: páginas creadas como borrador vacío; hay que redactarlas y que las revise un abogado.
+  5. El checkbox de marketing se eliminó del registro hasta implementar doble opt-in.
+  6. La aceptación de términos se guarda en los metadatos de registro; conviene versionar los términos aceptados.

@@ -20,7 +20,11 @@
 - Supabase: proyecto `kreo` en `eu-central-1` (Frankfurt), plan gratuito de la organización "NFC".
   ⚠️ El plan gratuito pausa proyectos inactivos y no tiene backups diarios: pasar a Pro antes del lanzamiento.
 
-## Fase 1 · MVP
+## Fase 1 · MVP ← EN CURSO
+- [x] Esquema base con RLS: perfiles, workspaces y roles, proyectos, brand kit, planes, créditos (saldo + ledger), actividad
+- [x] Auth email + contraseña, proxy de sesión, i18n es/en
+- [x] Onboarding (workspace), proyectos con límite de plan, brand kit
+- [ ] Recuperar contraseña, Google login, 2FA, exportar datos y borrar cuenta, subida de logo
 - Auth (Supabase, email + Google, 2FA opcional), workspaces, proyectos, brand kit
 - Vincular cuentas por OAuth oficial (TikTok, Instagram, YouTube) con estado de conexión y reconectar
 - Programar publicaciones + calendario (mes/semana/lista), estados, límites anti-baneo, etiqueta IA
@@ -56,4 +60,7 @@
 | Colas | **Inngest** | `throttle`/`concurrency` por clave (p. ej. por cuenta social) → respeta rate limits sin código propio; cron, reintentos con backoff y pasos durables; se ejecuta sobre nuestras rutas de Vercel. Los eventos llevarán solo IDs (sin datos personales). El procesado pesado de vídeo (Clipper, Fase 3) irá a un worker aparte. |
 | Pagos | Stripe Billing + Stripe Tax | IVA UE (OSS) gestionado |
 | Hosting | Vercel (funciones en región `fra1`) | Pedido en el brief; cercanía a Supabase UE |
+| Cache Components (Next 16) | Desactivado | La app es casi toda por usuario; evita envolver cada lectura de sesión en `<Suspense>`. Reactivable. |
+| i18n | next-intl sin prefijo en la URL (cookie → Accept-Language → es) | Sencillo para la app; la landing podrá usar rutas `/en` por SEO |
+| Acceso a datos | DAL en `src/lib/server/dal.ts` con la sesión del usuario (RLS) | Nunca service key para datos de usuario |
 | Email transaccional | Proveedor con región UE (a decidir: Resend / Postmark / Brevo) | Doble opt-in, bajas |
