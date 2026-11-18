@@ -1,41 +1,34 @@
-import { useId } from "react";
 import { cn } from "@/lib/utils";
 import { WORDMARK_PATH, WORDMARK_WIDTH } from "./wordmark-path";
 
-/** Símbolo de Kreo: órbita con degradado cian→magenta + satélite. Usa los tokens de marca. */
+/** Símbolo de Kreo: triángulo de crecimiento en lima. Usa el token --brand-mark (se adapta al tema). */
 export function KreoMark({ className, title = "Kreo" }: { className?: string; title?: string }) {
-  const id = useId();
   return (
     <svg viewBox="0 0 32 32" className={cn("size-8", className)} role="img" aria-label={title}>
-      <defs>
-        <linearGradient id={id} x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0" stopColor="var(--brand-cyan)" />
-          <stop offset="1" stopColor="var(--brand-magenta)" />
-        </linearGradient>
-      </defs>
-      <circle cx="16" cy="16" r="11" fill="none" stroke={`url(#${id})`} strokeWidth="3.5" />
-      <circle cx="25" cy="8" r="3.5" fill="var(--brand-magenta)" />
+      <path fill="var(--brand-mark)" d="M3 29 L29 3 L29 29 Z" />
     </svg>
   );
 }
 
-/** Logo completo (símbolo + wordmark). La altura se controla con className (p. ej. "h-8"). */
-export function KreoLogo({ className }: { className?: string }) {
-  const id = useId();
-  const w = Math.ceil(100 + WORDMARK_WIDTH);
+/**
+ * Logo completo: triángulo + "kreo" en minúsculas + cursor de terminal.
+ * La altura se controla con className (p. ej. "h-8"). `blink` anima el cursor (solo en landing/hero).
+ */
+export function KreoLogo({ className, blink = false }: { className?: string; blink?: boolean }) {
+  const tx = 70;
+  const cx = Math.round(tx + WORDMARK_WIDTH + 8);
   return (
-    <svg viewBox={`0 0 ${w} 80`} className={cn("h-8 w-auto", className)} role="img" aria-label="Kreo">
-      <defs>
-        <linearGradient id={id} x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0" stopColor="var(--brand-cyan)" />
-          <stop offset="1" stopColor="var(--brand-magenta)" />
-        </linearGradient>
-      </defs>
-      <g transform="scale(2.5)">
-        <circle cx="16" cy="16" r="11" fill="none" stroke={`url(#${id})`} strokeWidth="3.5" />
-        <circle cx="25" cy="8" r="3.5" fill="var(--brand-magenta)" />
-      </g>
-      <path transform="translate(100 77.6)" fill="currentColor" d={WORDMARK_PATH} />
+    <svg viewBox={`0 0 ${cx + 40} 74`} className={cn("h-8 w-auto", className)} role="img" aria-label="Kreo">
+      <path fill="var(--brand-mark)" d="M0 72 L56 16 L56 72 Z" />
+      <path transform={`translate(${tx} 72)`} fill="currentColor" d={WORDMARK_PATH} />
+      <rect
+        x={cx}
+        y={61}
+        width={40}
+        height={11}
+        fill="var(--brand-mark)"
+        className={blink ? "motion-safe:animate-[kreo-blink_1.1s_steps(1)_infinite]" : undefined}
+      />
     </svg>
   );
 }
