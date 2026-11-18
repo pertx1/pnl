@@ -21,11 +21,11 @@ export function StatCard({
   return (
     <Card className={cn("gap-1", className)}>
       <CardContent>
-        <div className="flex items-center justify-between text-sm text-muted-foreground">
+        <div className="label-mono flex items-center justify-between">
           {label}
           {Icon && <Icon className="size-4" aria-hidden />}
         </div>
-        <div className="mt-1 font-heading text-3xl font-semibold tabular-nums">{value}</div>
+        <div className="mt-1 font-mono text-3xl font-semibold tabular-nums">{value}</div>
         {delta && <div className={cn("text-xs font-medium", color)}>{delta}</div>}
       </CardContent>
     </Card>

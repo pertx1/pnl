@@ -9,11 +9,11 @@ export function AiBadge({ className }: { className?: string }) {
   return (
     <span
       className={cn(
-        "inline-flex items-center gap-1 rounded-md border border-border px-1.5 py-px text-[11px] font-medium text-muted-foreground",
+        "inline-flex items-center gap-1 rounded-sm border border-border px-1.5 py-px text-[11px] font-medium text-muted-foreground",
         className,
       )}
     >
-      <Sparkles className="size-3 text-brand-magenta" aria-hidden />
+      <Sparkles className="size-3 text-brand-amber-ink" aria-hidden />
       Generado con IA
     </span>
   );

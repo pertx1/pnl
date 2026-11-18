@@ -5,12 +5,14 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
-  --font-heading: var(--font-sora);
-  --font-sans: var(--font-inter);
+  --font-heading: var(--font-space-grotesk);
+  --font-sans: var(--font-space-grotesk);
   --font-mono: var(--font-jetbrains-mono);
-  --color-brand-cyan: var(--brand-cyan);
-  --color-brand-magenta: var(--brand-magenta);
-  --color-brand-magenta-foreground: var(--brand-magenta-foreground);
+  --color-primary-ink: var(--primary-ink);
+  --color-brand-mark: var(--brand-mark);
+  --color-brand-amber: var(--brand-amber);
+  --color-brand-amber-foreground: var(--brand-amber-foreground);
+  --color-brand-amber-ink: var(--brand-amber-ink);
   --color-success: var(--success);
   --color-warning: var(--warning);
   --color-info: var(--info);
@@ -55,100 +57,104 @@
 }
 
 /* =========================================================================
-   KREO · Design tokens (dirección C · "Premium oscuro")
+   KREO · Design tokens (dirección A · "Terminal de crecimiento")
    Documentación: docs/brand.md. No uses colores sueltos: usa estos tokens.
    :root = modo claro · .dark = modo oscuro (por defecto en la app)
+   Regla clave: el lima (--primary) es para RELLENOS con texto oscuro encima.
+   Para texto/enlaces en color usa --primary-ink (en claro es verde oliva legible).
    ========================================================================= */
 :root {
-  --radius: 0.75rem;
+  --radius: 0.375rem;
 
-  --background: #f5f7fd;
-  --foreground: #0a1030;
+  --background: #f3f5ec;
+  --foreground: #11140c;
   --card: #ffffff;
-  --card-foreground: #0a1030;
+  --card-foreground: #11140c;
   --popover: #ffffff;
-  --popover-foreground: #0a1030;
-  --primary: #0e7490;
-  --primary-foreground: #ffffff;
-  --secondary: #eceffa;
-  --secondary-foreground: #0a1030;
-  --muted: #eceffa;
-  --muted-foreground: #596184;
-  --accent: #e3e8f8;
-  --accent-foreground: #0a1030;
-  --destructive: #e11d48;
-  --border: #d8def0;
-  --input: #c9d1ea;
-  --ring: #0891b2;
+  --popover-foreground: #11140c;
+  --primary: #c6f432;
+  --primary-foreground: #0a0c08;
+  --primary-ink: #4a7300;
+  --secondary: #e9eddf;
+  --secondary-foreground: #11140c;
+  --muted: #e9eddf;
+  --muted-foreground: #5d6654;
+  --accent: #e1e6d3;
+  --accent-foreground: #11140c;
+  --destructive: #d63b3b;
+  --border: #d5dbc7;
+  --input: #c3cab2;
+  --ring: #6a9c00;
 
   /* Marca */
-  --brand-cyan: #0891b2;
-  --brand-magenta: #b21fcb;
-  --brand-magenta-foreground: #ffffff;
-  --brand-gradient: linear-gradient(135deg, #0e7490 0%, #b21fcb 100%);
-  --success: #059669;
-  --warning: #b45309;
-  --info: #4f46e5;
+  --brand-mark: #5e9100;
+  --brand-amber: #ffb547;
+  --brand-amber-foreground: #0a0c08;
+  --brand-amber-ink: #a15c00;
+  --success: #1e8a4c;
+  --warning: #b56a00;
+  --info: #1f6fb2;
 
   /* Gráficas */
-  --chart-1: #0891b2;
-  --chart-2: #b21fcb;
-  --chart-3: #4f46e5;
-  --chart-4: #059669;
-  --chart-5: #d97706;
+  --chart-1: #6a9c00;
+  --chart-2: #c77700;
+  --chart-3: #1f6fb2;
+  --chart-4: #7b4fd6;
+  --chart-5: #d63b3b;
 
   --sidebar: #ffffff;
-  --sidebar-foreground: #0a1030;
-  --sidebar-primary: #0e7490;
-  --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: #eceffa;
-  --sidebar-accent-foreground: #0a1030;
-  --sidebar-border: #d8def0;
-  --sidebar-ring: #0891b2;
+  --sidebar-foreground: #11140c;
+  --sidebar-primary: #c6f432;
+  --sidebar-primary-foreground: #0a0c08;
+  --sidebar-accent: #e9eddf;
+  --sidebar-accent-foreground: #11140c;
+  --sidebar-border: #d5dbc7;
+  --sidebar-ring: #6a9c00;
 }
 
 .dark {
-  --background: #060a1a;
-  --foreground: #eaf0ff;
-  --card: #0d1330;
-  --card-foreground: #eaf0ff;
-  --popover: #0d1330;
-  --popover-foreground: #eaf0ff;
-  --primary: #22d3ee;
-  --primary-foreground: #04121a;
-  --secondary: #131b3f;
-  --secondary-foreground: #eaf0ff;
-  --muted: #131b3f;
-  --muted-foreground: #8890b5;
-  --accent: #18214a;
-  --accent-foreground: #eaf0ff;
-  --destructive: #f43f5e;
-  --border: #1f2a55;
-  --input: #26326a;
-  --ring: #22d3ee;
+  --background: #0a0c08;
+  --foreground: #e9efe0;
+  --card: #12150e;
+  --card-foreground: #e9efe0;
+  --popover: #12150e;
+  --popover-foreground: #e9efe0;
+  --primary: #c6f432;
+  --primary-foreground: #0a0c08;
+  --primary-ink: #c6f432;
+  --secondary: #1a1e14;
+  --secondary-foreground: #e9efe0;
+  --muted: #1a1e14;
+  --muted-foreground: #8a9480;
+  --accent: #20251a;
+  --accent-foreground: #e9efe0;
+  --destructive: #ff5c5c;
+  --border: #272c1f;
+  --input: #333a28;
+  --ring: #c6f432;
 
-  --brand-cyan: #22d3ee;
-  --brand-magenta: #e040fb;
-  --brand-magenta-foreground: #ffffff;
-  --brand-gradient: linear-gradient(135deg, #22d3ee 0%, #e040fb 100%);
-  --success: #34d399;
-  --warning: #fbbf24;
-  --info: #818cf8;
+  --brand-mark: #c6f432;
+  --brand-amber: #ffb547;
+  --brand-amber-foreground: #0a0c08;
+  --brand-amber-ink: #ffb547;
+  --success: #7cf29a;
+  --warning: #ffb547;
+  --info: #6cc6ff;
 
-  --chart-1: #22d3ee;
-  --chart-2: #e040fb;
-  --chart-3: #818cf8;
-  --chart-4: #34d399;
-  --chart-5: #fbbf24;
+  --chart-1: #c6f432;
+  --chart-2: #ffb547;
+  --chart-3: #6cc6ff;
+  --chart-4: #b48cff;
+  --chart-5: #ff8a8a;
 
-  --sidebar: #0a1024;
-  --sidebar-foreground: #eaf0ff;
-  --sidebar-primary: #22d3ee;
-  --sidebar-primary-foreground: #04121a;
-  --sidebar-accent: #131b3f;
-  --sidebar-accent-foreground: #eaf0ff;
-  --sidebar-border: #1f2a55;
-  --sidebar-ring: #22d3ee;
+  --sidebar: #0e110b;
+  --sidebar-foreground: #e9efe0;
+  --sidebar-primary: #c6f432;
+  --sidebar-primary-foreground: #0a0c08;
+  --sidebar-accent: #1a1e14;
+  --sidebar-accent-foreground: #e9efe0;
+  --sidebar-border: #272c1f;
+  --sidebar-ring: #c6f432;
 }
 
 @layer base {
@@ -169,12 +175,17 @@
   }
 }
 
-@utility bg-brand-gradient {
-  background-image: var(--brand-gradient);
+/* Etiqueta de sección estilo terminal: MAYÚSCULAS en mono */
+@utility label-mono {
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--muted-foreground);
 }
 
-@utility text-brand-gradient {
-  background-image: var(--brand-gradient);
-  background-clip: text;
-  color: transparent;
+@keyframes kreo-blink {
+  50% {
+    opacity: 0;
+  }
 }
