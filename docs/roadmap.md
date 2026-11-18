@@ -4,13 +4,21 @@
 > aprobación humana antes de publicar/enviar contenido generado por IA. El subagente `seguridad-legal`
 > revisa cada módulo y deja nota en `/docs/compliance.md` antes de darlo por terminado.
 
-## Fase 0 · Nombre e identidad visual ← EN CURSO
-- [x] 10 propuestas de nombre (ver resumen en el chat / `docs/brand.md` cuando se cierre)
+## Fase 0 · Nombre e identidad visual ✅ (pendiente solo la comprobación de marca/dominio)
+- [x] 10 propuestas de nombre
 - [x] 3 direcciones visuales renderizadas en `/brand-preview`
-- [ ] Oier elige nombre + dirección
-- [ ] Oier comprueba dominio (.com/.io) y marca (EUIPO / OEPM, clases 9, 35, 42)
-- [ ] Design system: tokens CSS + Tailwind, modo claro/oscuro, shadcn/ui personalizado, logo SVG, favicon
-- [ ] `docs/brand.md`
+- [x] Elegido: **Kreo** + dirección **C · Premium oscuro**
+- [ ] Oier comprueba dominio (.com/.io/.app) y marca (EUIPO / OEPM / TMview, clases 9, 35, 42)
+- [x] Design system: tokens CSS + Tailwind, modo claro/oscuro, shadcn/ui personalizado, logo SVG, favicon (`/design-system`)
+- [x] `docs/brand.md`
+
+## Infraestructura
+- GitHub `pertx1/pnl`: `main` = producción.
+- Vercel: proyecto `kreo` (funciones en `fra1`), despliegue automático en cada push a `main`; previews por rama.
+  Protegido con Vercel Authentication hasta el lanzamiento. ⚠️ El plan Hobby no permite uso comercial:
+  antes de cobrar a usuarios hay que pasar a Pro (≈20 $/mes por miembro).
+- Supabase: proyecto `kreo` en `eu-central-1` (Frankfurt), plan gratuito de la organización "NFC".
+  ⚠️ El plan gratuito pausa proyectos inactivos y no tiene backups diarios: pasar a Pro antes del lanzamiento.
 
 ## Fase 1 · MVP
 - Auth (Supabase, email + Google, 2FA opcional), workspaces, proyectos, brand kit

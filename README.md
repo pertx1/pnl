@@ -1,4 +1,6 @@
-# SaaS para creadores, marcas y agencias (nombre en Fase 0)
+# Kreo
+
+*Crea, programa y crece.*
 
 App web todo-en-uno: proyectos/marcas, cuentas sociales vinculadas por OAuth oficial, estudio de IA,
 calendario, analíticas, competencia, productos ganadores, bandeja unificada y estrategia.
@@ -8,10 +10,12 @@ calendario, analíticas, competencia, productos ganadores, bandeja unificada y e
 npm install
 npm run dev
 ```
-- Comparativa de identidad visual: http://localhost:3000/brand-preview
+- Design system: http://localhost:3000/design-system
+- Direcciones de marca (archivo Fase 0): http://localhost:3000/brand-preview
 
 ## Documentación
-- `docs/roadmap.md` — fases y decisiones técnicas
+- `docs/brand.md` — guía de marca y tokens
+- `docs/roadmap.md` — fases, decisiones técnicas e infraestructura
 - `docs/developer-accounts.md` — cuentas de desarrollador y revisiones de API a solicitar
 - `docs/compliance.md` — registro de cumplimiento (seguridad-legal)
 - `.claude/agents/` — subagentes de Claude Code
