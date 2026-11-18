@@ -1,0 +1,6 @@
+@import "tailwindcss";
+
+/* Los tokens definitivos del design system se añadirán aquí al cerrar la Fase 0. */
+body {
+  font-family: ui-sans-serif, system-ui, sans-serif;
+}
