@@ -7,7 +7,7 @@
 ## Fase 0 · Nombre e identidad visual ✅ (pendiente solo la comprobación de marca/dominio)
 - [x] 10 propuestas de nombre
 - [x] 3 direcciones visuales renderizadas en `/brand-preview`
-- [x] Elegido: **Kreo** + dirección **C · Premium oscuro**
+- [x] Elegido: **Kreo** + dirección **A · Terminal de crecimiento**
 - [ ] Oier comprueba dominio (.com/.io/.app) y marca (EUIPO / OEPM / TMview, clases 9, 35, 42)
 - [x] Design system: tokens CSS + Tailwind, modo claro/oscuro, shadcn/ui personalizado, logo SVG, favicon (`/design-system`)
 - [x] `docs/brand.md`

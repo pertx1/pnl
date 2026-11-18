@@ -25,8 +25,9 @@ const colorTokens = [
   ["border", "Borde"],
   ["foreground", "Texto"],
   ["muted-foreground", "Texto secundario"],
-  ["primary", "Primario (cian)"],
-  ["brand-magenta", "Acento (magenta)"],
+  ["primary", "Primario (lima)"],
+  ["primary-ink", "Lima para texto"],
+  ["brand-amber", "Acento (ámbar)"],
   ["success", "Éxito"],
   ["warning", "Aviso"],
   ["destructive", "Error"],
@@ -36,7 +37,7 @@ const colorTokens = [
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <section className="space-y-4">
-      <h2 className="text-xl font-semibold">{title}</h2>
+      <h2 className="label-mono">{title}</h2>
       {children}
     </section>
   );
@@ -47,7 +48,7 @@ export default function DesignSystemPage() {
     <div className="mx-auto max-w-6xl space-y-12 px-4 py-10 sm:px-8">
       <header className="flex flex-wrap items-center justify-between gap-4">
         <div className="space-y-1">
-          <KreoLogo className="h-9" />
+          <KreoLogo className="h-8" />
           <p className="text-sm text-muted-foreground">Design system · tokens en <code className="font-mono">globals.css</code>, guía en <code className="font-mono">docs/brand.md</code></p>
         </div>
         <ThemeToggle />
@@ -62,7 +63,7 @@ export default function DesignSystemPage() {
           </Card>
           <Card>
             <CardContent className="grid h-32 place-items-center">
-              <KreoMark className="size-16" />
+              <KreoMark className="size-14" />
             </CardContent>
           </Card>
           <Card>
@@ -84,18 +85,17 @@ export default function DesignSystemPage() {
             </div>
           ))}
         </div>
-        <div className="h-14 rounded-lg bg-brand-gradient" />
       </Section>
 
       <Section title="Tipografía">
         <Card>
           <CardContent className="space-y-3">
-            <p className="font-heading text-5xl font-semibold tracking-tight">Crea, programa y crece.</p>
-            <p className="font-heading text-2xl font-semibold">Títulos · Sora</p>
+            <p className="font-heading text-5xl font-bold tracking-tight">Crea, programa y crece.</p>
+            <p className="font-heading text-2xl font-bold">Títulos y texto · Space Grotesk</p>
             <p className="max-w-2xl text-muted-foreground">
-              Texto · Inter. Todas tus marcas, cuentas y contenidos en un solo lugar. La IA propone, tú decides.
+              Todas tus marcas, cuentas y contenidos en un solo lugar. La IA propone, tú decides.
             </p>
-            <p className="font-mono text-sm tabular-nums text-primary">Datos · JetBrains Mono · ER 6.42% · 1,284,330 views</p>
+            <p className="font-mono text-sm tabular-nums text-primary-ink">Datos · JetBrains Mono · ER 6.42% · 1,284,330 views</p>
           </CardContent>
         </Card>
       </Section>
@@ -138,9 +138,9 @@ export default function DesignSystemPage() {
         </div>
         <div className="flex items-center gap-4 text-muted-foreground">
           {[TrendingUp, CalendarDays, Sparkles, Inbox, Search].map((Icon, i) => (
-            <Icon key={i} className="size-5" strokeWidth={1.75} aria-hidden />
+            <Icon key={i} className="size-5" strokeWidth={1.5} aria-hidden />
           ))}
-          <span className="text-xs">Lucide · trazo 1.75 px</span>
+          <span className="label-mono">Lucide · trazo 1.5 px</span>
         </div>
       </Section>
 

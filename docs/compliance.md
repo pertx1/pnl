@@ -39,8 +39,8 @@ Mantenido por el subagente `seguridad-legal`. Cada módulo añade una entrada **
 - Datos guardados: ninguno. `next-themes` guarda la preferencia claro/oscuro en `localStorage`
   (estrictamente necesaria para una función pedida por el usuario → exenta de consentimiento, LSSI art. 22.2).
   Hay que mencionarla en la política de cookies.
-- Fuentes Sora, Inter y JetBrains Mono (SIL OFL), auto-alojadas. Iconos Lucide (ISC). Componentes shadcn/ui y Radix (MIT).
-- Logo: wordmark derivado de Sora (la OFL permite usar la fuente en un logo; el logo no es una redistribución de la fuente).
+- Fuentes Space Grotesk y JetBrains Mono (SIL OFL), auto-alojadas. Iconos Lucide (ISC). Componentes shadcn/ui y Radix (MIT).
+- Logo: wordmark derivado de Space Grotesk (la OFL permite usar la fuente en un logo; el logo no es una redistribución de la fuente).
 - Subencargados nuevos: Vercel Inc. y Supabase Inc. → añadir a la lista de subencargados y firmar sus DPA
   (ambos ofrecen DPA con cláusulas contractuales tipo para transferencias internacionales).
 - Riesgos: conflicto de marca "Kreo"; despliegues de vercel.app accesibles con enlace.

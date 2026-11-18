@@ -1,73 +1,76 @@
 # Kreo · Guía de marca y design system
 
-**Nombre:** Kreo ("creo" / crear). **Dirección visual:** C · Premium oscuro (elegida en Fase 0, 2026-11-18).
+**Nombre:** Kreo ("creo" / crear). **Dirección visual:** A · Terminal de crecimiento (elegida en Fase 0, 2026-11-18).
 **Claim:** *Crea, programa y crece.*
 
 > Pendiente por parte de Oier: comprobar dominio (kreo.com / .io / .app) y marca en EUIPO, OEPM y TMview
 > (clases 9, 35 y 42). Existen al menos "Kreo" (software de construcción) y "Kre-O" (juguetes), así que conviene
 > la opinión de un agente de propiedad industrial antes de registrar.
 
-## Por qué la C
-- Funciona con creadores y también con agencias y marcas, que son los clientes con más ticket (marca blanca, equipos).
-- Contraste AA en claro y oscuro (el lima de la A fallaba como color de texto en modo claro).
-- De la A se conserva la idea de **números en mono** para los datos.
+## Personalidad
+Herramienta de pro: oscura, precisa, orientada a datos. Se siente como un terminal de crecimiento.
+Fuerte con dropshippers, growth y creadores que viven en las métricas.
 
 ## Logo
 | Archivo | Uso |
 |---|---|
 | `public/brand/kreo-logo-on-dark.svg` | Logo completo sobre fondos oscuros |
-| `public/brand/kreo-logo-on-light.svg` | Logo completo sobre fondos claros |
-| `public/brand/kreo-mark.svg` | Símbolo solo (órbita + satélite) |
+| `public/brand/kreo-logo-on-light.svg` | Logo completo sobre fondos claros (verde oliva en vez de lima) |
+| `public/brand/kreo-mark.svg` | Símbolo solo (triángulo de crecimiento) |
 | `public/brand/kreo-app-icon.svg` · `src/app/icon.svg` | Icono de app / favicon |
-| `src/components/brand/logo.tsx` | `<KreoLogo />` y `<KreoMark />` (se adaptan al tema) |
+| `src/components/brand/logo.tsx` | `<KreoLogo />` (prop `blink` para animar el cursor) y `<KreoMark />` |
 
-- Wordmark: "KREO" en **Sora SemiBold**, tracking +16 %, convertido a trazos (no depende de la fuente).
-- Símbolo: órbita con degradado cian→magenta y un "satélite" magenta: el contenido que sale a orbitar.
-- Zona de respeto: la altura de la "K" alrededor del logo. Tamaño mínimo: 20 px de alto (símbolo 16 px).
-- No: cambiar colores del degradado, deformar, añadir sombras, poner el logo sobre fotos sin contraste.
+- Wordmark: "kreo" en minúsculas, **Space Grotesk Bold**, tracking −2 %, convertido a trazos.
+- Símbolo: triángulo rectángulo lima = gráfica que sube. Cursor de terminal "_" al final del nombre.
+- El cursor solo parpadea en la landing/hero, y nunca si el usuario tiene "reducir movimiento" activado.
+- Zona de respeto: la altura de la "k" alrededor. Tamaño mínimo: 20 px de alto (símbolo 16 px).
+- No: lima sobre fondos claros (usa la versión on-light), deformar, sombras, degradados.
 
 ## Color
 Tokens en `src/app/globals.css` (`:root` = claro, `.dark` = oscuro, **oscuro por defecto**).
-En Tailwind se usan como `bg-background`, `text-muted-foreground`, `bg-primary`, `text-brand-magenta`, `text-success`, etc.
+En Tailwind: `bg-background`, `text-muted-foreground`, `bg-primary`, `text-primary-ink`, `bg-brand-amber`, `text-success`...
+
+> **Regla del lima:** `--primary` (#C6F432) es para **rellenos** con texto oscuro encima (botones, badges, resaltados).
+> Para texto o iconos en color usa **`text-primary-ink`**: lima en oscuro y verde oliva #4A7300 en claro (contraste AA).
 
 | Token | Oscuro | Claro | Uso |
 |---|---|---|---|
-| `--background` | `#060A1A` | `#F5F7FD` | Fondo de página |
-| `--card` / `--popover` | `#0D1330` | `#FFFFFF` | Superficies |
-| `--secondary` / `--muted` | `#131B3F` | `#ECEFFA` | Superficie 2, rellenos suaves |
-| `--accent` | `#18214A` | `#E3E8F8` | Hover de menús |
-| `--border` | `#1F2A55` | `#D8DEF0` | Bordes |
-| `--input` | `#26326A` | `#C9D1EA` | Bordes de inputs |
-| `--foreground` | `#EAF0FF` | `#0A1030` | Texto |
-| `--muted-foreground` | `#8890B5` | `#596184` | Texto secundario |
-| `--primary` | `#22D3EE` | `#0E7490` | Acción principal, enlaces, foco |
-| `--primary-foreground` | `#04121A` | `#FFFFFF` | Texto sobre primario |
-| `--brand-cyan` | `#22D3EE` | `#0891B2` | Marca (degradado, gráficas) |
-| `--brand-magenta` | `#E040FB` | `#B21FCB` | Acento de marca e IA |
-| `--success` | `#34D399` | `#059669` | Publicado, subidas |
-| `--warning` | `#FBBF24` | `#B45309` | Pendiente, avisos anti-baneo |
-| `--destructive` | `#F43F5E` | `#E11D48` | Errores, borrar |
-| `--info` | `#818CF8` | `#4F46E5` | Información |
-| `--chart-1…5` | cian, magenta, índigo, verde, ámbar | versiones oscuras | Series de gráficas, en ese orden |
-
-Degradado de marca: `bg-brand-gradient` / `text-brand-gradient` (cian → magenta, 135°). Úsalo con moderación:
-botón de generar con IA, palabras clave del hero, símbolo. Nunca para texto largo.
+| `--background` | `#0A0C08` | `#F3F5EC` | Fondo de página |
+| `--card` / `--popover` | `#12150E` | `#FFFFFF` | Superficies |
+| `--secondary` / `--muted` | `#1A1E14` | `#E9EDDF` | Superficie 2 |
+| `--accent` | `#20251A` | `#E1E6D3` | Hover de menús |
+| `--border` | `#272C1F` | `#D5DBC7` | Bordes |
+| `--input` | `#333A28` | `#C3CAB2` | Bordes de inputs |
+| `--foreground` | `#E9EFE0` | `#11140C` | Texto |
+| `--muted-foreground` | `#8A9480` | `#5D6654` | Texto secundario |
+| `--primary` | `#C6F432` | `#C6F432` | Relleno de acción principal |
+| `--primary-foreground` | `#0A0C08` | `#0A0C08` | Texto sobre lima |
+| `--primary-ink` | `#C6F432` | `#4A7300` | Lima como color de texto/enlace |
+| `--brand-mark` | `#C6F432` | `#5E9100` | Símbolo del logo |
+| `--brand-amber` | `#FFB547` | `#FFB547` | Acciones de IA ("Generar"), segunda serie |
+| `--brand-amber-ink` | `#FFB547` | `#A15C00` | Ámbar como texto/icono |
+| `--success` | `#7CF29A` | `#1E8A4C` | Publicado, subidas |
+| `--warning` | `#FFB547` | `#B56A00` | Pendiente, avisos anti-baneo |
+| `--destructive` | `#FF5C5C` | `#D63B3B` | Errores, borrar |
+| `--info` | `#6CC6FF` | `#1F6FB2` | Información |
+| `--chart-1…5` | lima, ámbar, azul, violeta, rojo | versiones oscuras | Series de gráficas, en ese orden |
 
 ## Tipografía (Google Fonts, licencia SIL OFL, auto-alojadas con `next/font`)
 | Rol | Fuente | Clase | Uso |
 |---|---|---|---|
-| Títulos | Sora 600 | `font-heading` (automático en h1–h4) | Titulares, números grandes de KPIs |
-| Texto | Inter | `font-sans` (por defecto) | Interfaz y párrafos |
-| Datos | JetBrains Mono | `font-mono` + `tabular-nums` | Métricas, horas, créditos, IDs |
+| Títulos y texto | Space Grotesk | `font-heading` / `font-sans` | Toda la interfaz |
+| Datos | JetBrains Mono | `font-mono` + `tabular-nums` | Métricas, KPIs, horas, créditos, IDs |
+| Etiquetas | JetBrains Mono, MAYÚSCULAS, +12 % tracking | `label-mono` | Títulos de sección y de tarjeta |
 
 ## Forma, espacio e iconos
-- Radio base `--radius: 0.75rem` (12 px): tarjetas `rounded-xl`, inputs `rounded-lg`, **botones y badges en píldora**.
-- Iconos: **Lucide**, trazo 1.75 px, tamaño 16 px en interfaz y 20 px en navegación.
-- Espaciado en múltiplos de 4 px; tarjetas con padding de 16–24 px.
+- Radio base `--radius: 0.375rem` (6 px): esquinas casi rectas. Botones `rounded-md`, badges `rounded-sm`.
+- Iconos: **Lucide**, trazo 1.5 px, sin relleno. 16 px en interfaz, 20 px en navegación.
+- Espaciado en múltiplos de 4 px. Elemento activo del menú lateral: barra lima de 2 px a la izquierda.
+- Gráficas con rejilla discontinua.
 
 ## Componentes
 - Base: shadcn/ui (estilo *radix-nova*) en `src/components/ui/`, personalizados con los tokens anteriores.
-  Botón con variante extra `brand` (degradado) para acciones de IA.
+  Botón con variante extra `brand` (ámbar) para acciones de IA.
 - Propios de Kreo en `src/components/kreo/`:
   - `StatusBadge`: borrador · pendiente de aprobación · programado · publicado · error.
   - `AiBadge`: etiqueta "Generado con IA" (obligatoria; AI Act + etiquetas de las plataformas).
@@ -76,9 +79,10 @@ botón de generar con IA, palabras clave del hero, símbolo. Nunca para texto la
 - Escaparate en vivo: **`/design-system`** (con conmutador de modo claro/oscuro).
 
 ## Tono de voz
-Profesional, seguro y conciso; habla de resultados. Segunda persona ("tú"). Frases cortas, sin exageraciones
-ni promesas de viralidad. Ejemplos: "3 publicaciones esperan tu aprobación." · "Rendimiento semanal: +38 % de alcance."
+Directo, técnico y con números. Frases cortas, sin relleno. Segunda persona ("tú"). Sin promesas de viralidad.
+Ejemplos: "+38 % de views esta semana. Tu mejor hora: 19:00." · "3 posts listos. Apruébalos y salen a su hora." ·
+"Outlier detectado: 6,2× la media del canal."
 
 ## Accesibilidad
 - Contraste WCAG AA comprobado para texto principal, secundario y botones en los dos modos.
-- Foco visible (`ring` cian) en todos los controles. No usar solo color para transmitir estado: los badges llevan texto.
+- Foco visible (`ring` lima en oscuro, verde en claro) en todos los controles. No usar solo color para transmitir estado: los badges llevan texto.
