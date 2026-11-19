@@ -502,7 +502,8 @@
       "ai_image": "Imagen con IA",
       "ai_video": "Vídeo con IA",
       "ai_text": "Texto con IA",
-      "monthly_grant": "Créditos mensuales"
+      "monthly_grant": "Créditos mensuales",
+      "founder_grant": "Créditos internos del equipo"
     },
     "status": {
       "pending": "Pendiente",

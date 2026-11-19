@@ -502,7 +502,8 @@
       "ai_image": "AI image",
       "ai_video": "AI video",
       "ai_text": "AI text",
-      "monthly_grant": "Monthly credits"
+      "monthly_grant": "Monthly credits",
+      "founder_grant": "Internal team credits"
     },
     "status": {
       "pending": "Pending",
