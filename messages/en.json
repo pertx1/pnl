@@ -25,7 +25,9 @@
     "forbidden": "You don't have permission to do this.",
     "plan_limit_projects": "You've reached your plan's project limit.",
     "insufficient_credits": "You don't have enough credits.",
-    "not_found": "Not found."
+    "not_found": "Not found.",
+    "transfer_ownership_required": "Transfer ownership of your shared workspaces before deleting your account.",
+    "mfa_invalid": "Wrong code. Try again."
   },
   "auth": {
     "loginTitle": "Sign in to Kreo",
@@ -111,8 +113,7 @@
     "examplesHint": "Links and notes only: we never download third-party content.",
     "exampleUrl": "Link",
     "exampleNote": "What do you like about it?",
-    "logo": "Logo",
-    "logoSoon": "Logo upload is coming in the next iteration."
+    "logo": "Logo"
   },
   "credits": {
     "balance": "Credits",
@@ -124,5 +125,101 @@
     "terms": "Terms and conditions",
     "cookies": "Cookie policy",
     "notice": "Legal notice"
+  },
+  "waitlistEmail": {
+    "subject": "Confirm your spot on the Kreo waitlist",
+    "title": "Confirm your spot",
+    "p1": "Thanks for joining the Kreo waitlist.",
+    "p2": "Click the button to confirm your email. If it wasn't you, ignore this message: we won't add you.",
+    "cta": "Confirm my spot",
+    "footer": "You're receiving this because someone signed up with this address on kreo.",
+    "unsubscribe": "Unsubscribe"
+  },
+  "waitlistPage": {
+    "confirmedTitle": "Spot confirmed!",
+    "position": "Your position: #{position} of {total}",
+    "referrals": "{count, plural, =0 {You haven't invited anyone yet} one {You've invited # person} other {You've invited # people}}",
+    "shareTitle": "Move up by inviting friends",
+    "shareBody": "Everyone who joins and confirms with your link moves you up the list.",
+    "copy": "Copy link",
+    "copied": "Link copied",
+    "invalidTitle": "Invalid link",
+    "invalidBody": "This link has expired or was already used. Join again from the home page.",
+    "unsubscribedTitle": "You've unsubscribed",
+    "unsubscribedBody": "We've deleted your email from the waitlist. You won't receive more messages.",
+    "home": "Go to the home page",
+    "ad": "If you share your link on social media, make clear it's a personal waitlist invite."
+  },
+  "auth_extra": {
+    "forgot": "Forgot your password?",
+    "forgotTitle": "Reset your password",
+    "forgotSubtitle": "We'll send you a link to create a new one.",
+    "sendLink": "Send link",
+    "sending": "Sending…",
+    "forgotSent": "If an account exists for {email}, you'll receive a link in a few minutes.",
+    "mfaTitle": "Two-step verification",
+    "mfaSubtitle": "Enter the 6-digit code from your authenticator app.",
+    "code": "Code",
+    "verify": "Verify",
+    "verifying": "Verifying…",
+    "mfaInvalid": "Wrong code. Try again."
+  },
+  "settings": {
+    "title": "Account settings",
+    "profile": "Profile",
+    "profileBody": "How your team members will see you.",
+    "name": "Name",
+    "email": "Email",
+    "security": "Security",
+    "password": "Change password",
+    "newPassword": "New password",
+    "passwordUpdated": "Password updated",
+    "mfa": "Two-step verification (2FA)",
+    "mfaBody": "Protect your account with an authenticator app (Google Authenticator, 1Password, Authy…).",
+    "mfaOn": "On",
+    "mfaOff": "Off",
+    "mfaEnable": "Enable 2FA",
+    "mfaDisable": "Disable 2FA",
+    "mfaScan": "Scan the QR code with your app and enter the code it shows.",
+    "mfaSecret": "Can't scan it? Enter this key:",
+    "mfaEnabled": "2FA enabled",
+    "mfaDisabled": "2FA disabled",
+    "mfaNeedAal2": "To disable it, sign in again verifying your code.",
+    "data": "Privacy and data",
+    "dataBody": "Your rights under the GDPR.",
+    "export": "Download my data",
+    "exportBody": "A JSON file with your profile, workspaces, projects, brand kits and credit history.",
+    "delete": "Delete my account",
+    "deleteBody": "Your account and the workspaces where you're the only member will be deleted, with all their projects and files. This can't be undone.",
+    "deleteConfirm": "Type your email to confirm",
+    "deleteButton": "Delete permanently",
+    "deleting": "Deleting…",
+    "deleteBlocked": "You own workspaces with other members ({names}). Transfer ownership before deleting your account.",
+    "deleteMismatch": "The email doesn't match.",
+    "deleted": "Your account has been deleted. Thanks for trying Kreo."
+  },
+  "brandKitLogo": {
+    "upload": "Upload logo",
+    "replace": "Change logo",
+    "remove": "Remove logo",
+    "uploading": "Uploading…",
+    "hint": "PNG, JPG or WEBP. Max 5 MB.",
+    "tooBig": "The file is larger than 5 MB.",
+    "badType": "File type not allowed."
+  },
+  "cookieBanner": {
+    "title": "Cookies",
+    "body": "We only use technical cookies required for Kreo to work (session, language). If we ever add analytics or marketing, they'll only be enabled if you accept them.",
+    "necessary": "Necessary",
+    "necessaryBody": "Session, language, workspace and your cookie choice. Always on.",
+    "analytics": "Analytics",
+    "analyticsBody": "Measure site usage in aggregate. We don't use any right now.",
+    "marketing": "Marketing",
+    "marketingBody": "Measure campaigns and affiliates. We don't use any right now.",
+    "acceptAll": "Accept all",
+    "rejectAll": "Necessary only",
+    "customize": "Customize",
+    "save": "Save preferences",
+    "policy": "Cookie policy"
   }
 }

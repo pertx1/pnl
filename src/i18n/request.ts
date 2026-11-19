@@ -13,8 +13,10 @@ export default getRequestConfig(async () => {
     const preferred = accept.split(",")[0]?.trim().slice(0, 2).toLowerCase();
     if (isLocale(preferred)) locale = preferred;
   }
-  return {
-    locale,
-    messages: (await import(`../../messages/${locale}.json`)).default,
-  };
+  // Mensajes de la app + mensajes de la landing (archivo aparte para trabajar en paralelo sin conflictos).
+  const [app, landing] = await Promise.all([
+    import(`../../messages/${locale}.json`),
+    import(`../../messages/landing/${locale}.json`),
+  ]);
+  return { locale, messages: { ...app.default, ...landing.default } };
 });

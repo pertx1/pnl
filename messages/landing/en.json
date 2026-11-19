@@ -1,0 +1,294 @@
+{
+  "landing": {
+    "meta": {
+      "title": "Kreo · Create, schedule and grow",
+      "description": "The all-in-one platform for creators, dropshippers, brands and agencies: create content with AI, schedule it on TikTok, Instagram and YouTube through official APIs and measure what works.",
+      "ogTitle": "Kreo · Create, schedule and grow",
+      "ogDescription": "Create with AI, schedule through official APIs and measure what works. You approve every post."
+    },
+    "nav": {
+      "skip": "Skip to content",
+      "primary": "Main navigation",
+      "home": "Kreo, go to home",
+      "features": "Features",
+      "how": "How it works",
+      "pricing": "Pricing",
+      "faq": "FAQ",
+      "blog": "Blog",
+      "login": "Log in",
+      "join": "Join the waitlist",
+      "joinShort": "Waitlist",
+      "openMenu": "Open menu",
+      "closeMenu": "Close menu",
+      "theme": "Toggle light/dark mode"
+    },
+    "hero": {
+      "eyebrow": "status: waitlist open",
+      "title": "Create, schedule and <hl>grow</hl>.",
+      "subtitle": "One tool for creators, dropshippers, brands and agencies: generate content with AI, schedule it on your socials through official APIs and measure what works. You approve every post.",
+      "audiences": "For creators · dropshippers · brands · agencies",
+      "formNote": "No card needed. We'll let you know when spots open."
+    },
+    "mock": {
+      "label": "Sample view of the Kreo dashboard",
+      "caption": "Sample view · fictional data",
+      "project": "Project: Nordic Store",
+      "views": "Views 7d",
+      "followers": "Followers",
+      "engagement": "Engagement",
+      "viewsValue": "128.4K",
+      "followersValue": "9,312",
+      "engagementValue": "6.8%",
+      "viewsDelta": "+38% weekly",
+      "followersDelta": "+412 this week",
+      "engagementDelta": "−0.3 pp",
+      "calendar": "Calendar · week 47",
+      "days": {
+        "mon": "Mon",
+        "tue": "Tue",
+        "wed": "Wed",
+        "thu": "Thu",
+        "fri": "Fri"
+      },
+      "post1": "Lamp unboxing",
+      "post2": "3 autumn hooks",
+      "post3": "Before / after",
+      "post4": "30 s tutorial",
+      "status": {
+        "draft": "Draft",
+        "pending_approval": "Pending",
+        "scheduled": "Scheduled",
+        "published": "Published",
+        "error": "Error"
+      },
+      "ai": "AI-generated",
+      "approve": "Approve",
+      "bestHour": "Your best hour: 7 pm"
+    },
+    "features": {
+      "label": "Features",
+      "title": "Everything you need to grow, in one dashboard.",
+      "subtitle": "We start with the essentials and keep adding modules. Anything marked \"Coming soon\" is not available yet.",
+      "soon": "Coming soon",
+      "available": "At launch",
+      "items": {
+        "projects": {
+          "title": "Projects and accounts",
+          "desc": "Keep each brand or client in its own project and connect its accounts with each network's official login."
+        },
+        "ai": {
+          "title": "AI Studio",
+          "desc": "Generate images and captions in your brand's style. Everything is labelled as AI-generated and you decide what gets published."
+        },
+        "clipper": {
+          "title": "Clipper",
+          "desc": "Turn long videos you own the rights to into vertical clips with captions."
+        },
+        "calendar": {
+          "title": "Calendar and publishing",
+          "desc": "Plan by month, week or list and publish to TikTok, Instagram and YouTube through their official APIs."
+        },
+        "analytics": {
+          "title": "Analytics",
+          "desc": "Views, followers and engagement for your own accounts, with your best posting time and best formats."
+        },
+        "competitors": {
+          "title": "Competitors",
+          "desc": "Follow public accounts using data the platforms allow us to query. Estimated figures are labelled as such."
+        },
+        "winners": {
+          "title": "Winning products",
+          "desc": "Dropshipping product ideas from public and official sources, with clear estimated-data notices."
+        },
+        "hooks": {
+          "title": "Hook library",
+          "desc": "Save and organise the hooks and structures that work for you and reuse them in new scripts."
+        },
+        "inbox": {
+          "title": "Unified inbox",
+          "desc": "Comments and messages from your accounts in one place, only where an official API exists."
+        },
+        "strategy": {
+          "title": "Strategy and roadmap",
+          "desc": "Goals, content pillars and a weekly plan that AI suggests and you fine-tune."
+        },
+        "shopify": {
+          "title": "Shopify",
+          "desc": "Connect your store with the official app to create content from your products."
+        },
+        "reports": {
+          "title": "White-label reports",
+          "desc": "PDF reports with your agency's logo to send to your clients."
+        },
+        "team": {
+          "title": "Team and roles",
+          "desc": "Invite your team or clients with role-based permissions and approval flows."
+        },
+        "mcp": {
+          "title": "Claude integration (MCP)",
+          "desc": "Query your data and prepare drafts from Claude. Publishing always requires your approval."
+        }
+      }
+    },
+    "trust": {
+      "label": "Trust",
+      "title": "100% official. No tricks that put your accounts at risk.",
+      "subtitle": "Kreo is designed to follow each platform's rules from day one.",
+      "items": {
+        "official": {
+          "title": "Official APIs and OAuth only",
+          "desc": "You connect your accounts with each network's official login. We never ask for your password and we never use unofficial APIs or logged-in scraping."
+        },
+        "approve": {
+          "title": "AI suggests, you approve",
+          "desc": "Nothing is published without your explicit approval. We don't automate likes, follows or comments."
+        },
+        "limits": {
+          "title": "Anti-ban limits",
+          "desc": "We respect each platform's posting limits and add our own safety margins. If something could be a risk, we warn you first."
+        },
+        "labels": {
+          "title": "AI content labelled",
+          "desc": "Everything generated with AI is labelled as such, in Kreo and with each network's labels, as the AI Act and the platforms require."
+        },
+        "eu": {
+          "title": "Data in the EU",
+          "desc": "Your data is hosted on servers in the European Union. You can revoke access to your accounts at any time."
+        }
+      },
+      "disclaimer": "Kreo does not promise virality or specific results. Each platform applies its own community guidelines and makes its own decisions about accounts."
+    },
+    "how": {
+      "label": "How it works",
+      "title": "Three steps. You're in control in all of them.",
+      "steps": {
+        "connect": {
+          "title": "Connect",
+          "desc": "Create a project and link your accounts with the official TikTok, Instagram or YouTube login."
+        },
+        "create": {
+          "title": "Create and plan",
+          "desc": "Generate ideas and images with AI or upload your own content. Place it on the calendar at the time you prefer."
+        },
+        "approve": {
+          "title": "Approve and measure",
+          "desc": "Review each post and approve it. It goes out on time and you see its results in your analytics."
+        }
+      }
+    },
+    "pricing": {
+      "label": "Pricing",
+      "title": "Simple plans. Pricing to be announced.",
+      "subtitle": "We're still finalising prices. People on the waitlist will hear about them first.",
+      "tba": "Price to be announced",
+      "popular": "Recommended",
+      "plans": {
+        "free": {
+          "name": "Free",
+          "desc": "To try Kreo with your own brand.",
+          "f1": "1 project",
+          "f2": "Calendar and publishing",
+          "f3": "Welcome AI credits"
+        },
+        "pro": {
+          "name": "Pro",
+          "desc": "For creators and brands who post every week.",
+          "f1": "Multiple projects",
+          "f2": "Full analytics",
+          "f3": "Monthly AI credits"
+        },
+        "agency": {
+          "name": "Agency",
+          "desc": "For teams managing several clients.",
+          "f1": "Team and roles",
+          "f2": "Client approval flows",
+          "f3": "White-label reports (coming soon)"
+        }
+      },
+      "creditsNote": "AI actions use credits. You'll always see the credit cost before confirming, and credits are never spent without your approval.",
+      "cta": "Join the waitlist"
+    },
+    "faq": {
+      "label": "FAQ",
+      "title": "Frequently asked questions",
+      "items": {
+        "safe": {
+          "q": "Is it safe to connect my accounts?",
+          "a": "Yes. You connect them with each platform's official login (OAuth): we never see or store your password. We only request the permissions each feature needs, and you can revoke access at any time, from Kreo or from the network itself."
+        },
+        "permission": {
+          "q": "Do you post without my permission?",
+          "a": "No. AI can suggest ideas, captions or images, but every post needs your explicit approval before it's scheduled. We don't automate likes, follows or comments either."
+        },
+        "data": {
+          "q": "What happens to my data?",
+          "a": "It's hosted on servers in the EU and only used to provide the service. We don't sell it. You'll be able to export it or delete your account whenever you want. Details are in the privacy policy."
+        },
+        "dms": {
+          "q": "Can I use it with TikTok direct messages?",
+          "a": "Not yet. TikTok doesn't offer a public direct-messages API for this use, and Kreo only uses official channels. It will show as \"Coming soon\" until one exists."
+        },
+        "credits": {
+          "q": "What are credits?",
+          "a": "They're the unit used to pay for AI actions, such as generating an image. Each plan includes an amount, and you'll always see the credit cost before confirming an action."
+        },
+        "results": {
+          "q": "Do you guarantee more followers or viral videos?",
+          "a": "No. Nobody can honestly guarantee that. Kreo helps you create consistently, post at good times and understand your data; results depend on your content and on each platform."
+        },
+        "platforms": {
+          "q": "Which networks do you support?",
+          "a": "At launch: TikTok, Instagram and YouTube, through their official APIs and subject to their approval. We'll add others when they offer an official channel."
+        },
+        "rights": {
+          "q": "Can I upload any video to the Clipper?",
+          "a": "Only content you own the rights to or have permission to use. We'll ask you to confirm this before processing each video."
+        }
+      }
+    },
+    "waitlist": {
+      "label": "Waitlist",
+      "title": "Save your spot.",
+      "subtitle": "We'll open in batches. We'll only email you to confirm your spot and share waitlist news.",
+      "email": "Email",
+      "emailPlaceholder": "you@email.com",
+      "emailInvalid": "Enter a valid email.",
+      "consent": "I agree to receive the confirmation email and waitlist news. More information in the <privacy>privacy policy</privacy>.",
+      "consentRequired": "We need your consent to add you.",
+      "submit": "Join the waitlist",
+      "submitShort": "Join",
+      "submitting": "Sending…",
+      "honeypot": "Do not fill in this field",
+      "successTitle": "Almost there.",
+      "successBody": "Check your email ({email}) to confirm your spot (double opt-in).",
+      "unsubscribe": "You can unsubscribe at any time from the link in every email."
+    },
+    "footer": {
+      "tagline": "Create, schedule and grow. With official APIs and your approval at every step.",
+      "product": "Product",
+      "resources": "Resources",
+      "legal": "Legal",
+      "privacy": "Privacy",
+      "terms": "Terms",
+      "cookies": "Cookies",
+      "notice": "Legal notice",
+      "affiliates": "Affiliates",
+      "blog": "Blog",
+      "cookiePrefs": "Cookie preferences",
+      "rights": "© {year} Kreo. All rights reserved."
+    },
+    "blog": {
+      "label": "Blog",
+      "title": "Kreo blog",
+      "description": "Practical guides to create, publish and grow on social media without putting your accounts at risk.",
+      "readMore": "Read article",
+      "back": "Back to the blog",
+      "empty": "No articles yet.",
+      "languages": {
+        "es": "In Spanish",
+        "en": "In English"
+      },
+      "published": "Published on"
+    }
+  }
+}

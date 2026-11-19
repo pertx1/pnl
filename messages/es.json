@@ -25,7 +25,9 @@
     "forbidden": "No tienes permisos para hacer esto.",
     "plan_limit_projects": "Has llegado al límite de proyectos de tu plan.",
     "insufficient_credits": "No tienes créditos suficientes.",
-    "not_found": "No encontrado."
+    "not_found": "No encontrado.",
+    "transfer_ownership_required": "Transfiere la propiedad de tus espacios compartidos antes de borrar la cuenta.",
+    "mfa_invalid": "Código incorrecto. Inténtalo de nuevo."
   },
   "auth": {
     "loginTitle": "Entra en Kreo",
@@ -111,8 +113,7 @@
     "examplesHint": "Solo enlaces y notas: no descargamos contenido de terceros.",
     "exampleUrl": "Enlace",
     "exampleNote": "¿Qué te gusta?",
-    "logo": "Logo",
-    "logoSoon": "La subida de logo llega en la siguiente iteración."
+    "logo": "Logo"
   },
   "credits": {
     "balance": "Créditos",
@@ -124,5 +125,101 @@
     "terms": "Términos y condiciones",
     "cookies": "Política de cookies",
     "notice": "Aviso legal"
+  },
+  "waitlistEmail": {
+    "subject": "Confirma tu plaza en la lista de espera de Kreo",
+    "title": "Confirma tu plaza",
+    "p1": "Gracias por apuntarte a la lista de espera de Kreo.",
+    "p2": "Pulsa el botón para confirmar tu email. Si no has sido tú, ignora este mensaje: no te apuntaremos.",
+    "cta": "Confirmar mi plaza",
+    "footer": "Recibes este email porque alguien se apuntó con esta dirección en kreo.",
+    "unsubscribe": "Darme de baja"
+  },
+  "waitlistPage": {
+    "confirmedTitle": "¡Plaza confirmada!",
+    "position": "Tu posición: #{position} de {total}",
+    "referrals": "{count, plural, =0 {Aún no has invitado a nadie} one {Has invitado a # persona} other {Has invitado a # personas}}",
+    "shareTitle": "Sube puestos invitando a amigos",
+    "shareBody": "Cada persona que se apunte y confirme con tu enlace te adelanta en la lista.",
+    "copy": "Copiar enlace",
+    "copied": "Enlace copiado",
+    "invalidTitle": "Enlace no válido",
+    "invalidBody": "El enlace ha caducado o ya se usó. Vuelve a apuntarte desde la página principal.",
+    "unsubscribedTitle": "Te has dado de baja",
+    "unsubscribedBody": "Hemos borrado tu email de la lista de espera. No recibirás más mensajes.",
+    "home": "Ir a la página principal",
+    "ad": "Si compartes tu enlace en redes, indica que es una invitación personal a una lista de espera."
+  },
+  "auth_extra": {
+    "forgot": "¿Has olvidado la contraseña?",
+    "forgotTitle": "Recupera tu contraseña",
+    "forgotSubtitle": "Te enviaremos un enlace para crear una nueva.",
+    "sendLink": "Enviar enlace",
+    "sending": "Enviando…",
+    "forgotSent": "Si existe una cuenta con {email}, recibirás un enlace en unos minutos.",
+    "mfaTitle": "Verificación en dos pasos",
+    "mfaSubtitle": "Introduce el código de 6 dígitos de tu app de autenticación.",
+    "code": "Código",
+    "verify": "Verificar",
+    "verifying": "Verificando…",
+    "mfaInvalid": "Código incorrecto. Inténtalo de nuevo."
+  },
+  "settings": {
+    "title": "Ajustes de la cuenta",
+    "profile": "Perfil",
+    "profileBody": "Cómo te verán los miembros de tu equipo.",
+    "name": "Nombre",
+    "email": "Email",
+    "security": "Seguridad",
+    "password": "Cambiar contraseña",
+    "newPassword": "Nueva contraseña",
+    "passwordUpdated": "Contraseña actualizada",
+    "mfa": "Verificación en dos pasos (2FA)",
+    "mfaBody": "Protege tu cuenta con una app de autenticación (Google Authenticator, 1Password, Authy…).",
+    "mfaOn": "Activada",
+    "mfaOff": "Desactivada",
+    "mfaEnable": "Activar 2FA",
+    "mfaDisable": "Desactivar 2FA",
+    "mfaScan": "Escanea el código QR con tu app y escribe el código que muestra.",
+    "mfaSecret": "¿No puedes escanearlo? Introduce esta clave:",
+    "mfaEnabled": "2FA activada",
+    "mfaDisabled": "2FA desactivada",
+    "mfaNeedAal2": "Para desactivarla, vuelve a entrar verificando tu código.",
+    "data": "Privacidad y datos",
+    "dataBody": "Tus derechos según el RGPD.",
+    "export": "Descargar mis datos",
+    "exportBody": "Un archivo JSON con tu perfil, espacios de trabajo, proyectos, brand kits y movimientos de créditos.",
+    "delete": "Borrar mi cuenta",
+    "deleteBody": "Se borrarán tu cuenta y los espacios de trabajo en los que eres el único miembro, con todos sus proyectos y archivos. No se puede deshacer.",
+    "deleteConfirm": "Escribe tu email para confirmar",
+    "deleteButton": "Borrar definitivamente",
+    "deleting": "Borrando…",
+    "deleteBlocked": "Eres el propietario de espacios con otros miembros ({names}). Transfiere la propiedad antes de borrar tu cuenta.",
+    "deleteMismatch": "El email no coincide.",
+    "deleted": "Tu cuenta se ha borrado. Gracias por probar Kreo."
+  },
+  "brandKitLogo": {
+    "upload": "Subir logo",
+    "replace": "Cambiar logo",
+    "remove": "Quitar logo",
+    "uploading": "Subiendo…",
+    "hint": "PNG, JPG o WEBP. Máx. 5 MB.",
+    "tooBig": "El archivo supera 5 MB.",
+    "badType": "Formato no permitido."
+  },
+  "cookieBanner": {
+    "title": "Cookies",
+    "body": "Usamos solo cookies técnicas necesarias para que Kreo funcione (sesión, idioma). Si en el futuro añadimos analítica o marketing, solo se activarán si las aceptas.",
+    "necessary": "Necesarias",
+    "necessaryBody": "Sesión, idioma, espacio de trabajo y tu elección de cookies. Siempre activas.",
+    "analytics": "Analítica",
+    "analyticsBody": "Medir el uso de la web de forma agregada. Ahora mismo no usamos ninguna.",
+    "marketing": "Marketing",
+    "marketingBody": "Medir campañas y afiliados. Ahora mismo no usamos ninguna.",
+    "acceptAll": "Aceptar todas",
+    "rejectAll": "Solo necesarias",
+    "customize": "Configurar",
+    "save": "Guardar preferencias",
+    "policy": "Política de cookies"
   }
 }
