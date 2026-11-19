@@ -8,12 +8,14 @@ export async function generateMetadata() {
   return { title: t("new") };
 }
 
-export default async function NewPostPage({ params, searchParams }: { params: Promise<{ projectId: string }>; searchParams: Promise<{ date?: string }> }) {
+export default async function NewPostPage({ params, searchParams }: { params: Promise<{ projectId: string }>; searchParams: Promise<{ date?: string; caption?: string }> }) {
   const { projectId } = await params;
-  const { date } = await searchParams;
+  const { date, caption } = await searchParams;
   const project = await getProject(projectId);
   const { accounts, assets } = await getEditorData(projectId);
   const initialDate = date && /^\d{4}-\d{2}-\d{2}$/.test(date) ? `${date}T19:00` : "";
+  // Borrador inicial (p. ej. "Crear algo parecido" desde Inspiración). Solo texto; el usuario lo revisa antes de nada.
+  const initialCaption = typeof caption === "string" ? caption.slice(0, 5000) : "";
   return (
     <PostEditor
       projectId={projectId}
@@ -23,7 +25,7 @@ export default async function NewPostPage({ params, searchParams }: { params: Pr
       library={assets}
       canEdit={roleAtLeast(project.workspace.role, "editor")}
       canApprove={roleAtLeast(project.workspace.role, "admin")}
-      initial={{ title: "", caption: "", scheduledLocal: initialDate, aiGenerated: false, assetIds: [], targets: [], status: "draft" }}
+      initial={{ title: "", caption: initialCaption, scheduledLocal: initialDate, aiGenerated: false, assetIds: [], targets: [], status: "draft" }}
     />
   );
 }
