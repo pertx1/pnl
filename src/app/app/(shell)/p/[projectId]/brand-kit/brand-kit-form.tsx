@@ -152,12 +152,6 @@ export function BrandKitForm({ projectId, initial, readOnly }: { projectId: stri
           </CardContent>
         </Card>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>{t("logo")}</CardTitle>
-            <CardDescription>{t("logoSoon")}</CardDescription>
-          </CardHeader>
-        </Card>
       </fieldset>
 
       <FormError error={error} />

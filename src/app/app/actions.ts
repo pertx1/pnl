@@ -98,3 +98,34 @@ export async function updateBrandKit(input: BrandKitInput): Promise<ActionState>
   revalidatePath(`/app/p/${projectId}/brand-kit`);
   return { ok: true };
 }
+
+// ---------------------------------------------------------------- logo del brand kit
+
+/**
+ * Guarda (o quita, con path = null) el logo del brand kit. El archivo ya se ha subido desde el navegador
+ * a `brand-assets/{workspaceId}/{projectId}/...` (RLS de Storage exige rol editor). Aquí validamos la ruta,
+ * actualizamos el brand kit y borramos el logo anterior.
+ */
+export async function setBrandLogo(projectId: string, path: string | null): Promise<ActionState> {
+  if (!z.uuid().safeParse(projectId).success) return { error: "invalid_input" };
+  const supabase = await createClient();
+  const { data: kit, error: kitErr } = await supabase
+    .from("brand_kits")
+    .select("workspace_id, logo_path")
+    .eq("project_id", projectId)
+    .maybeSingle();
+  if (kitErr || !kit) return { error: "not_found" };
+
+  const prefix = `${kit.workspace_id}/${projectId}/`;
+  if (path !== null && (!path.startsWith(prefix) || !/^[0-9a-f-]+\/[0-9a-f-]+\/logo-\d+\.(png|jpe?g|webp)$/.test(path))) {
+    return { error: "invalid_input" };
+  }
+
+  const { data, error } = await supabase.from("brand_kits").update({ logo_path: path }).eq("project_id", projectId).select("project_id");
+  if (error) return { error: toErrorKey(error) };
+  if (!data?.length) return { error: "forbidden" };
+
+  if (kit.logo_path && kit.logo_path !== path) await supabase.storage.from("brand-assets").remove([kit.logo_path]);
+  revalidatePath(`/app/p/${projectId}/brand-kit`);
+  return { ok: true };
+}
