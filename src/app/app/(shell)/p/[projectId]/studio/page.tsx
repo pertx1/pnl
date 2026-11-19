@@ -1,11 +1,13 @@
 import { getTranslations } from "next-intl/server";
+import { Download } from "lucide-react";
 import { AiBadge } from "@/components/kreo/ai-badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { IMAGE_MODELS } from "@/lib/ai/catalog";
+import { creditsFor, MODELS } from "@/lib/ai/catalog";
 import { isFalConfigured } from "@/lib/ai/providers/fal";
 import { getCreditBalance, getProject, roleAtLeast } from "@/lib/server/dal";
 import { getEditorData } from "@/lib/server/posts";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { createClient } from "@/lib/supabase/server";
 import { StudioForm } from "./studio-form";
 
 export async function generateMetadata() {
@@ -17,9 +19,13 @@ export default async function StudioPage({ params }: { params: Promise<{ project
   const { projectId } = await params;
   const t = await getTranslations("studio");
   const project = await getProject(projectId);
-  const [balance, { assets }] = await Promise.all([getCreditBalance(project.workspace_id), getEditorData(projectId)]);
+  const supabase = await createClient();
+  const [balance, { assets }, { data: running }] = await Promise.all([
+    getCreditBalance(project.workspace_id),
+    getEditorData(projectId),
+    supabase.from("ai_generations").select("id").eq("project_id", projectId).eq("kind", "video").eq("status", "running").order("created_at"),
+  ]);
   const enabled = isFalConfigured() && Boolean(createAdminClient()) && roleAtLeast(project.workspace.role, "editor");
-  const images = assets.filter((a) => a.mime.startsWith("image/"));
 
   return (
     <div className="mx-auto max-w-5xl space-y-6">
@@ -39,7 +45,20 @@ export default async function StudioPage({ params }: { params: Promise<{ project
         projectId={projectId}
         balance={balance}
         enabled={enabled}
-        models={IMAGE_MODELS.map((m) => ({ id: m.id, label: m.label, credits: m.credits, licenseName: m.license.name, licenseUrl: m.license.url }))}
+        pendingIds={(running ?? []).map((r) => r.id)}
+        images={assets.filter((a) => a.mime.startsWith("image/")).map((a) => ({ id: a.id, url: a.url }))}
+        models={MODELS.map((m) => ({
+          id: m.id,
+          kind: m.kind,
+          label: m.label,
+          tagline: m.tagline,
+          tier: m.tier,
+          usdPerUnit: m.usdPerUnit,
+          durations: m.durations ?? [],
+          needsImage: Boolean(m.needsImage),
+          modelPage: m.modelPage,
+          creditsByDuration: Object.fromEntries((m.durations ?? [0]).map((dur) => [dur, creditsFor(m, dur || undefined)])),
+        }))}
       />
 
       <Card>
@@ -47,17 +66,27 @@ export default async function StudioPage({ params }: { params: Promise<{ project
           <CardTitle>{t("gallery")}</CardTitle>
         </CardHeader>
         <CardContent>
-          {images.length === 0 ? (
+          {assets.length === 0 ? (
             <p className="text-sm text-muted-foreground">{t("galleryEmpty")}</p>
           ) : (
             <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
-              {images.map((a) => (
+              {assets.map((a) => (
                 <figure key={a.id} className="overflow-hidden rounded-lg border bg-secondary">
-                  {a.url && (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img src={a.url} alt="" className="aspect-square w-full object-cover" />
-                  )}
-                  <figcaption className="flex items-center justify-between p-2">{a.ai ? <AiBadge /> : <span />}</figcaption>
+                  {a.url &&
+                    (a.mime.startsWith("video/") ? (
+                      <video src={a.url} className="aspect-square w-full object-cover" controls muted playsInline preload="metadata" />
+                    ) : (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img src={a.url} alt="" className="aspect-square w-full object-cover" />
+                    ))}
+                  <figcaption className="flex items-center justify-between gap-2 p-2">
+                    {a.ai ? <AiBadge /> : <span />}
+                    {a.url && (
+                      <a href={a.url} download className="text-muted-foreground hover:text-foreground" aria-label={t("download")}>
+                        <Download className="size-4" />
+                      </a>
+                    )}
+                  </figcaption>
                 </figure>
               ))}
             </div>

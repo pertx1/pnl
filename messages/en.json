@@ -424,28 +424,45 @@
   },
   "studio": {
     "title": "AI Studio",
-    "subtitle": "Generate images in your brand's style. Everything generated is labeled as AI content.",
-    "prompt": "Describe the image",
-    "promptPlaceholder": "Still life of a serum on light stone, natural morning light, editorial style",
+    "subtitle": "Generate images and videos with several models. Everything generated is labeled as AI content.",
+    "tabImage": "Image",
+    "tabVideo": "Video",
+    "prompt": "Describe what you want",
+    "promptPlaceholderImage": "Still life of a serum on light stone, natural morning light, editorial style",
+    "promptPlaceholderVideo": "Slow orbit shot around a serum on light stone, morning light, ad style",
     "aspect": "Format",
     "aspects": {
-      "square": "Square 1:1",
-      "portrait": "Portrait 3:4",
-      "landscape": "Landscape 16:9",
-      "story": "Story / Reel 9:16"
+      "1:1": "Square 1:1",
+      "9:16": "Vertical 9:16 (Reels/TikTok)",
+      "16:9": "Landscape 16:9",
+      "4:5": "Vertical 4:5 (feed)"
     },
     "model": "Model",
+    "duration": "Duration",
+    "seconds": "{n} s",
+    "sourceImage": "Source image",
+    "sourceImageHint": "This model animates an image from your library. Generate or upload one first.",
+    "noImages": "You don't have images in your library yet.",
     "brandColors": "Use the brand kit palette",
     "generate": "Generate",
     "generating": "Generating…",
     "cost": "Cost",
     "balance": "Balance: {balance}",
-    "license": "License: {name} · commercial use allowed",
-    "licenseLink": "See terms",
-    "notConfigured": "Image generation will be enabled once we set up the AI provider (fal.ai).",
+    "perImage": "≈ ${usd} per image",
+    "perSecond": "≈ ${usd} per second",
+    "tiers": {
+      "budget": "Budget",
+      "balanced": "Balanced",
+      "premium": "Premium"
+    },
+    "licenseLink": "Model terms",
+    "notConfigured": "Generation will be enabled once we add the fal.ai key (FAL_KEY).",
     "gallery": "Project library",
-    "galleryEmpty": "No images yet. Generate the first one or upload it from the post editor.",
-    "usePost": "Use in a post",
+    "galleryEmpty": "Nothing yet. Generate your first image or video.",
+    "pending": "Generating video… usually takes 1 to 4 minutes. You can keep working.",
+    "download": "Download",
+    "videoDone": "Video ready",
+    "videoFailed": "The video failed. We've refunded your credits.",
     "errors": {
       "insufficient_credits": "You don't have enough credits.",
       "banned_word": "The text contains a banned word from your brand kit.",
@@ -453,9 +470,10 @@
       "not_configured": "The AI provider isn't set up yet.",
       "forbidden": "You don't have permission to generate in this project.",
       "invalid_input": "Check the text (at least 3 characters).",
+      "image_required": "Choose a source image from the library.",
       "generic": "Something went wrong. Please try again."
     },
     "generated": "Image generated",
-    "termsNote": "Don't generate images of real people, third-party brands or misleading content. Always review the result before publishing it."
+    "termsNote": "Don't generate real people, third-party brands or misleading content. Always review the result before publishing it."
   }
 }

@@ -92,7 +92,7 @@ export type Database = {
       ai_generations: {
         Row: { id: string; workspace_id: string; project_id: string; kind: string; provider: string; model: string; prompt: string; params: Json; credits_cost: number; status: string; provider_request_id: string | null; error_code: string | null; license: Json; created_by: string | null; created_at: string; completed_at: string | null };
         Insert: { workspace_id: string; project_id: string; kind: string; provider: string; model: string; prompt: string; params?: Json; credits_cost: number; status?: string; license?: Json; created_by?: string | null };
-        Update: { status?: string; provider_request_id?: string | null; error_code?: string | null; completed_at?: string | null };
+        Update: { status?: string; provider_request_id?: string | null; error_code?: string | null; completed_at?: string | null; params?: Json };
         Relationships: [];
       };
       account_metrics_daily: {

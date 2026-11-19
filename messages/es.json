@@ -424,28 +424,45 @@
   },
   "studio": {
     "title": "Estudio de IA",
-    "subtitle": "Genera imágenes con el estilo de tu marca. Todo lo generado queda etiquetado como contenido IA.",
-    "prompt": "Describe la imagen",
-    "promptPlaceholder": "Bodegón de un sérum sobre piedra clara, luz natural de mañana, estilo editorial",
+    "subtitle": "Genera imágenes y vídeos con varios modelos. Todo lo generado queda etiquetado como contenido IA.",
+    "tabImage": "Imagen",
+    "tabVideo": "Vídeo",
+    "prompt": "Describe lo que quieres",
+    "promptPlaceholderImage": "Bodegón de un sérum sobre piedra clara, luz natural de mañana, estilo editorial",
+    "promptPlaceholderVideo": "Plano lento alrededor de un sérum sobre piedra clara, luz de mañana, estilo anuncio",
     "aspect": "Formato",
     "aspects": {
-      "square": "Cuadrado 1:1",
-      "portrait": "Vertical 3:4",
-      "landscape": "Horizontal 16:9",
-      "story": "Story / Reel 9:16"
+      "1:1": "Cuadrado 1:1",
+      "9:16": "Vertical 9:16 (Reels/TikTok)",
+      "16:9": "Horizontal 16:9",
+      "4:5": "Vertical 4:5 (feed)"
     },
     "model": "Modelo",
+    "duration": "Duración",
+    "seconds": "{n} s",
+    "sourceImage": "Imagen de partida",
+    "sourceImageHint": "Este modelo anima una imagen de tu biblioteca. Genera o sube una primero.",
+    "noImages": "Aún no tienes imágenes en la biblioteca.",
     "brandColors": "Usar la paleta del brand kit",
     "generate": "Generar",
     "generating": "Generando…",
     "cost": "Coste",
     "balance": "Saldo: {balance}",
-    "license": "Licencia: {name} · uso comercial permitido",
-    "licenseLink": "Ver condiciones",
-    "notConfigured": "La generación de imágenes se activará cuando configuremos el proveedor de IA (fal.ai).",
+    "perImage": "≈ {usd} $ por imagen",
+    "perSecond": "≈ {usd} $ por segundo",
+    "tiers": {
+      "budget": "Barato",
+      "balanced": "Equilibrado",
+      "premium": "Premium"
+    },
+    "licenseLink": "Condiciones del modelo",
+    "notConfigured": "La generación se activará cuando añadamos la clave de fal.ai (FAL_KEY).",
     "gallery": "Biblioteca del proyecto",
-    "galleryEmpty": "Aún no hay imágenes. Genera la primera o súbela desde el editor de publicaciones.",
-    "usePost": "Usar en publicación",
+    "galleryEmpty": "Aún no hay nada. Genera tu primera imagen o vídeo.",
+    "pending": "Generando vídeo… suele tardar entre 1 y 4 minutos. Puedes seguir trabajando.",
+    "download": "Descargar",
+    "videoDone": "Vídeo listo",
+    "videoFailed": "El vídeo ha fallado. Te hemos devuelto los créditos.",
     "errors": {
       "insufficient_credits": "No tienes créditos suficientes.",
       "banned_word": "El texto contiene una palabra prohibida de tu brand kit.",
@@ -453,9 +470,10 @@
       "not_configured": "El proveedor de IA aún no está configurado.",
       "forbidden": "No tienes permisos para generar en este proyecto.",
       "invalid_input": "Revisa el texto (mínimo 3 caracteres).",
+      "image_required": "Elige una imagen de partida de la biblioteca.",
       "generic": "Algo ha fallado. Inténtalo de nuevo."
     },
     "generated": "Imagen generada",
-    "termsNote": "No generes imágenes de personas reales, marcas de terceros ni contenido engañoso. Revisa siempre el resultado antes de publicarlo."
+    "termsNote": "No generes personas reales, marcas de terceros ni contenido engañoso. Revisa siempre el resultado antes de publicarlo."
   }
 }
