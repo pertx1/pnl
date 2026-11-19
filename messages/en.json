@@ -74,7 +74,22 @@
     "openMenu": "Open menu",
     "closeMenu": "Close menu",
     "globalCalendar": "Calendario global",
-    "billing": "Credits"
+    "billing": "Credits",
+    "groupCreate": "Create",
+    "groupPublish": "Publish",
+    "groupGrow": "Grow",
+    "groupBusiness": "Business",
+    "clipper": "Clipper",
+    "inspiration": "Inspiration",
+    "inbox": "Inbox",
+    "competitors": "Competitors",
+    "products": "Products",
+    "strategy": "Strategy",
+    "warmup": "Warm-up",
+    "shopify": "Shopify",
+    "reports": "Reports",
+    "team": "Team",
+    "affiliates": "Affiliates"
   },
   "projects": {
     "title": "Projects",

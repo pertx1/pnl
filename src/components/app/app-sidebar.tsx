@@ -6,6 +6,17 @@ import { useTranslations } from "next-intl";
 import { useState, useTransition } from "react";
 import {
   BarChart3,
+  FileBarChart,
+  Flame,
+  HandCoins,
+  Inbox,
+  Lightbulb,
+  Map,
+  PackageSearch,
+  Scissors,
+  ShoppingBag,
+  Swords,
+  Users,
   CalendarDays,
   Coins,
   FolderKanban,
@@ -26,6 +37,44 @@ import { Button } from "@/components/ui/button";
 import { switchWorkspace } from "@/app/app/actions";
 import type { WorkspaceSummary } from "@/lib/server/dal";
 import { cn } from "@/lib/utils";
+
+/** Navegación del proyecto agrupada por intención. Cada ruta la implementa su módulo. */
+const PROJECT_NAV: { label: string; items: { path: string; icon: typeof LayoutDashboard; label: string; also?: string[] }[] }[] = [
+  {
+    label: "groupCreate",
+    items: [
+      { path: "studio", icon: Sparkles, label: "studio" },
+      { path: "clipper", icon: Scissors, label: "clipper" },
+      { path: "inspiration", icon: Lightbulb, label: "inspiration" },
+      { path: "brand-kit", icon: Palette, label: "brandKit" },
+    ],
+  },
+  {
+    label: "groupPublish",
+    items: [
+      { path: "calendar", icon: CalendarDays, label: "calendar", also: ["posts"] },
+      { path: "inbox", icon: Inbox, label: "inbox" },
+      { path: "accounts", icon: Plug, label: "accounts" },
+    ],
+  },
+  {
+    label: "groupGrow",
+    items: [
+      { path: "analytics", icon: BarChart3, label: "analytics" },
+      { path: "competitors", icon: Swords, label: "competitors" },
+      { path: "products", icon: PackageSearch, label: "products" },
+      { path: "strategy", icon: Map, label: "strategy" },
+      { path: "warmup", icon: Flame, label: "warmup" },
+    ],
+  },
+  {
+    label: "groupBusiness",
+    items: [
+      { path: "shopify", icon: ShoppingBag, label: "shopify" },
+      { path: "reports", icon: FileBarChart, label: "reports" },
+    ],
+  },
+];
 
 type Props = {
   workspace: WorkspaceSummary;
@@ -87,7 +136,7 @@ export function AppSidebar({ workspace, workspaces, projects, credits, monthlyCr
   const base = currentProject ? `/app/p/${currentProject.id}` : null;
 
   const sidebar = (
-    <div className="flex h-full flex-col gap-4 p-4">
+    <div className="flex h-full flex-col gap-4 overflow-y-auto p-4">
       <div className="flex items-center justify-between">
         <Link href="/app" aria-label="Kreo">
           <KreoLogo className="h-6" />
@@ -146,18 +195,26 @@ export function AppSidebar({ workspace, workspaces, projects, credits, monthlyCr
       </div>
 
       {base && (
-        <nav className="space-y-0.5 border-t border-sidebar-border pt-4" aria-label={currentProject?.name}>
+        <nav className="space-y-4 border-t border-sidebar-border pt-4" aria-label={currentProject?.name}>
           <NavItem href={base} icon={LayoutDashboard} label={t("dashboard")} active={pathname === base} />
-          <NavItem href={`${base}/brand-kit`} icon={Palette} label={t("brandKit")} active={pathname === `${base}/brand-kit`} />
-          <NavItem href={`${base}/accounts`} icon={Plug} label={t("accounts")} active={pathname === `${base}/accounts`} />
-          <NavItem href={`${base}/calendar`} icon={CalendarDays} label={t("calendar")} active={pathname.startsWith(`${base}/calendar`) || pathname.startsWith(`${base}/posts`)} />
-          <NavItem href={`${base}/studio`} icon={Sparkles} label={t("studio")} active={pathname === `${base}/studio`} />
-          <NavItem href={`${base}/analytics`} icon={BarChart3} label={t("analytics")} active={pathname === `${base}/analytics`} />
+          {PROJECT_NAV.map((group) => (
+            <div key={group.label} className="space-y-0.5">
+              <p className="label-mono px-2.5 pb-1 !text-[10px]">{t(group.label)}</p>
+              {group.items.map((it) => {
+                const href = `${base}/${it.path}`;
+                return <NavItem key={it.path} href={href} icon={it.icon} label={t(it.label)} active={pathname.startsWith(href) || (it.also ?? []).some((a) => pathname.startsWith(`${base}/${a}`))} />;
+              })}
+            </div>
+          ))}
         </nav>
       )}
 
       <div className="mt-auto space-y-3 border-t border-sidebar-border pt-4">
-        <NavItem href="/app/settings" icon={Settings} label={t("settings")} active={pathname === "/app/settings"} />
+        <div className="space-y-0.5">
+          <NavItem href="/app/team" icon={Users} label={t("team")} active={pathname.startsWith("/app/team")} />
+          <NavItem href="/app/affiliates" icon={HandCoins} label={t("affiliates")} active={pathname.startsWith("/app/affiliates")} />
+          <NavItem href="/app/settings" icon={Settings} label={t("settings")} active={pathname.startsWith("/app/settings")} />
+        </div>
         <Link href="/app/billing" className="flex items-center justify-between rounded-md bg-sidebar-accent px-3 py-2 hover:ring-1 hover:ring-primary/40">
           <span className="flex items-center gap-2 text-sm">
             <Coins className="size-4 text-brand-amber-ink" aria-hidden />

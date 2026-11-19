@@ -217,4 +217,20 @@ export const dataRetention = inngest.createFunction(
   },
 );
 
-export const functions = [dispatchDuePosts, publishTarget, refreshMetrics, dataRetention];
+import { commerceFunctions } from "./modules/commerce";
+import { inboxFunctions } from "./modules/inbox";
+import { researchFunctions } from "./modules/research";
+import { strategyFunctions } from "./modules/strategy";
+import { teamFunctions } from "./modules/team";
+
+export const functions = [
+  dispatchDuePosts,
+  publishTarget,
+  refreshMetrics,
+  dataRetention,
+  ...researchFunctions,
+  ...strategyFunctions,
+  ...inboxFunctions,
+  ...teamFunctions,
+  ...commerceFunctions,
+];
