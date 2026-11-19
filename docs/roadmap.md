@@ -20,18 +20,21 @@
 - Supabase: proyecto `kreo` en `eu-central-1` (Frankfurt), plan gratuito de la organización "NFC".
   ⚠️ El plan gratuito pausa proyectos inactivos y no tiene backups diarios: pasar a Pro antes del lanzamiento.
 
-## Fase 1 · MVP ← EN CURSO
-- [x] Esquema base con RLS: perfiles, workspaces y roles, proyectos, brand kit, planes, créditos (saldo + ledger), actividad
-- [x] Auth email + contraseña, proxy de sesión, i18n es/en
-- [x] Onboarding (workspace), proyectos con límite de plan, brand kit
-- [ ] Recuperar contraseña, Google login, 2FA, exportar datos y borrar cuenta, subida de logo
-- Auth (Supabase, email + Google, 2FA opcional), workspaces, proyectos, brand kit
-- Vincular cuentas por OAuth oficial (TikTok, Instagram, YouTube) con estado de conexión y reconectar
-- Programar publicaciones + calendario (mes/semana/lista), estados, límites anti-baneo, etiqueta IA
-- Stats propias básicas
-- Generación de imagen (capa de proveedores) + créditos básicos (saldo + ledger atómico)
-- Páginas legales, banner de cookies, landing + lista de espera con doble opt-in
-- i18n es/en, RLS en todas las tablas, tokens cifrados, export/borrado de cuenta
+## Fase 1 · MVP ← EN CURSO (código hecho; falta activar con claves y revisiones de las plataformas)
+- [x] Esquema base con RLS + 2FA exigido también en base de datos
+- [x] Auth email + contraseña, recuperar contraseña, 2FA (TOTP), proxy de sesión, i18n es/en
+- [x] Ajustes: perfil, contraseña, 2FA, exportar datos (JSON), borrar cuenta (con revocación de tokens)
+- [x] Onboarding, proyectos con límite de plan, brand kit con logo
+- [x] Cuentas sociales por OAuth oficial (TikTok, Instagram, YouTube), tokens cifrados AES-256-GCM, estado y reconexión
+- [x] Publicaciones: editor con reglas por red (UX obligatoria de TikTok), aprobación humana, límites diarios anti-baneo, aviso de texto duplicado
+- [x] Calendario mes/semana/lista arrastrable, por proyecto y global
+- [x] Worker Inngest: publicación programada (cola por cuenta, reintentos limitados, etiqueta IA nativa), métricas cada 6 h, plazos de borrado
+- [x] Analíticas propias con gráfica, comparativa y CSV
+- [x] Estudio de IA de imagen (fal.ai, FLUX schnell) y Guionista con Claude, con créditos atómicos y reembolso si falla
+- [x] Landing + blog + lista de espera con doble opt-in y referidos; banner de cookies; textos legales en borrador
+- [ ] **Pendiente de Oier**: claves (ver `.env.example`), apps de desarrollador y sus revisiones, proveedor de email, abogado
+- [ ] Mejores horas para publicar (necesita datos reales), Google login, versión de términos aceptados
+- [ ] Tests e2e en CI
 
 ## Fase 2
 - Análisis de competencia (YouTube Data API, IG Business Discovery, TikTok vía proveedor externo con aviso de datos estimados)
@@ -63,4 +66,6 @@
 | Cache Components (Next 16) | Desactivado | La app es casi toda por usuario; evita envolver cada lectura de sesión en `<Suspense>`. Reactivable. |
 | i18n | next-intl sin prefijo en la URL (cookie → Accept-Language → es) | Sencillo para la app; la landing podrá usar rutas `/en` por SEO |
 | Acceso a datos | DAL en `src/lib/server/dal.ts` con la sesión del usuario (RLS) | Nunca service key para datos de usuario |
-| Email transaccional | Proveedor con región UE (a decidir: Resend / Postmark / Brevo) | Doble opt-in, bajas |
+| Email transaccional | Resend vía API (adaptador intercambiable en `src/lib/email`) — **a confirmar por Oier** | Doble opt-in, baja en un clic (List-Unsubscribe) |
+| IA texto | Claude Opus 5.5 con salidas estructuradas y respaldo automático ante rechazos | Agentes en `src/lib/agents`, prompts versionados |
+| IA imagen | fal.ai · FLUX.1 [schnell] (Apache 2.0, uso comercial) | FLUX dev NO: licencia no comercial |

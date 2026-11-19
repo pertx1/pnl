@@ -95,10 +95,19 @@
 - [ ] Webhooks RGPD obligatorios: `customers/data_request`, `customers/redact`, `shop/redact`.
 - [ ] Revisión de App Store (si se lista públicamente): 1-4 semanas.
 
+## URLs de redirección OAuth (para configurar en cada app de desarrollador)
+Sustituye `<dominio>` por tu dominio (o `kreo-mnysoon-1995.vercel.app` para pruebas):
+- TikTok: `https://<dominio>/api/oauth/tiktok/callback`
+- Meta: `https://<dominio>/api/oauth/instagram/callback`
+- Google: `https://<dominio>/api/oauth/youtube/callback`
+
 ## 6. Pagos y otros (cuando toque; todos 💶 por uso)
 - [ ] **Stripe** (cuenta con datos de empresa) + **Stripe Tax** (registro OSS de IVA en la AEAT) — Fase 1/4
 - [ ] Afiliados: Stripe Connect o herramienta tipo Rewardful/Tolt (lo propongo en Fase 4)
-- [ ] **Supabase** (proyecto región UE), **Vercel**, **Inngest** — Fase 1
+- [x] **Supabase** (proyecto `kreo`, Frankfurt) y **Vercel** (proyecto `kreo`) — creados
+- [ ] **Supabase**: copiar la *secret key* (Project Settings → API Keys) a Vercel como `SUPABASE_SECRET_KEY` (sensitive)
+- [ ] **Supabase Auth → URL Configuration**: Site URL + Redirect URLs (`/auth/callback`)
+- [ ] **Inngest** (plan gratuito): crear cuenta, conectar la integración de Vercel → añade `INNGEST_EVENT_KEY` y `INNGEST_SIGNING_KEY`
 - [ ] Proveedores de IA con licencia comercial: fal.ai / Replicate (imagen y vídeo), ElevenLabs (voz y música),
   proveedor de texto (Claude) — Fase 1/3. Firmar DPA con cada uno.
 - [ ] Proveedor de email transaccional con región UE — Fase 1
