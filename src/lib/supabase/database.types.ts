@@ -149,6 +149,10 @@ export type Database = {
       approve_post: { Args: { p_post_id: string }; Returns: PostStatus };
       unschedule_post: { Args: { p_post_id: string; p_cancel?: boolean }; Returns: undefined };
       post_limit_violations: { Args: { p_post_id: string }; Returns: { social_account_id: string; handle: string | null; day: string; planned: number; daily_limit: number }[] };
+      start_ai_generation: {
+        Args: { p_project_id: string; p_kind: string; p_provider: string; p_model: string; p_prompt: string; p_params: Json; p_credits: number; p_license: Json; p_idempotency_key: string };
+        Returns: string;
+      };
       my_blocking_workspaces: { Args: Record<string, never>; Returns: { workspace_id: string; name: string }[] };
       my_solo_workspaces: { Args: Record<string, never>; Returns: string[] };
       delete_my_account: { Args: Record<string, never>; Returns: undefined };
