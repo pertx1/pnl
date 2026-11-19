@@ -96,7 +96,7 @@
 - [ ] Revisión de App Store (si se lista públicamente): 1-4 semanas.
 
 ## URLs de redirección OAuth (para configurar en cada app de desarrollador)
-Sustituye `<dominio>` por tu dominio (o `kreo-mnysoon-1995.vercel.app` para pruebas):
+Sustituye `<dominio>` por tu dominio (o `kreo-nine.vercel.app` para pruebas):
 - TikTok: `https://<dominio>/api/oauth/tiktok/callback`
 - Meta: `https://<dominio>/api/oauth/instagram/callback`
 - Google: `https://<dominio>/api/oauth/youtube/callback`
