@@ -158,7 +158,7 @@ export function AppSidebar({ workspace, workspaces, projects, credits, monthlyCr
 
       <div className="mt-auto space-y-3 border-t border-sidebar-border pt-4">
         <NavItem href="/app/settings" icon={Settings} label={t("settings")} active={pathname === "/app/settings"} />
-        <div className="flex items-center justify-between rounded-md bg-sidebar-accent px-3 py-2">
+        <Link href="/app/billing" className="flex items-center justify-between rounded-md bg-sidebar-accent px-3 py-2 hover:ring-1 hover:ring-primary/40">
           <span className="flex items-center gap-2 text-sm">
             <Coins className="size-4 text-brand-amber-ink" aria-hidden />
             <span className="label-mono">{tcr("balance")}</span>
@@ -166,7 +166,7 @@ export function AppSidebar({ workspace, workspaces, projects, credits, monthlyCr
           <span className="font-mono text-sm tabular-nums" title={tcr("of", { max: monthlyCredits })}>
             {credits}
           </span>
-        </div>
+        </Link>
         <div className="truncate text-xs text-muted-foreground" title={email}>
           {email}
         </div>

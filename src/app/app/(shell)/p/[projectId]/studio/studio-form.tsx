@@ -45,6 +45,7 @@ export function StudioForm({
   models: Model[];
 }) {
   const t = useTranslations("studio");
+  const tb = useTranslations("billing");
   const locale = useLocale() as "es" | "en";
   const router = useRouter();
   const [kind, setKind] = useState<"image" | "video">("image");
@@ -218,7 +219,20 @@ export function StudioForm({
         )}
         {error && (
           <p role="alert" className="text-sm text-destructive">
-            {t.has(`errors.${error}`) ? t(`errors.${error}`) : t("errors.generic")}
+            {t.has(`errors.${error}`) ? t(`errors.${error}`) : t("errors.generic")}{" "}
+            {error === "insufficient_credits" && (
+              <a href="/app/billing" className="font-semibold underline">
+                {tb("buyMore")}
+              </a>
+            )}
+          </p>
+        )}
+        {model && balance < credits && !error && (
+          <p className="text-sm text-warning">
+            {t("errors.insufficient_credits")}{" "}
+            <a href="/app/billing" className="font-semibold underline">
+              {tb("buyMore")}
+            </a>
           </p>
         )}
         {pending.length > 0 && (

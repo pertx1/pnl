@@ -73,7 +73,8 @@
     "project": "Proyecto",
     "openMenu": "Abrir menú",
     "closeMenu": "Cerrar menú",
-    "globalCalendar": "Calendario global"
+    "globalCalendar": "Calendario global",
+    "billing": "Créditos"
   },
   "projects": {
     "title": "Proyectos",
@@ -475,5 +476,48 @@
     },
     "generated": "Imagen generada",
     "termsNote": "No generes personas reales, marcas de terceros ni contenido engañoso. Revisa siempre el resultado antes de publicarlo."
+  },
+  "billing": {
+    "title": "Créditos",
+    "subtitle": "Los créditos se usan para generar imágenes, vídeos y textos con IA. Siempre verás el coste antes de generar.",
+    "balance": "Saldo actual",
+    "packs": "Comprar créditos",
+    "credits": "{n} créditos",
+    "perCredit": "{price} por crédito",
+    "popular": "Más elegido",
+    "buy": "Comprar",
+    "buying": "Abriendo pago…",
+    "vatIncluded": "IVA incluido. Pago seguro con Stripe (tarjeta, Apple Pay, Google Pay). Recibirás factura.",
+    "waiver": "Quiero usar los créditos de inmediato y acepto que pierdo el derecho de desistimiento sobre los créditos que ya haya usado.",
+    "onlyAdmins": "Solo los administradores del espacio de trabajo pueden comprar créditos.",
+    "history": "Compras",
+    "noPurchases": "Todavía no has comprado créditos.",
+    "invoice": "Factura",
+    "movements": "Movimientos",
+    "noMovements": "Sin movimientos.",
+    "reasons": {
+      "signup_grant": "Créditos de bienvenida",
+      "purchase": "Compra",
+      "refund_ai_failure": "Devolución por fallo de la IA",
+      "ai_image": "Imagen con IA",
+      "ai_video": "Vídeo con IA",
+      "ai_text": "Texto con IA",
+      "monthly_grant": "Créditos mensuales"
+    },
+    "status": {
+      "pending": "Pendiente",
+      "paid": "Pagado",
+      "refunded": "Reembolsado",
+      "failed": "No completado"
+    },
+    "success": "¡Pago recibido! Tus créditos aparecerán en unos segundos.",
+    "cancelled": "Pago cancelado. No se ha cobrado nada.",
+    "errors": {
+      "waiver_required": "Marca la casilla para continuar.",
+      "not_configured": "Los pagos se activarán en cuanto configuremos Stripe.",
+      "forbidden": "Solo los administradores pueden comprar créditos.",
+      "generic": "No se pudo iniciar el pago. Inténtalo de nuevo."
+    },
+    "buyMore": "Comprar créditos"
   }
 }

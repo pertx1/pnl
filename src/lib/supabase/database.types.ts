@@ -109,6 +109,12 @@ export type Database = {
         Update: never;
         Relationships: [];
       };
+      credit_purchases: {
+        Row: { id: string; workspace_id: string; purchased_by: string | null; pack_id: string; credits: number; amount_total: number; currency: string; stripe_checkout_session_id: string; stripe_payment_intent_id: string | null; invoice_url: string | null; status: string; created_at: string; paid_at: string | null };
+        Insert: { workspace_id: string; purchased_by?: string | null; pack_id: string; credits: number; amount_total: number; currency: string; stripe_checkout_session_id: string };
+        Update: { status?: string; paid_at?: string | null; amount_total?: number; currency?: string; stripe_payment_intent_id?: string | null; invoice_url?: string | null };
+        Relationships: [];
+      };
       workspace_members: {
         Row: { created_at: string; role: WorkspaceRole; user_id: string; workspace_id: string };
         Insert: { created_at?: string; role?: WorkspaceRole; user_id: string; workspace_id: string };

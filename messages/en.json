@@ -73,7 +73,8 @@
     "project": "Project",
     "openMenu": "Open menu",
     "closeMenu": "Close menu",
-    "globalCalendar": "Calendario global"
+    "globalCalendar": "Calendario global",
+    "billing": "Credits"
   },
   "projects": {
     "title": "Projects",
@@ -475,5 +476,48 @@
     },
     "generated": "Image generated",
     "termsNote": "Don't generate real people, third-party brands or misleading content. Always review the result before publishing it."
+  },
+  "billing": {
+    "title": "Credits",
+    "subtitle": "Credits are used to generate images, videos and text with AI. You'll always see the cost before generating.",
+    "balance": "Current balance",
+    "packs": "Buy credits",
+    "credits": "{n} credits",
+    "perCredit": "{price} per credit",
+    "popular": "Most popular",
+    "buy": "Buy",
+    "buying": "Opening checkout…",
+    "vatIncluded": "VAT included. Secure payment with Stripe (card, Apple Pay, Google Pay). You'll get an invoice.",
+    "waiver": "I want to use the credits right away and accept that I lose the right of withdrawal for credits I have already used.",
+    "onlyAdmins": "Only workspace admins can buy credits.",
+    "history": "Purchases",
+    "noPurchases": "You haven't bought credits yet.",
+    "invoice": "Invoice",
+    "movements": "Activity",
+    "noMovements": "No activity.",
+    "reasons": {
+      "signup_grant": "Welcome credits",
+      "purchase": "Purchase",
+      "refund_ai_failure": "Refund for AI failure",
+      "ai_image": "AI image",
+      "ai_video": "AI video",
+      "ai_text": "AI text",
+      "monthly_grant": "Monthly credits"
+    },
+    "status": {
+      "pending": "Pending",
+      "paid": "Paid",
+      "refunded": "Refunded",
+      "failed": "Not completed"
+    },
+    "success": "Payment received! Your credits will appear in a few seconds.",
+    "cancelled": "Payment cancelled. You haven't been charged.",
+    "errors": {
+      "waiver_required": "Tick the box to continue.",
+      "not_configured": "Payments will be enabled once we set up Stripe.",
+      "forbidden": "Only admins can buy credits.",
+      "generic": "Couldn't start the payment. Please try again."
+    },
+    "buyMore": "Buy credits"
   }
 }

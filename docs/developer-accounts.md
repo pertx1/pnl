@@ -102,7 +102,12 @@ Sustituye `<dominio>` por tu dominio (o `kreo-mnysoon-1995.vercel.app` para prue
 - Google: `https://<dominio>/api/oauth/youtube/callback`
 
 ## 6. Pagos y otros (cuando toque; todos 💶 por uso)
-- [ ] **Stripe** (cuenta con datos de empresa) + **Stripe Tax** (registro OSS de IVA en la AEAT) — Fase 1/4
+- [ ] **Stripe** (cuenta con datos de empresa) + **Stripe Tax** (registro OSS de IVA en la AEAT) — necesario para vender créditos
+  - Developers → API keys → `STRIPE_SECRET_KEY`
+  - Developers → Webhooks → endpoint `https://<dominio>/api/stripe/webhook` con los eventos
+    `checkout.session.completed`, `checkout.session.async_payment_succeeded`, `checkout.session.async_payment_failed`,
+    `checkout.session.expired` → `STRIPE_WEBHOOK_SECRET`
+  - Settings → Tax: activar Stripe Tax y luego `STRIPE_TAX_ENABLED=true`
 - [ ] Afiliados: Stripe Connect o herramienta tipo Rewardful/Tolt (lo propongo en Fase 4)
 - [x] **Supabase** (proyecto `kreo`, Frankfurt) y **Vercel** (proyecto `kreo`) — creados
 - [ ] **Supabase**: copiar la *secret key* (Project Settings → API Keys) a Vercel como `SUPABASE_SECRET_KEY` (sensitive)
