@@ -2,6 +2,9 @@
 export type Json = string | number | boolean | null | { [key: string]: Json | undefined } | Json[];
 
 type WorkspaceRole = "viewer" | "editor" | "admin" | "owner";
+type SocialPlatform = "tiktok" | "instagram" | "youtube";
+type ConnectionStatus = "active" | "expired" | "missing_scopes" | "revoked" | "error";
+export type PostStatus = "draft" | "pending_approval" | "approved" | "scheduled" | "publishing" | "published" | "failed" | "cancelled";
 
 export type Database = {
   __InternalSupabase: { PostgrestVersion: "14.18" };
@@ -51,6 +54,53 @@ export type Database = {
           { foreignKeyName: "projects_workspace_id_fkey"; columns: ["workspace_id"]; isOneToOne: false; referencedRelation: "workspaces"; referencedColumns: ["id"] },
         ];
       };
+      social_accounts: {
+        Row: { id: string; workspace_id: string; project_id: string; platform: SocialPlatform; external_id: string; handle: string | null; display_name: string | null; avatar_url: string | null; status: ConnectionStatus; granted_scopes: string[]; missing_scopes: string[]; daily_post_limit: number; metadata: Json; connected_by: string | null; last_synced_at: string | null; created_at: string; updated_at: string };
+        Insert: never;
+        Update: { daily_post_limit?: number; status?: ConnectionStatus; last_synced_at?: string | null };
+        Relationships: [];
+      };
+      social_account_tokens: {
+        Row: { social_account_id: string; access_token_enc: string; refresh_token_enc: string | null; access_expires_at: string | null; refresh_expires_at: string | null; updated_at: string };
+        Insert: { social_account_id: string; access_token_enc: string; refresh_token_enc?: string | null; access_expires_at?: string | null; refresh_expires_at?: string | null; updated_at?: string };
+        Update: { access_token_enc?: string; refresh_token_enc?: string | null; access_expires_at?: string | null; refresh_expires_at?: string | null; updated_at?: string };
+        Relationships: [];
+      };
+      posts: {
+        Row: { id: string; workspace_id: string; project_id: string; title: string | null; caption: string; asset_ids: string[]; ai_generated: boolean; status: PostStatus; scheduled_at: string | null; created_by: string | null; approved_by: string | null; approved_at: string | null; created_at: string; updated_at: string };
+        Insert: { workspace_id: string; project_id: string; title?: string | null; caption?: string; asset_ids?: string[]; ai_generated?: boolean; scheduled_at?: string | null; created_by: string };
+        Update: { title?: string | null; caption?: string; asset_ids?: string[]; ai_generated?: boolean; scheduled_at?: string | null; status?: PostStatus };
+        Relationships: [
+          { foreignKeyName: "posts_project_id_fkey"; columns: ["project_id"]; isOneToOne: false; referencedRelation: "projects"; referencedColumns: ["id"] },
+        ];
+      };
+      post_targets: {
+        Row: { id: string; post_id: string; workspace_id: string; social_account_id: string; caption_override: string | null; platform_options: Json; status: PostStatus; external_post_id: string | null; external_url: string | null; error_code: string | null; attempts: number; published_at: string | null; created_at: string; updated_at: string };
+        Insert: { post_id: string; workspace_id: string; social_account_id: string; caption_override?: string | null; platform_options?: Json };
+        Update: { caption_override?: string | null; platform_options?: Json; status?: PostStatus; external_post_id?: string | null; external_url?: string | null; error_code?: string | null; attempts?: number; published_at?: string | null };
+        Relationships: [
+          { foreignKeyName: "post_targets_social_account_id_fkey"; columns: ["social_account_id"]; isOneToOne: false; referencedRelation: "social_accounts"; referencedColumns: ["id"] },
+          { foreignKeyName: "post_targets_post_id_fkey"; columns: ["post_id"]; isOneToOne: false; referencedRelation: "posts"; referencedColumns: ["id"] },
+        ];
+      };
+      assets: {
+        Row: { id: string; workspace_id: string; project_id: string; storage_path: string; mime_type: string; size_bytes: number | null; width: number | null; height: number | null; duration_seconds: number | null; source: "upload" | "ai"; ai_generated: boolean; generation_id: string | null; created_by: string | null; created_at: string };
+        Insert: { workspace_id: string; project_id: string; storage_path: string; mime_type: string; size_bytes?: number | null; width?: number | null; height?: number | null; source: "upload" | "ai"; ai_generated?: boolean; generation_id?: string | null; created_by?: string | null };
+        Update: never;
+        Relationships: [];
+      };
+      ai_generations: {
+        Row: { id: string; workspace_id: string; project_id: string; kind: string; provider: string; model: string; prompt: string; params: Json; credits_cost: number; status: string; provider_request_id: string | null; error_code: string | null; license: Json; created_by: string | null; created_at: string; completed_at: string | null };
+        Insert: { workspace_id: string; project_id: string; kind: string; provider: string; model: string; prompt: string; params?: Json; credits_cost: number; status?: string; license?: Json; created_by?: string | null };
+        Update: { status?: string; provider_request_id?: string | null; error_code?: string | null; completed_at?: string | null };
+        Relationships: [];
+      };
+      account_metrics_daily: {
+        Row: { social_account_id: string; workspace_id: string; day: string; followers: number | null; views: number | null; likes: number | null; comments: number | null; shares: number | null; posts_count: number | null; captured_at: string };
+        Insert: { social_account_id: string; workspace_id: string; day: string; followers?: number | null; views?: number | null; likes?: number | null; comments?: number | null; shares?: number | null; posts_count?: number | null };
+        Update: { followers?: number | null; views?: number | null; likes?: number | null; posts_count?: number | null };
+        Relationships: [];
+      };
       workspace_members: {
         Row: { created_at: string; role: WorkspaceRole; user_id: string; workspace_id: string };
         Insert: { created_at?: string; role?: WorkspaceRole; user_id: string; workspace_id: string };
@@ -83,6 +133,14 @@ export type Database = {
       has_workspace_role: { Args: { p_min_role: WorkspaceRole; p_workspace_id: string }; Returns: boolean };
       shares_workspace_with: { Args: { p_user_id: string }; Returns: boolean };
       workspace_role_of: { Args: { p_workspace_id: string }; Returns: WorkspaceRole };
+      upsert_social_account: {
+        Args: { p_project_id: string; p_platform: SocialPlatform; p_external_id: string; p_handle: string; p_display_name: string; p_avatar_url: string; p_granted_scopes: string[]; p_missing_scopes: string[]; p_metadata?: Json };
+        Returns: string;
+      };
+      submit_post: { Args: { p_post_id: string }; Returns: undefined };
+      approve_post: { Args: { p_post_id: string }; Returns: PostStatus };
+      unschedule_post: { Args: { p_post_id: string; p_cancel?: boolean }; Returns: undefined };
+      post_limit_violations: { Args: { p_post_id: string }; Returns: { social_account_id: string; handle: string | null; day: string; planned: number; daily_limit: number }[] };
       my_blocking_workspaces: { Args: Record<string, never>; Returns: { workspace_id: string; name: string }[] };
       my_solo_workspaces: { Args: Record<string, never>; Returns: string[] };
       delete_my_account: { Args: Record<string, never>; Returns: undefined };
@@ -94,7 +152,7 @@ export type Database = {
       waitlist_unsubscribe: { Args: { p_token: string }; Returns: boolean };
       waitlist_status: { Args: { p_code: string }; Returns: { rank_position: number; total: number; referrals: number }[] };
     };
-    Enums: { workspace_role: WorkspaceRole };
+    Enums: { workspace_role: WorkspaceRole; social_platform: SocialPlatform; connection_status: ConnectionStatus; post_status: PostStatus };
     CompositeTypes: { [_ in never]: never };
   };
 };

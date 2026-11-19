@@ -120,6 +120,7 @@ export function AppSidebar({ workspace, workspaces, projects, credits, monthlyCr
 
       <nav className="space-y-0.5" aria-label={t("projects")}>
         <NavItem href="/app" icon={FolderKanban} label={t("projects")} active={pathname === "/app"} />
+        <NavItem href="/app/calendar" icon={CalendarDays} label={t("globalCalendar")} active={pathname === "/app/calendar"} />
       </nav>
 
       {/* proyectos */}
@@ -149,8 +150,8 @@ export function AppSidebar({ workspace, workspaces, projects, credits, monthlyCr
         <nav className="space-y-0.5 border-t border-sidebar-border pt-4" aria-label={currentProject?.name}>
           <NavItem href={base} icon={LayoutDashboard} label={t("dashboard")} active={pathname === base} />
           <NavItem href={`${base}/brand-kit`} icon={Palette} label={t("brandKit")} active={pathname === `${base}/brand-kit`} />
-          <NavItem icon={Plug} label={t("accounts")} soon soonLabel={tc("soon")} />
-          <NavItem icon={CalendarDays} label={t("calendar")} soon soonLabel={tc("soon")} />
+          <NavItem href={`${base}/accounts`} icon={Plug} label={t("accounts")} active={pathname === `${base}/accounts`} />
+          <NavItem href={`${base}/calendar`} icon={CalendarDays} label={t("calendar")} active={pathname.startsWith(`${base}/calendar`) || pathname.startsWith(`${base}/posts`)} />
           <NavItem icon={Sparkles} label={t("studio")} soon soonLabel={tc("soon")} />
           <NavItem icon={BarChart3} label={t("analytics")} soon soonLabel={tc("soon")} />
         </nav>
