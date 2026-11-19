@@ -182,7 +182,7 @@ export function PostEditor({
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
           <p className="label-mono">{projectName}</p>
-          <h1 className="text-2xl font-bold">{postId ? t("edit") : t("new")}</h1>
+          <h1 className="text-[28px] leading-tight font-medium">{postId ? t("edit") : t("new")}</h1>
         </div>
         <div className="flex items-center gap-2">
           {(aiGenerated || aiForced) && <AiBadge />}

@@ -35,7 +35,7 @@ export default async function ProjectPage({ params }: PageProps<"/app/p/[project
     <div className="mx-auto max-w-5xl space-y-6">
       <div>
         <p className="label-mono">{project.workspace.name}</p>
-        <h1 className="text-2xl font-bold">{project.name}</h1>
+        <h1 className="text-[28px] leading-tight font-medium">{project.name}</h1>
         {project.description && <p className="text-sm text-muted-foreground">{project.description}</p>}
       </div>
 

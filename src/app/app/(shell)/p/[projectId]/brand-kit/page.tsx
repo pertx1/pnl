@@ -40,7 +40,7 @@ export default async function BrandKitPage({ params }: PageProps<"/app/p/[projec
     <div className="mx-auto max-w-3xl space-y-6">
       <div>
         <p className="label-mono">{project.name}</p>
-        <h1 className="text-2xl font-bold">{t("title")}</h1>
+        <h1 className="text-[28px] leading-tight font-medium">{t("title")}</h1>
         <p className="text-sm text-muted-foreground">{t("subtitle")}</p>
       </div>
       <Card>

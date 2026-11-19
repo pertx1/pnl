@@ -91,7 +91,7 @@ export default function DesignSystemPage() {
         <Card>
           <CardContent className="space-y-3">
             <p className="font-heading text-5xl font-bold tracking-tight">Crea, programa y crece.</p>
-            <p className="font-heading text-2xl font-bold">Títulos y texto · Space Grotesk</p>
+            <p className="font-heading text-[28px] leading-tight font-medium">Títulos y texto · Space Grotesk</p>
             <p className="max-w-2xl text-muted-foreground">
               Todas tus marcas, cuentas y contenidos en un solo lugar. La IA propone, tú decides.
             </p>

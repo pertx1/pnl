@@ -85,7 +85,7 @@ export default async function AnalyticsPage({ params }: { params: Promise<{ proj
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
           <p className="label-mono">{project.name}</p>
-          <h1 className="text-2xl font-bold">{t("title")}</h1>
+          <h1 className="text-[28px] leading-tight font-medium">{t("title")}</h1>
           <p className="text-sm text-muted-foreground">{t("subtitle")}</p>
         </div>
         <Button asChild variant="outline">

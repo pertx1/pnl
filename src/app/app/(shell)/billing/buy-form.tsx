@@ -37,7 +37,7 @@ export function BuyPackForm({
             {highlight && <Badge>{t("popular")}</Badge>}
           </div>
           <p className="label-mono">{t("credits", { n: credits })}</p>
-          <p className="text-2xl font-bold">{price}</p>
+          <p className="text-[28px] leading-tight font-medium">{price}</p>
           <p className="font-mono text-xs text-muted-foreground">{t("perCredit", { price: perCredit })}</p>
           <label className="flex items-start gap-2 text-[11px] leading-snug text-muted-foreground">
             <Checkbox name="waiver" checked={waiver} onCheckedChange={(v) => setWaiver(Boolean(v))} className="mt-0.5" disabled={disabled} />

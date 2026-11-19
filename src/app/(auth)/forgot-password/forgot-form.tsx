@@ -30,7 +30,7 @@ export function ForgotForm() {
   return (
     <div className="space-y-6">
       <div className="space-y-1">
-        <h1 className="text-2xl font-bold">{t("forgotTitle")}</h1>
+        <h1 className="text-[28px] leading-tight font-medium">{t("forgotTitle")}</h1>
         <p className="text-sm text-muted-foreground">{t("forgotSubtitle")}</p>
       </div>
       <form action={action} className="space-y-4">

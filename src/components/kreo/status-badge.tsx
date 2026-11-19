@@ -15,7 +15,7 @@ export function StatusBadge({ status, className }: { status: PostStatus; classNa
   const s = styles[status];
   return (
     <span
-      className={cn("inline-flex items-center gap-1.5 rounded-sm px-2 py-0.5 text-xs font-semibold", className)}
+      className={cn("inline-flex items-center gap-1.5 rounded-full px-2 py-0.5 text-xs font-semibold", className)}
       style={{ color: s.color, background: `color-mix(in srgb, ${s.color} 14%, transparent)` }}
     >
       <span aria-hidden className="size-1.5 rounded-full" style={{ background: s.color }} />

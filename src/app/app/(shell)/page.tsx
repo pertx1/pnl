@@ -17,7 +17,7 @@ export default async function ProjectsPage() {
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
           <p className="label-mono">{workspace.name}</p>
-          <h1 className="text-2xl font-bold">{t("title")}</h1>
+          <h1 className="text-[28px] leading-tight font-medium">{t("title")}</h1>
           <p className="text-sm text-muted-foreground">{t("subtitle")}</p>
         </div>
         <div className="flex items-center gap-3">

@@ -53,7 +53,7 @@ function NavItem({
 }) {
   const cls = cn(
     "flex items-center gap-2.5 rounded-md px-2.5 py-2 text-sm",
-    active ? "bg-sidebar-accent font-semibold text-foreground shadow-[inset_2px_0_0_var(--primary)]" : "text-muted-foreground",
+    active ? "bg-sidebar-accent font-medium text-foreground" : "text-muted-foreground",
     !soon && !active && "hover:bg-sidebar-accent/60 hover:text-foreground",
     soon && "cursor-not-allowed opacity-60",
   );
