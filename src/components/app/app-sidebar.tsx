@@ -153,7 +153,7 @@ export function AppSidebar({ workspace, workspaces, projects, credits, monthlyCr
           <NavItem href={`${base}/accounts`} icon={Plug} label={t("accounts")} active={pathname === `${base}/accounts`} />
           <NavItem href={`${base}/calendar`} icon={CalendarDays} label={t("calendar")} active={pathname.startsWith(`${base}/calendar`) || pathname.startsWith(`${base}/posts`)} />
           <NavItem icon={Sparkles} label={t("studio")} soon soonLabel={tc("soon")} />
-          <NavItem icon={BarChart3} label={t("analytics")} soon soonLabel={tc("soon")} />
+          <NavItem href={`${base}/analytics`} icon={BarChart3} label={t("analytics")} active={pathname === `${base}/analytics`} />
         </nav>
       )}
 

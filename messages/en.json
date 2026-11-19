@@ -385,5 +385,24 @@
     "bestTimesEmpty": "We need data from your posts to suggest times. Connect accounts and post for a few weeks.",
     "rescheduled": "Rescheduled",
     "needsReapproval": "Rescheduled: it needs approval again."
+  },
+  "analytics": {
+    "title": "Analytics",
+    "subtitle": "Official data from your accounts, refreshed every 6 hours.",
+    "period": "Last {days} days",
+    "followers": "Followers",
+    "views": "Views",
+    "likes": "Likes",
+    "posts": "Posts",
+    "published": "Published with Kreo",
+    "vsPrev": "vs. previous period",
+    "noData": "No data yet. It will appear a few hours after you connect an account.",
+    "exportCsv": "Export CSV",
+    "byAccount": "By account",
+    "account": "Account",
+    "lastSync": "Last update",
+    "never": "Never",
+    "topPosts": "Top posts",
+    "topPostsEmpty": "Once you publish with Kreo you'll see your best-performing posts here."
   }
 }

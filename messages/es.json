@@ -385,5 +385,24 @@
     "bestTimesEmpty": "Necesitamos datos de tus publicaciones para sugerirte horas. Conecta cuentas y publica unas semanas.",
     "rescheduled": "Reprogramada",
     "needsReapproval": "Reprogramada: necesita aprobación de nuevo."
+  },
+  "analytics": {
+    "title": "Analíticas",
+    "subtitle": "Datos oficiales de tus cuentas, actualizados cada 6 horas.",
+    "period": "Últimos {days} días",
+    "followers": "Seguidores",
+    "views": "Visualizaciones",
+    "likes": "Me gusta",
+    "posts": "Publicaciones",
+    "published": "Publicadas con Kreo",
+    "vsPrev": "vs. periodo anterior",
+    "noData": "Todavía no hay datos. Aparecerán unas horas después de conectar una cuenta.",
+    "exportCsv": "Exportar CSV",
+    "byAccount": "Por cuenta",
+    "account": "Cuenta",
+    "lastSync": "Última actualización",
+    "never": "Nunca",
+    "topPosts": "Mejores publicaciones",
+    "topPostsEmpty": "Cuando publiques con Kreo verás aquí tus publicaciones con mejor rendimiento."
   }
 }

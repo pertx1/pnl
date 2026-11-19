@@ -99,6 +99,14 @@ export type Database = {
         Row: { social_account_id: string; workspace_id: string; day: string; followers: number | null; views: number | null; likes: number | null; comments: number | null; shares: number | null; posts_count: number | null; captured_at: string };
         Insert: { social_account_id: string; workspace_id: string; day: string; followers?: number | null; views?: number | null; likes?: number | null; comments?: number | null; shares?: number | null; posts_count?: number | null };
         Update: { followers?: number | null; views?: number | null; likes?: number | null; posts_count?: number | null };
+        Relationships: [
+          { foreignKeyName: "account_metrics_daily_social_account_id_fkey"; columns: ["social_account_id"]; isOneToOne: false; referencedRelation: "social_accounts"; referencedColumns: ["id"] },
+        ];
+      };
+      waitlist: {
+        Row: { id: string; email: string; locale: string; referral_code: string; referred_by: string | null; confirm_token_hash: string | null; unsubscribe_token_hash: string; consent_at: string; confirmed_at: string | null; created_at: string };
+        Insert: never;
+        Update: never;
         Relationships: [];
       };
       workspace_members: {
