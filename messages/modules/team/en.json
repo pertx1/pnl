@@ -1,1 +1,342 @@
-{}
+{
+  "team": {
+    "title": "Team",
+    "subtitle": "Invite your team or your clients, decide what each person can do and see who did what.",
+    "soon": "Coming soon",
+    "cancel": "Cancel",
+    "copy": "Copy",
+    "copied": "Copied",
+    "nav": {
+      "label": "Team sections",
+      "members": "Members",
+      "approvals": "Pending approval",
+      "activity": "Activity"
+    },
+    "roles": {
+      "owner": "Owner",
+      "admin": "Admin",
+      "editor": "Editor",
+      "viewer": "Viewer"
+    },
+    "rolesHelp": {
+      "title": "What each role can do",
+      "owner": "Everything, including plan, billing and transferring ownership. There is always at least one.",
+      "admin": "Invites and manages members, connects accounts, approves and schedules posts and sees activity.",
+      "editor": "Creates content and submits it for approval. Can't publish without an admin's sign-off.",
+      "viewer": "Read-only: sees projects, calendar and analytics."
+    },
+    "projectAccess": {
+      "title": "Per-project access",
+      "body": "Soon you'll be able to limit an editor or viewer to specific projects (ideal for agency clients). For now, every member sees all the workspace's projects according to their role."
+    },
+    "invite": {
+      "title": "Invite someone",
+      "email": "Email",
+      "emailPlaceholder": "name@company.com",
+      "role": "Role",
+      "submit": "Send invite",
+      "sending": "Sending…",
+      "hint": "They'll get a link valid for 7 days. They must accept it with a Kreo account using that same email.",
+      "sent": "Invite sent to {email}",
+      "emailFailed": "The invite for {email} was created, but we couldn't send the email. Copy the link and send it yourself:",
+      "link": "Invite link"
+    },
+    "members": {
+      "title": "{n, plural, =1 {1 member} other {# members}}",
+      "empty": "No one else here yet. Invite your team to work together.",
+      "noName": "No name",
+      "you": "you",
+      "joined": "since {date}",
+      "changeRole": "Change {name}'s role",
+      "actions": "More actions for {name}",
+      "transfer": "Transfer ownership",
+      "remove": "Remove from team",
+      "removeTitle": "Remove this member?",
+      "removeBody": "{name} will lose access to this workspace immediately. Their content is kept.",
+      "transferTitle": "Transfer ownership?",
+      "transferBody": "{name} will become an owner and you'll stay as admin. Only an owner can undo this.",
+      "roleChanged": "Role updated",
+      "removed": "Member removed",
+      "transferred": "Ownership transferred"
+    },
+    "pending": {
+      "title": "Pending invites",
+      "empty": "No pending invites.",
+      "expired": "Expired",
+      "expires": "Expires {date}",
+      "revoke": "Revoke",
+      "revoked": "Invite revoked"
+    },
+    "leave": {
+      "title": "Leave workspace",
+      "body": "You'll lose access to {workspace} and its projects.",
+      "last_member": "You're the only member. If you no longer need it, you can delete your account from Settings.",
+      "transfer_ownership_required": "You're the only owner. Transfer ownership to another member before leaving.",
+      "button": "Leave",
+      "confirmTitle": "Leave {workspace}?",
+      "confirmBody": "You'll need a new invite to come back."
+    },
+    "errors": {
+      "forbidden": "You don't have permission to do this.",
+      "invalid_role": "Invalid role.",
+      "invalid_email": "Check the email.",
+      "invalid_input": "Check the fields.",
+      "already_member": "That person is already a member of the workspace.",
+      "rate_limited": "You've sent a lot of invites today. Try again tomorrow.",
+      "plan_limit_members": "You've reached your plan's member limit. Upgrade your plan to invite more people.",
+      "last_owner": "There must be at least one owner.",
+      "last_member": "You're the only member of the workspace.",
+      "transfer_ownership_required": "Transfer ownership before leaving.",
+      "invalid_target": "You can't do this to yourself.",
+      "not_found": "That member is no longer in the workspace.",
+      "invitation_invalid": "This invite isn't valid or has already been used.",
+      "invitation_expired": "This invite has expired. Ask for a new one.",
+      "invitation_email_mismatch": "This invite is for a different email. Sign in with the invited email's account.",
+      "mfa_required": "Verify your second factor (2FA) to continue.",
+      "email_failed": "The email couldn't be sent.",
+      "generic": "Something went wrong. Please try again."
+    },
+    "email": {
+      "subject": "You've been invited to {workspace} on Kreo",
+      "title": "Join {workspace} on Kreo",
+      "body": "{inviter} invited you to collaborate on “{workspace}” as {role}.",
+      "expires": "The link expires in {days} days and only works with a Kreo account using this email.",
+      "ignore": "If you weren't expecting this invite, ignore this email: nothing will be created.",
+      "cta": "Accept invite",
+      "footer": "You're receiving this email because an administrator of a Kreo workspace invited you. This is not a marketing email."
+    },
+    "approvals": {
+      "title": "Pending approval",
+      "introAdmin": "Posts your team has submitted for approval. Open them to review and approve or send back to draft: nothing is published without your click.",
+      "introEditor": "Posts submitted for approval. An admin will review them before they're scheduled.",
+      "emptyTitle": "All caught up",
+      "emptyBody": "No posts are waiting for approval.",
+      "untitled": "Untitled post",
+      "by": "by {name}",
+      "noDate": "No date",
+      "review": "Review",
+      "open": "Open"
+    },
+    "activity": {
+      "title": "Activity",
+      "onlyAdmins": "Only admins and owners can see the activity log.",
+      "filters": "Activity filters",
+      "member": "Member",
+      "action": "Action",
+      "all": "All",
+      "from": "From",
+      "to": "To",
+      "apply": "Filter",
+      "clear": "Clear filters",
+      "empty": "No activity recorded yet.",
+      "emptyFiltered": "No activity matches these filters.",
+      "older": "Show older",
+      "formerMember": "Former member",
+      "system": "Kreo",
+      "actionNames": {
+        "workspace_created": "Workspace created",
+        "project_created": "Project created",
+        "post_submitted": "Submitted for approval",
+        "post_approved": "Post approved",
+        "member_invited": "Invite sent",
+        "member_joined": "Member joined",
+        "member_role_changed": "Role changed",
+        "member_removed": "Member removed",
+        "member_left": "Member left",
+        "ownership_transferred": "Ownership transferred",
+        "invitation_revoked": "Invite revoked",
+        "plan_changed": "Plan change"
+      },
+      "messages": {
+        "workspace_created": "{actor} created the workspace",
+        "project_created": "{actor} created a project",
+        "post_submitted": "{actor} submitted a post for approval",
+        "post_approved": "{actor} approved a post",
+        "member_invited": "{actor} invited someone as {role}",
+        "member_joined": "{target} joined the team as {role}",
+        "member_role_changed": "{actor} changed {target}'s role from {from} to {to}",
+        "member_removed": "{actor} removed {target} from the team",
+        "member_left": "{actor} left the workspace",
+        "ownership_transferred": "{actor} transferred ownership to {target}",
+        "invitation_revoked": "{actor} revoked an invite",
+        "plan_changed": "The plan changed from {from} to {to}",
+        "generic": "{actor} · {action}"
+      }
+    }
+  },
+  "plans": {
+    "pageTitle": "Plan & credits",
+    "pageSubtitle": "Your plan sets the workspace limits. Credits are used to generate content with AI.",
+    "yourPlan": "Your plan",
+    "freeIntro": "You're on the free plan. Upgrade when you need more projects, accounts or members.",
+    "renewsOn": "renews on {date}",
+    "endsOn": "ends on {date}",
+    "pastDue": "We couldn't charge the last invoice. Update your payment method to keep your plan.",
+    "monthlyCreditsLine": "{n} AI credits included every month",
+    "subscribed": "Subscription active! Your plan and credits will update in a few seconds.",
+    "onlyAdmins": "Only admins and owners can change the plan.",
+    "free": "Free",
+    "perMonth": "/ month",
+    "current": "Your plan",
+    "recommended": "Recommended",
+    "currentHint": "Change plan or payment method, or cancel, from “Manage subscription”.",
+    "freeCurrent": "No card needed. Upgrade whenever you like.",
+    "freeDowngrade": "To go back to the free plan, cancel your subscription in “Manage subscription”. You'll keep your plan until the end of the paid period.",
+    "changeInPortal": "Switch to this plan from “Manage subscription” (prorated automatically).",
+    "subscribe": "Subscribe",
+    "redirecting": "Opening checkout…",
+    "manage": "Manage subscription",
+    "subscribeTerms": "I accept the <terms>terms</terms> and automatic monthly renewal. I can cancel anytime; the service starts now, so if I withdraw within 14 days I'll pay for the part used.",
+    "vatNote": "VAT included. Secure payment with Stripe. Invoice with every charge.",
+    "provisional": "Provisional prices and limits: they may change before launch.",
+    "upgrade": "Upgrade plan",
+    "limitReached": "You've reached your plan's {what} limit ({max}). Upgrade your plan to add more.",
+    "limitNear": "You're close to your {what} limit: {used} of {max}.",
+    "limitKinds": {
+      "projects": "projects",
+      "socialAccounts": "social accounts",
+      "members": "members",
+      "credits": "credits"
+    },
+    "features": {
+      "projects": "{n, plural, =1 {1 project} other {# projects}}",
+      "socialAccounts": "{n, plural, =1 {1 social account} other {# social accounts}}",
+      "members": "{n, plural, =1 {1 member} other {# members}}",
+      "monthlyCredits": "{n} AI credits per month"
+    },
+    "subStatus": {
+      "active": "Active",
+      "trialing": "Trial",
+      "past_due": "Payment due",
+      "canceled": "Canceled",
+      "unpaid": "Unpaid",
+      "incomplete": "Awaiting payment",
+      "incomplete_expired": "Payment not completed",
+      "paused": "Paused"
+    },
+    "errors": {
+      "not_configured": "Subscriptions will be enabled as soon as we set up payments.",
+      "forbidden": "Only admins and owners can manage the plan.",
+      "invalid_plan": "Invalid plan.",
+      "terms_required": "Accept the conditions to continue.",
+      "already_subscribed": "You already have an active subscription. Change plan from “Manage subscription”.",
+      "no_customer": "There's no billing information for this workspace yet.",
+      "generic": "We couldn't open checkout. Please try again."
+    }
+  },
+  "affiliates": {
+    "title": "Affiliates",
+    "subtitle": "Recommend Kreo and earn a recurring {pct} of what your referrals pay for {months} months.",
+    "provisional": "Provisional terms: the percentage and periods may change with 30 days' notice.",
+    "suspended": "Your affiliate account is suspended. Contact us if you think this is a mistake.",
+    "copy": "Copy",
+    "copied": "Link copied",
+    "copyFailed": "Couldn't copy. Select the text and copy it manually.",
+    "join": {
+      "title": "Join the affiliate program",
+      "point1": "Recurring {pct} commission on amounts collected (excl. VAT) for {months} months.",
+      "point2": "{days}-day attribution: through your link (with cookie consent) or your code at sign-up.",
+      "point3": "Dashboard with clicks, sign-ups, conversions and commissions. Aggregated data only: you'll never see who each referral is.",
+      "terms": "I have read and accept the <link>affiliate program terms</link>, including the obligation to disclose advertising (#ad).",
+      "submit": "Activate my link",
+      "joining": "Activating…"
+    },
+    "link": {
+      "title": "Your affiliate link",
+      "code": "Code:",
+      "hint": "Share it on your socials or with your audience. Sign-ups count for the next {days} days."
+    },
+    "stats": {
+      "clicks": "Clicks",
+      "signups": "Sign-ups",
+      "conversions": "Conversions",
+      "pending": "Pending",
+      "paid": "Paid"
+    },
+    "commissions": {
+      "title": "Commissions",
+      "empty": "No commissions yet. They'll show up here when a referral pays for a plan.",
+      "date": "Date",
+      "net": "Collected (excl. VAT)",
+      "rate": "%",
+      "amount": "Commission",
+      "status": "Status",
+      "statuses": {
+        "pending": "Pending",
+        "paid": "Paid",
+        "void": "Void"
+      }
+    },
+    "payouts": {
+      "title": "Payouts",
+      "manual": "Payouts are manual for now: every month we review consolidated commissions (after a 30-day guarantee period) and pay them by bank transfer against your invoice.",
+      "future": "Later we'll automate payouts with Stripe Connect or an affiliate platform."
+    },
+    "disclosure": {
+      "title": "Always disclose that it's advertising",
+      "body": "When you promote Kreo, say clearly and up front that it's a paid partnership: “#ad”, “Advertising” or “Affiliate link”, and turn on each network's branded content label.",
+      "noSpam": "No spam, mass messaging or ads bidding on the “Kreo” brand.",
+      "terms": "Read the program terms"
+    },
+    "claim": {
+      "title": "Did someone recommend Kreo to you?",
+      "label": "Affiliate code of the person who recommended Kreo",
+      "submit": "Save",
+      "saving": "Saving…",
+      "done": "Thanks! We've recorded who recommended you."
+    },
+    "staff": {
+      "title": "Kreo team · pending commissions",
+      "empty": "No pending commissions.",
+      "hint": "Mark as paid only after making the transfer and receiving the affiliate's invoice. Respect the 30-day guarantee period.",
+      "reference": "Payment reference",
+      "markPaid": "Mark paid",
+      "saving": "Saving…"
+    },
+    "errors": {
+      "terms_required": "Accept the terms to continue.",
+      "invalid_code": "The code isn't valid.",
+      "not_applied": "Couldn't apply it: you already have a referrer, the period has passed or the code doesn't exist.",
+      "forbidden": "You don't have permission to do this.",
+      "not_configured": "Pending server configuration.",
+      "generic": "Something went wrong. Please try again."
+    }
+  },
+  "invite": {
+    "metaTitle": "Invite",
+    "eyebrow": "Invite",
+    "title": "Join {workspace}",
+    "titleGeneric": "You've been invited to a Kreo workspace",
+    "body": "{inviter} invites you to collaborate as {role}.",
+    "someone": "Someone",
+    "forEmail": "For {email}",
+    "signedInAs": "Signed in as {email}",
+    "accept": "Accept invite",
+    "accepting": "Joining…",
+    "wrongAccount": "Not your account?",
+    "signOut": "Sign out",
+    "login": "Sign in to accept",
+    "signup": "Create an account",
+    "signupHint": "If you don't have an account yet, sign up with the invited email. Once you confirm your email, open this same link again to join.",
+    "goToApp": "Go to Kreo",
+    "goHome": "Go home",
+    "status": {
+      "invalid": {
+        "title": "Invalid invite",
+        "body": "The link is wrong or no longer exists. Ask the person who invited you to send a new one."
+      },
+      "accepted": {
+        "title": "Invite already accepted",
+        "body": "This invite has already been used. If it was you, sign in to Kreo and pick the workspace from the menu."
+      },
+      "revoked": {
+        "title": "Invite revoked",
+        "body": "The person who invited you cancelled this invite."
+      },
+      "expired": {
+        "title": "Invite expired",
+        "body": "Invites expire after 7 days. Ask for a new one."
+      }
+    }
+  }
+}

@@ -1,1 +1,342 @@
-{}
+{
+  "team": {
+    "title": "Equipo",
+    "subtitle": "Invita a tu equipo o a tus clientes, decide qué puede hacer cada uno y revisa quién hizo qué.",
+    "soon": "Próximamente",
+    "cancel": "Cancelar",
+    "copy": "Copiar",
+    "copied": "Copiado",
+    "nav": {
+      "label": "Secciones de equipo",
+      "members": "Miembros",
+      "approvals": "Pendientes de aprobar",
+      "activity": "Actividad"
+    },
+    "roles": {
+      "owner": "Propietario",
+      "admin": "Admin",
+      "editor": "Editor",
+      "viewer": "Lector"
+    },
+    "rolesHelp": {
+      "title": "Qué puede hacer cada rol",
+      "owner": "Todo, incluido el plan, la facturación y transferir la propiedad. Siempre hay al menos uno.",
+      "admin": "Invita y gestiona miembros, conecta cuentas, aprueba y programa publicaciones y ve la actividad.",
+      "editor": "Crea contenido y lo envía a aprobación. No publica sin el visto bueno de un admin.",
+      "viewer": "Solo lectura: ve proyectos, calendario y analíticas."
+    },
+    "projectAccess": {
+      "title": "Acceso por proyecto",
+      "body": "Pronto podrás limitar a un editor o lector a ciertos proyectos (ideal para clientes de agencia). De momento, cada miembro ve todos los proyectos del espacio de trabajo según su rol."
+    },
+    "invite": {
+      "title": "Invitar a alguien",
+      "email": "Email",
+      "emailPlaceholder": "nombre@empresa.com",
+      "role": "Rol",
+      "submit": "Enviar invitación",
+      "sending": "Enviando…",
+      "hint": "Le llegará un enlace válido durante 7 días. Debe aceptarlo con una cuenta de Kreo con ese mismo email.",
+      "sent": "Invitación enviada a {email}",
+      "emailFailed": "La invitación para {email} está creada, pero no hemos podido enviar el email. Copia el enlace y envíaselo tú:",
+      "link": "Enlace de invitación"
+    },
+    "members": {
+      "title": "{n, plural, =1 {1 miembro} other {# miembros}}",
+      "empty": "Todavía no hay nadie más. Invita a tu equipo para trabajar juntos.",
+      "noName": "Sin nombre",
+      "you": "tú",
+      "joined": "desde {date}",
+      "changeRole": "Cambiar el rol de {name}",
+      "actions": "Más acciones para {name}",
+      "transfer": "Transferir propiedad",
+      "remove": "Quitar del equipo",
+      "removeTitle": "¿Quitar a este miembro?",
+      "removeBody": "{name} perderá el acceso a este espacio de trabajo de inmediato. Su contenido se conserva.",
+      "transferTitle": "¿Transferir la propiedad?",
+      "transferBody": "{name} pasará a ser propietario y tú quedarás como admin. Solo un propietario puede deshacerlo.",
+      "roleChanged": "Rol actualizado",
+      "removed": "Miembro quitado",
+      "transferred": "Propiedad transferida"
+    },
+    "pending": {
+      "title": "Invitaciones pendientes",
+      "empty": "No hay invitaciones pendientes.",
+      "expired": "Caducada",
+      "expires": "Caduca el {date}",
+      "revoke": "Revocar",
+      "revoked": "Invitación revocada"
+    },
+    "leave": {
+      "title": "Salir del espacio de trabajo",
+      "body": "Dejarás de tener acceso a {workspace} y a sus proyectos.",
+      "last_member": "Eres el único miembro. Si ya no lo necesitas, puedes borrar tu cuenta desde Ajustes.",
+      "transfer_ownership_required": "Eres el único propietario. Transfiere la propiedad a otro miembro antes de salir.",
+      "button": "Salir",
+      "confirmTitle": "¿Salir de {workspace}?",
+      "confirmBody": "Necesitarás una nueva invitación para volver."
+    },
+    "errors": {
+      "forbidden": "No tienes permisos para hacer esto.",
+      "invalid_role": "Rol no válido.",
+      "invalid_email": "Revisa el email.",
+      "invalid_input": "Revisa los campos.",
+      "already_member": "Esa persona ya es miembro del espacio de trabajo.",
+      "rate_limited": "Has enviado muchas invitaciones hoy. Inténtalo mañana.",
+      "plan_limit_members": "Has llegado al límite de miembros de tu plan. Mejora tu plan para invitar a más personas.",
+      "last_owner": "Debe quedar al menos un propietario.",
+      "last_member": "Eres el único miembro del espacio de trabajo.",
+      "transfer_ownership_required": "Transfiere la propiedad antes de salir.",
+      "invalid_target": "No puedes hacer esto contigo mismo.",
+      "not_found": "Ese miembro ya no está en el espacio de trabajo.",
+      "invitation_invalid": "Esta invitación no es válida o ya se ha usado.",
+      "invitation_expired": "Esta invitación ha caducado. Pide que te envíen una nueva.",
+      "invitation_email_mismatch": "Esta invitación es para otro email. Entra con la cuenta del email invitado.",
+      "mfa_required": "Verifica tu segundo factor (2FA) para continuar.",
+      "email_failed": "No se pudo enviar el email.",
+      "generic": "Algo ha fallado. Inténtalo de nuevo."
+    },
+    "email": {
+      "subject": "Te han invitado a {workspace} en Kreo",
+      "title": "Únete a {workspace} en Kreo",
+      "body": "{inviter} te ha invitado a colaborar en «{workspace}» con el rol de {role}.",
+      "expires": "El enlace caduca en {days} días y solo funciona con una cuenta de Kreo con este email.",
+      "ignore": "Si no esperabas esta invitación, ignora este email: no se creará nada.",
+      "cta": "Aceptar invitación",
+      "footer": "Recibes este email porque un administrador de un espacio de trabajo de Kreo te ha invitado. No es un email comercial."
+    },
+    "approvals": {
+      "title": "Pendientes de aprobar",
+      "introAdmin": "Publicaciones que tu equipo ha enviado a aprobación. Ábrelas para revisarlas y aprobarlas o devolverlas a borrador: nada se publica sin tu clic.",
+      "introEditor": "Publicaciones enviadas a aprobación. Un admin las revisará antes de programarlas.",
+      "emptyTitle": "Todo al día",
+      "emptyBody": "No hay publicaciones esperando aprobación.",
+      "untitled": "Publicación sin título",
+      "by": "de {name}",
+      "noDate": "Sin fecha",
+      "review": "Revisar",
+      "open": "Abrir"
+    },
+    "activity": {
+      "title": "Actividad",
+      "onlyAdmins": "Solo los admins y propietarios pueden ver el registro de actividad.",
+      "filters": "Filtros de actividad",
+      "member": "Miembro",
+      "action": "Acción",
+      "all": "Todos",
+      "from": "Desde",
+      "to": "Hasta",
+      "apply": "Filtrar",
+      "clear": "Quitar filtros",
+      "empty": "Aún no hay actividad registrada.",
+      "emptyFiltered": "No hay actividad con estos filtros.",
+      "older": "Ver más antiguas",
+      "formerMember": "Antiguo miembro",
+      "system": "Kreo",
+      "actionNames": {
+        "workspace_created": "Espacio creado",
+        "project_created": "Proyecto creado",
+        "post_submitted": "Enviado a aprobación",
+        "post_approved": "Publicación aprobada",
+        "member_invited": "Invitación enviada",
+        "member_joined": "Miembro unido",
+        "member_role_changed": "Rol cambiado",
+        "member_removed": "Miembro quitado",
+        "member_left": "Miembro salió",
+        "ownership_transferred": "Propiedad transferida",
+        "invitation_revoked": "Invitación revocada",
+        "plan_changed": "Cambio de plan"
+      },
+      "messages": {
+        "workspace_created": "{actor} creó el espacio de trabajo",
+        "project_created": "{actor} creó un proyecto",
+        "post_submitted": "{actor} envió una publicación a aprobación",
+        "post_approved": "{actor} aprobó una publicación",
+        "member_invited": "{actor} invitó a una persona como {role}",
+        "member_joined": "{target} se unió al equipo como {role}",
+        "member_role_changed": "{actor} cambió el rol de {target} de {from} a {to}",
+        "member_removed": "{actor} quitó a {target} del equipo",
+        "member_left": "{actor} salió del espacio de trabajo",
+        "ownership_transferred": "{actor} transfirió la propiedad a {target}",
+        "invitation_revoked": "{actor} revocó una invitación",
+        "plan_changed": "El plan cambió de {from} a {to}",
+        "generic": "{actor} · {action}"
+      }
+    }
+  },
+  "plans": {
+    "pageTitle": "Plan y créditos",
+    "pageSubtitle": "Tu plan marca los límites del espacio de trabajo. Los créditos se usan para generar contenido con IA.",
+    "yourPlan": "Tu plan",
+    "freeIntro": "Estás en el plan gratuito. Mejora cuando necesites más proyectos, cuentas o miembros.",
+    "renewsOn": "se renueva el {date}",
+    "endsOn": "termina el {date}",
+    "pastDue": "No hemos podido cobrar la última factura. Actualiza tu método de pago para no perder el plan.",
+    "monthlyCreditsLine": "{n} créditos de IA incluidos cada mes",
+    "subscribed": "¡Suscripción activada! Tu plan y tus créditos se actualizarán en unos segundos.",
+    "onlyAdmins": "Solo los admins y propietarios pueden cambiar el plan.",
+    "free": "Gratis",
+    "perMonth": "/ mes",
+    "current": "Tu plan",
+    "recommended": "Recomendado",
+    "currentHint": "Cambia de plan, de método de pago o cancela desde «Gestionar suscripción».",
+    "freeCurrent": "Sin tarjeta. Mejora cuando quieras.",
+    "freeDowngrade": "Para volver al plan gratuito, cancela tu suscripción en «Gestionar suscripción». Mantendrás tu plan hasta el final del periodo pagado.",
+    "changeInPortal": "Cambia a este plan desde «Gestionar suscripción» (se prorratea automáticamente).",
+    "subscribe": "Contratar",
+    "redirecting": "Abriendo pago…",
+    "manage": "Gestionar suscripción",
+    "subscribeTerms": "Acepto los <terms>términos</terms> y la renovación mensual automática. Puedo cancelar cuando quiera; el servicio empieza ya, así que si desisto en 14 días pagaré la parte usada.",
+    "vatNote": "IVA incluido. Pago seguro con Stripe. Factura en cada cobro.",
+    "provisional": "Precios y límites provisionales: pueden cambiar antes del lanzamiento.",
+    "upgrade": "Mejorar plan",
+    "limitReached": "Has llegado al límite de {what} de tu plan ({max}). Mejora tu plan para añadir más.",
+    "limitNear": "Estás cerca del límite de {what}: {used} de {max}.",
+    "limitKinds": {
+      "projects": "proyectos",
+      "socialAccounts": "cuentas sociales",
+      "members": "miembros",
+      "credits": "créditos"
+    },
+    "features": {
+      "projects": "{n, plural, =1 {1 proyecto} other {# proyectos}}",
+      "socialAccounts": "{n, plural, =1 {1 cuenta social} other {# cuentas sociales}}",
+      "members": "{n, plural, =1 {1 miembro} other {# miembros}}",
+      "monthlyCredits": "{n} créditos de IA al mes"
+    },
+    "subStatus": {
+      "active": "Activa",
+      "trialing": "En prueba",
+      "past_due": "Pago pendiente",
+      "canceled": "Cancelada",
+      "unpaid": "Impagada",
+      "incomplete": "Pendiente de pago",
+      "incomplete_expired": "Pago no completado",
+      "paused": "En pausa"
+    },
+    "errors": {
+      "not_configured": "Las suscripciones se activarán en cuanto configuremos el sistema de pagos.",
+      "forbidden": "Solo los admins y propietarios pueden gestionar el plan.",
+      "invalid_plan": "Plan no válido.",
+      "terms_required": "Acepta las condiciones para continuar.",
+      "already_subscribed": "Ya tienes una suscripción activa. Cambia de plan desde «Gestionar suscripción».",
+      "no_customer": "Todavía no hay datos de facturación para este espacio de trabajo.",
+      "generic": "No hemos podido abrir el pago. Inténtalo de nuevo."
+    }
+  },
+  "affiliates": {
+    "title": "Afiliados",
+    "subtitle": "Recomienda Kreo y gana un {pct} recurrente de lo que paguen tus referidos durante {months} meses.",
+    "provisional": "Condiciones provisionales: el porcentaje y los plazos pueden cambiar con 30 días de preaviso.",
+    "suspended": "Tu cuenta de afiliado está suspendida. Escríbenos si crees que es un error.",
+    "copy": "Copiar",
+    "copied": "Enlace copiado",
+    "copyFailed": "No se pudo copiar. Selecciona el texto y cópialo a mano.",
+    "join": {
+      "title": "Únete al programa de afiliados",
+      "point1": "Comisión recurrente del {pct} sobre lo cobrado (sin IVA) durante {months} meses.",
+      "point2": "Atribución de {days} días: por tu enlace (con consentimiento de cookies) o por tu código al registrarse.",
+      "point3": "Panel con clics, registros, conversiones y comisiones. Solo datos agregados: nunca verás quién es cada referido.",
+      "terms": "He leído y acepto los <link>términos del programa de afiliados</link>, incluida la obligación de indicar que es publicidad (#ad).",
+      "submit": "Activar mi enlace",
+      "joining": "Activando…"
+    },
+    "link": {
+      "title": "Tu enlace de afiliado",
+      "code": "Código:",
+      "hint": "Compártelo en tus redes o con tu audiencia. Cuenta los registros de los próximos {days} días."
+    },
+    "stats": {
+      "clicks": "Clics",
+      "signups": "Registros",
+      "conversions": "Conversiones",
+      "pending": "Pendiente",
+      "paid": "Pagado"
+    },
+    "commissions": {
+      "title": "Comisiones",
+      "empty": "Aún no hay comisiones. Aparecerán aquí cuando un referido pague su plan.",
+      "date": "Fecha",
+      "net": "Cobrado (sin IVA)",
+      "rate": "%",
+      "amount": "Comisión",
+      "status": "Estado",
+      "statuses": {
+        "pending": "Pendiente",
+        "paid": "Pagada",
+        "void": "Anulada"
+      }
+    },
+    "payouts": {
+      "title": "Pagos",
+      "manual": "De momento los pagos son manuales: cada mes revisamos las comisiones consolidadas (tras 30 días de garantía) y te las pagamos por transferencia contra factura.",
+      "future": "Más adelante automatizaremos los pagos con Stripe Connect o una plataforma de afiliados."
+    },
+    "disclosure": {
+      "title": "Indica siempre que es publicidad",
+      "body": "Cuando promociones Kreo, di de forma clara y al principio que es una colaboración pagada: «#ad», «#publi», «Publicidad» o «Enlace de afiliado», y activa la etiqueta de contenido de marca de cada red.",
+      "noSpam": "Nada de spam, mensajes masivos ni anuncios pujando por la marca «Kreo».",
+      "terms": "Leer los términos del programa"
+    },
+    "claim": {
+      "title": "¿Te recomendó alguien?",
+      "label": "Código de afiliado de quien te recomendó Kreo",
+      "submit": "Guardar",
+      "saving": "Guardando…",
+      "done": "¡Gracias! Hemos registrado quién te recomendó."
+    },
+    "staff": {
+      "title": "Equipo Kreo · comisiones pendientes",
+      "empty": "No hay comisiones pendientes.",
+      "hint": "Marca como pagada solo tras hacer la transferencia y recibir la factura del afiliado. Respeta el periodo de garantía de 30 días.",
+      "reference": "Referencia del pago",
+      "markPaid": "Marcar pagada",
+      "saving": "Guardando…"
+    },
+    "errors": {
+      "terms_required": "Acepta los términos para continuar.",
+      "invalid_code": "El código no es válido.",
+      "not_applied": "No se ha podido aplicar: ya tienes un referido, el plazo ha pasado o el código no existe.",
+      "forbidden": "No tienes permisos para hacer esto.",
+      "not_configured": "Pendiente de configurar en el servidor.",
+      "generic": "Algo ha fallado. Inténtalo de nuevo."
+    }
+  },
+  "invite": {
+    "metaTitle": "Invitación",
+    "eyebrow": "Invitación",
+    "title": "Únete a {workspace}",
+    "titleGeneric": "Te han invitado a un espacio de trabajo de Kreo",
+    "body": "{inviter} te invita a colaborar con el rol de {role}.",
+    "someone": "Alguien",
+    "forEmail": "Para {email}",
+    "signedInAs": "Has iniciado sesión como {email}",
+    "accept": "Aceptar invitación",
+    "accepting": "Uniéndote…",
+    "wrongAccount": "¿No es tu cuenta?",
+    "signOut": "Cerrar sesión",
+    "login": "Iniciar sesión para aceptar",
+    "signup": "Crear una cuenta",
+    "signupHint": "Si aún no tienes cuenta, regístrate con el email invitado. Cuando confirmes tu email, vuelve a abrir este mismo enlace para unirte.",
+    "goToApp": "Ir a Kreo",
+    "goHome": "Ir al inicio",
+    "status": {
+      "invalid": {
+        "title": "Invitación no válida",
+        "body": "El enlace no es correcto o ya no existe. Pide a quien te invitó que te envíe uno nuevo."
+      },
+      "accepted": {
+        "title": "Invitación ya aceptada",
+        "body": "Esta invitación ya se ha usado. Si eres tú, entra en Kreo y elige el espacio de trabajo en el menú."
+      },
+      "revoked": {
+        "title": "Invitación revocada",
+        "body": "Quien te invitó ha cancelado esta invitación."
+      },
+      "expired": {
+        "title": "Invitación caducada",
+        "body": "Las invitaciones caducan a los 7 días. Pide que te envíen una nueva."
+      }
+    }
+  }
+}
