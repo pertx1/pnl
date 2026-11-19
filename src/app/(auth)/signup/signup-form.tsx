@@ -11,7 +11,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { signup } from "../actions";
 
-export function SignupForm() {
+export function SignupForm({ referral }: { referral?: string }) {
   const t = useTranslations("auth");
   const [state, action] = useActionState(signup, undefined);
 
@@ -41,6 +41,7 @@ export function SignupForm() {
         <p className="text-sm text-muted-foreground">{t("signupSubtitle")}</p>
       </div>
       <form action={action} className="space-y-4">
+        {referral && <input type="hidden" name="ref" value={referral} />}
         <div className="space-y-2">
           <Label htmlFor="name">{t("name")}</Label>
           <Input id="name" name="name" autoComplete="name" required maxLength={120} defaultValue={state?.values?.name} />

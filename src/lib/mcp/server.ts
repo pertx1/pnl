@@ -4,6 +4,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import { z } from "zod";
 import { AgentRefusalError, isAgentsConfigured } from "@/lib/agents";
 import { validateTarget, type PlatformOptions } from "@/lib/posts/rules";
+import { youtubeDerivedAllowed } from "@/lib/research/config";
 import { aggregateMetrics, lastDays } from "@/lib/reports/core";
 import { salesSummary, type LineItem } from "@/lib/shopify/core";
 import type { Database, WorkspaceRoleT } from "@/lib/supabase/database.types";
@@ -261,7 +262,7 @@ export function createKreoMcpServer(ctx: McpContext) {
     {
       title: "Analyze competitor",
       description:
-        "Returns the saved public data of a competitor tracked in the project's Research module (official APIs only): profile stats, top recent posts with their multiple vs. the median, and the latest saved AI analysis. Without `competitor`, lists the tracked competitors. Does not use credits.",
+        "Returns the saved public data of a competitor tracked in the project's Research module (official APIs only): profile stats, top recent posts with their multiple vs. the median, and the latest saved AI analysis (for YouTube channels only the data as provided by YouTube, without calculated metrics or AI analysis). Without `competitor`, lists the tracked competitors. Does not use credits.",
       inputSchema: z.object({ project_id: z.uuid(), competitor: z.string().max(200).optional().describe("Competitor id or handle.") }),
       annotations: { readOnlyHint: true },
     },
@@ -277,17 +278,29 @@ export function createKreoMcpServer(ctx: McpContext) {
       if (!c) return fail("not_found", "Competitor not tracked in this project. Add it in Kreo › Research first.");
       const { data: posts } = await db.from("research_competitor_posts").select("title, url, published_at, views, likes, comments").eq("competitor_id", c.id).order("published_at", { ascending: false }).limit(30);
       const ps = (posts ?? []) as { title: string | null; url: string | null; published_at: string | null; views: number | null; likes: number | null; comments: number | null }[];
+      // YouTube Developer Policies III.E.2.b / III.E.4.h: sin auditoría (III.L) no se calculan métricas derivadas
+      // (mediana, múltiplo) ni se entregan análisis de IA sobre canales ajenos. Mismo criterio que el módulo de investigación.
+      const derived = c.platform !== "youtube" || youtubeDerivedAllowed();
       const views = ps.map((x) => x.views).filter((v): v is number => v !== null).sort((x, y) => x - y);
-      const median = views.length ? views[Math.floor(views.length / 2)] : null;
-      const { data: analysis } = await db.from("research_analyses").select("result, agent_version, created_at").eq("subject_type", "competitor").eq("subject_id", c.id).order("created_at", { ascending: false }).limit(1).maybeSingle();
+      const median = derived && views.length ? views[Math.floor(views.length / 2)] : null;
+      const { data: analysis } = derived
+        ? await db.from("research_analyses").select("result, agent_version, created_at").eq("subject_type", "competitor").eq("subject_id", c.id).order("created_at", { ascending: false }).limit(1).maybeSingle()
+        : { data: null };
       return json({
         competitor: c,
-        median_views_last_30_posts: median,
+        ...(derived ? { median_views_last_30_posts: median } : {}),
         top_posts: [...ps]
           .sort((x, y) => (y.views ?? -1) - (x.views ?? -1))
           .slice(0, 10)
-          .map((x) => ({ ...x, multiple_vs_median: median && x.views !== null ? Math.round((x.views / median) * 10) / 10 : null })),
+          .map((x) => (derived ? { ...x, multiple_vs_median: median && x.views !== null ? Math.round((x.views / median) * 10) / 10 : null } : x)),
         latest_ai_analysis: analysis ?? null,
+        ...(c.platform === "youtube"
+          ? {
+              notes: [
+                "Data from the YouTube Data API, shown as provided by YouTube. YouTube Terms of Service: https://www.youtube.com/t/terms · Google Privacy Policy: https://policies.google.com/privacy",
+              ],
+            }
+          : {}),
       });
     }),
   );
@@ -352,7 +365,7 @@ export function createKreoMcpServer(ctx: McpContext) {
         p_kind: "text",
         p_provider: "anthropic",
         p_model: "claude-opus-5-5",
-        p_prompt: a.message.slice(0, 4000),
+        p_prompt: `mcp.draft_reply ${DRAFT_REPLY_VERSION}`, // sin el mensaje del tercero (minimización, igual que la bandeja)
         p_params: { agent: "mcp.draft_reply", version: DRAFT_REPLY_VERSION },
         p_credits: DRAFT_REPLY_CREDITS,
         p_license: { name: "Anthropic Commercial Terms", commercialUse: true },

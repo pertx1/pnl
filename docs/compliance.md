@@ -264,3 +264,119 @@ hay que aplicarla y pasar `qa-tester` antes del merge.
 
 > ✅ **2026-11-19:** migración `20261119120000_compliance_fixes.sql` aplicada en Supabase y verificada: editar un destino
 > de un post programado lo devuelve a "pendiente de aprobación" y un admin puede volver a aprobarlo.
+
+---
+
+# Revisión de los módulos de las Fases 2-4 — 2026-11-19
+
+Revisión de `seguridad-legal` leyendo el código de los commits 9aa35c3, 2d43ac5, 91ed86a, debd0dc y 4096b37 (notas detalladas
+de cada módulo en `docs/compliance/{research,strategy,inbox,commerce,team}.md`). Correcciones pequeñas aplicadas directamente
+(**[arreglado]**). SQL nuevo en `supabase/migrations/20261120150000_compliance_fixes_2.sql`: **NO aplicada**.
+`npx tsc --noEmit` y `npx vitest run` (132 tests) en verde tras los cambios.
+
+## Investigación (competencia, productos ganadores, inspiración) — 2026-11-19 — Estado: ⚠️ aprobado con condiciones
+- APIs usadas: YouTube Data API v3 (clave de API, datos públicos), Instagram Business Discovery (token de cuenta conectada,
+  cabecera + `appsecret_proof`), Meta Ad Library API (token en cabecera; enlace público a la ficha, nunca `ad_snapshot_url`),
+  oEmbed oficiales, Anthropic. TikTok: proveedor `none` (sin scraping).
+- Permisos: ninguno nuevo (Business Discovery reutiliza `instagram_basic` + `pages_read_engagement`).
+- Datos guardados: ver `docs/compliance/research.md`. YouTube: refresco ≤ 20 días y purga > 29 días (verificado en `research-retention`).
+- Verificado: RLS + `mfa_required` en las 8 tablas; triggers de coherencia de workspace; zod; logs solo con códigos; backoff con
+  `Retry-After`; métricas derivadas de YouTube desactivadas por defecto en la UI y en las alertas.
+- Riesgos detectados y mitigaciones:
+  - ⛔→**[arreglado]** El **Analista de IA** procesaba títulos y cifras de canales de YouTube ajenos y guardaba "insights"
+    (III.E.2.b / III.E.4.h: datos derivados sin auditoría). Ahora `analyzeCompetitorAction` devuelve `youtube_derived_locked`
+    para YouTube salvo `YOUTUBE_DERIVED_METRICS_APPROVED=true`, y el botón queda deshabilitado (mismo criterio que estrategia).
+  - ⛔→**[arreglado]** El servidor MCP (`analyze_competitor`) devolvía la mediana, el "múltiplo vs. mediana" y el análisis de IA
+    también para YouTube, saltándose el bloqueo de la UI → ahora solo los datos tal cual + enlaces a Términos de YouTube y Política de Google.
+- Pendiente antes del lanzamiento:
+  1. Logotipo oficial de YouTube (Branding Guidelines) donde se muestran sus datos (hoy etiqueta de texto).
+  2. Declarar Business Discovery en App Review; confirmar con Meta que los términos de la **Ad Library API** permiten su uso en un SaaS comercial para terceros con un token de Oier.
+  3. Política de privacidad: datos públicos de terceros (art. 14 RGPD), fuentes, plazos y derecho de oposición; LIA escrita.
+  4. Avatares/miniaturas desde CDN de plataformas: mencionarlo o servirlos a través de Kreo.
+  5. Auditoría de YouTube (III.L) si se quieren outliers/análisis de YouTube.
+
+## Estrategia, planificador y calentamiento guiado — 2026-11-19 — Estado: ✅ aprobado (con un pendiente menor)
+- APIs usadas: Anthropic (Estratega, Planificador, Coach); Resend para el recordatorio opcional. Ninguna API de plataformas.
+- Verificado: todo crea **borradores** (nunca `pending_approval` ni programados); respeto de `daily_post_limit` y sin textos
+  duplicados entre cuentas (revalidado en servidor); YouTube excluido de lo que se envía a la IA; el calentamiento es una checklist
+  manual (ninguna acción automática en plataformas) y `sanitizeWarmupTasks` filtra bots/follow-unfollow/pods/compra de seguidores;
+  cobro atómico con reembolso; RLS + `mfa_required` en las 5 tablas.
+- Riesgos detectados y mitigaciones:
+  - **[arreglado]** El recordatorio por email seguía llegando a quien había sido expulsado o había salido del workspace (con el @
+    de la cuenta y el enlace) → `warmup-daily-check` comprueba la membresía y, si no la hay, apaga el recordatorio.
+- Pendiente: plazo de conservación de prompts en `ai_generations` (común a toda la IA); recordatorio en el RoPA.
+
+## Bandeja unificada, voz/música (ElevenLabs) y Clipper (fal) — 2026-11-19 — Estado: ⚠️ aprobado con condiciones
+- APIs usadas: Instagram Messaging (Send/Conversations/Webhooks), Gmail API, Microsoft Graph Mail, Anthropic, ElevenLabs
+  (TTS con voces por defecto, Eleven Music con C2PA), fal.ai (Whisper, trim/scale/auto-subtitle).
+- Scopes: Meta `instagram_basic`, `instagram_manage_messages`, `pages_manage_metadata`, `pages_show_list`; Google `gmail.readonly`
+  (restringido) + `gmail.send`; Microsoft `Mail.Read`, `Mail.Send`, `offline_access`, `openid email`. Justificados en la nota del módulo.
+- Verificado:
+  - Webhook de Meta con `X-Hub-Signature-256` (HMAC del cuerpo crudo, tiempo constante) y verify token; inserción idempotente.
+  - **Envío solo con clic humano**, un intento, destinatario derivado del hilo (no editable, sin CC/BCC), solo hilos con mensaje
+    entrante, máx. 30/h por conexión; **ventana de 24 h** de Instagram en servidor (HUMAN_AGENT solo con flag aprobado).
+  - OAuth con estado firmado + PKCE; rol editor revalidado a la vuelta; tokens cifrados en tabla sin políticas; tokens de Meta en
+    cabecera + `appsecret_proof`; revocación al desconectar (Google; baja de webhook en Meta).
+  - Retención: mensajes 30 días (`expires_at` + purga diaria), hilos sin actividad 30 días, borradores 30 días; logs solo con códigos;
+    la sugerencia de IA no guarda el contenido en `ai_generations`.
+  - Audio/Clipper: cobro atómico e idempotente con reembolso; audio marcado `ai_generated` (no desactivable); casilla de derechos en Clipper.
+- Riesgos / pendiente antes del lanzamiento:
+  1. **Gmail**: verificación de Google de scope restringido + **CASA anual** (coste → decisión de Oier) y declarar en la verificación
+     y en la privacidad el envío del hilo a Anthropic al pedir sugerencia (Limited Use). Hasta entonces, solo modo Testing.
+  2. Meta App Review (`instagram_manage_messages`, `pages_manage_metadata`, Human Agent) + callbacks de desautorización y eliminación de datos.
+  3. Microsoft: Publisher verification.
+  4. DPA con clientes (Kreo encargado de los mensajes), **EIPD** (IA + mensajería), Anthropic/ElevenLabs/fal en subencargados con SCC.
+  5. ElevenLabs: plan de pago (licencia comercial) y retención/`enable_logging`; voz TTS sin marca legible por máquina (AI Act art. 50.2, decidir con el abogado).
+  6. fal: DPA y plazo de retención de los intermedios en su CDN (el vídeo del usuario se envía con URL firmada de 6 h).
+  7. Clipper: dos clics simultáneos en "Generar" sobre el mismo momento pueden cobrar dos renders (el estado no se reclama de forma
+     atómica antes del cobro). No es un fallo legal, pero conviene arreglarlo antes del lanzamiento.
+
+## Shopify, informes PDF de marca blanca y servidor MCP — 2026-11-19 — Estado: ⚠️ aprobado con condiciones
+- APIs usadas: Shopify OAuth (authorization code, token offline caducable) + Admin GraphQL `2026-10` + webhooks HMAC; Resend; SDK
+  oficial MCP (Streamable HTTP, sin estado); Anthropic (`draft_reply`).
+- Scopes Shopify: `read_orders`, `read_products`, `read_discounts`, `write_discounts` (mínimos; sin `read_all_orders` ni campos de cliente).
+- Verificado:
+  - Webhooks de Shopify: HMAC base64 del cuerpo crudo en tiempo constante (401 si falla); los 3 obligatorios RGPD + `app/uninstalled`
+    (borra tokens al momento); pedidos minimizados con lista blanca + `includeFields` (sin nombre, email, teléfono, dirección ni id de cliente).
+  - OAuth: estado firmado ligado a proyecto + tienda, HMAC de la query, dominio `*.myshopify.com` anclado, rol editor revalidado,
+    una tienda ↔ un proyecto (no se puede "robar" una tienda vinculada a otro workspace).
+  - Informes: casilla de consentimiento de destinatarios, remitente identificado, **baja en un clic** (RFC 8058, GET con confirmación),
+    lista de bajas por hash que un trigger impide re-añadir, enlace firmado de 14 días que muere al pausar/borrar; PDF no se guarda.
+  - MCP: API key de 256 bits, solo hash en BD, alta/revocación con aal2; rol comprobado en cada herramienta (`member_role`);
+    `create_draft_post` nunca aprueba ni publica; `draft_reply` nunca envía; cobro atómico e idempotente con reembolso; 60/min y
+    2.000/día por clave; validación de `Origin`.
+- Riesgos detectados y mitigaciones:
+  - ⛔→**[arreglado]** `analyze_competitor` exponía métricas derivadas y análisis IA de YouTube (ver Investigación).
+  - **[arreglado]** `draft_reply` guardaba el mensaje del tercero en `ai_generations.prompt` (sin plazo de borrado) → ahora solo una etiqueta.
+- Pendiente antes del lanzamiento:
+  1. Shopify: solicitar **protected customer data nivel 1** y configurar `compliance_topics`; plazo de `shopify_orders` en el RoPA.
+  2. **YouTube en informes enviados a terceros** y en el MCP (datos del canal del usuario que salen hacia clientes/asistentes externos):
+     confirmar con el abogado y en la revisión de Google; mientras tanto, añadir al texto de conexión de YouTube que los datos pueden
+     incluirse en informes y en el MCP si el usuario lo activa, e incluir en el PDF la atribución de YouTube.
+  3. "Enviar ahora" permite un envío cada 10 min a terceros; recomendado máx. 1 manual al día por programación.
+  4. Proveedor de email UE con DPA; política de privacidad: MCP (datos hacia el cliente de IA que elige el usuario) e informes.
+  5. OAuth 2.1 para el conector MCP y caducidad opcional de las claves.
+
+## Equipo, planes/suscripción y afiliados — 2026-11-19 — Estado: ⚠️ aprobado con condiciones
+- APIs usadas: Stripe (Checkout subscription, Billing Portal, webhooks firmados), Resend (invitaciones).
+- Verificado: webhook de Stripe con `constructEvent` (firma) y estado leído siempre de la API; créditos mensuales idempotentes
+  (`plan_invoice:<id>`); `plan_id` solo por `service_role`; todas las funciones `SECURITY DEFINER` con `search_path` vacío y grants
+  mínimos; invitaciones con hash, 7 días, ligadas al email, 30/24 h por workspace; el afiliado solo ve agregados (referidos sin políticas RLS);
+  `/r/<código>` sin IP/UA, cookie `kreo_ref` **solo con consentimiento de marketing** (revalidado al usarla), prefetch no cuenta;
+  sin comisión por autorreferido o miembro del workspace; reembolso/contracargo anulan la comisión; recordatorio de #ad en el panel.
+- Riesgos detectados y mitigaciones:
+  - **[arreglado, migración pendiente]** `accept_invitation` no exigía email confirmado: si alguna vez se desactiva la confirmación
+    en Supabase Auth, alguien podría registrarse con el email invitado y entrar con el enlace → ahora exige `email_confirmed_at`
+    (`20261120150000_compliance_fixes_2.sql`).
+- Pendiente antes del lanzamiento:
+  1. **Aplicar** `20261120130000_team.sql` (no aplicada) y `20261120150000_compliance_fixes_2.sql`, y pasar `get_advisors`.
+  2. Borrar la cuenta de un afiliado borra en cascada sus comisiones: hay obligación de conservar 6 años (art. 30 CCom) → decidir
+     con el abogado (anonimizar en lugar de borrar) antes de pagar la primera comisión.
+  3. Personal que marca comisiones como pagadas (`KREO_STAFF_EMAILS`): exigir 2FA obligatoria, no solo "si la tiene".
+  4. Límite global de invitaciones por usuario (hoy 30/24 h por workspace; se puede multiplicar creando workspaces).
+  5. Desistimiento (incl. función de desistimiento de la Directiva 2023/2673), términos de afiliados, fiscalidad de comisiones y
+     transparencia hacia los referidos: revisión del abogado. Política de cookies: `kreo_ref` (marketing, 30 días).
+
+> ⚖️ Recordatorio a Oier: **un abogado debe revisar todos los textos legales** (privacidad, términos, cookies, aviso legal,
+> afiliados, DPA para clientes) y los avisos con efecto legal de estos módulos (bandeja/Gmail, informes a terceros, afiliados,
+> suscripciones) **antes del lanzamiento público**.

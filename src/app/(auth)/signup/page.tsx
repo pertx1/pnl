@@ -7,6 +7,9 @@ export async function generateMetadata(): Promise<Metadata> {
   return { title: t("signup") };
 }
 
-export default function SignupPage() {
-  return <SignupForm />;
+export default async function SignupPage({ searchParams }: { searchParams: Promise<{ ref?: string }> }) {
+  const { ref } = await searchParams;
+  // Código de afiliado declarado en la URL (?ref=). Sin cookie: solo viaja con el formulario.
+  const code = typeof ref === "string" && /^[A-Za-z0-9]{6,16}$/.test(ref) ? ref.toUpperCase() : undefined;
+  return <SignupForm referral={code} />;
 }

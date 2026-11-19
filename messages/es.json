@@ -213,7 +213,10 @@
     "deleting": "Borrando…",
     "deleteBlocked": "Eres el propietario de espacios con otros miembros ({names}). Transfiere la propiedad antes de borrar tu cuenta.",
     "deleteMismatch": "El email no coincide.",
-    "deleted": "Tu cuenta se ha borrado. Gracias por probar Kreo."
+    "deleted": "Tu cuenta se ha borrado. Gracias por probar Kreo.",
+    "apiKeys": "API keys y MCP",
+    "apiKeysBody": "Conecta Kreo con Claude u otros asistentes mediante el servidor MCP.",
+    "apiKeysOpen": "Gestionar API keys"
   },
   "brandKitLogo": {
     "upload": "Subir logo",

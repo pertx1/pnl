@@ -23,6 +23,7 @@
       "refusal": "The AI couldn't complete this request. You haven't been charged.",
       "provider_error": "The AI failed. Your credits have been refunded.",
       "no_data": "There are no saved posts to analyze yet.",
+      "youtube_derived_locked": "AI analysis is not available for YouTube: its policies only allow derived data for audited developers.",
       "duplicate": "A list with that name already exists."
     },
     "youtube": {

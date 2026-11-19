@@ -67,10 +67,21 @@ export const warmupDailyCheck = inngest.createFunction(
         const db = admin();
         const { data: p } = await db
           .from("warmup_plans")
-          .select("id, project_id, platform, handle, reminder_user_id, pending_count, needs_attention, last_reminded_at")
+          .select("id, workspace_id, project_id, platform, handle, reminder_user_id, pending_count, needs_attention, last_reminded_at")
           .eq("id", planId)
           .single();
         if (!p?.reminder_user_id || !p.needs_attention) return false;
+        // Si ya no es miembro del workspace (expulsado o se fue), no se le envía nada y se apaga el recordatorio.
+        const { data: member } = await db
+          .from("workspace_members")
+          .select("user_id")
+          .eq("workspace_id", p.workspace_id)
+          .eq("user_id", p.reminder_user_id)
+          .maybeSingle();
+        if (!member) {
+          await db.from("warmup_plans").update({ reminder_user_id: null }).eq("id", p.id);
+          return false;
+        }
         const today = new Date().toISOString().slice(0, 10);
         if (p.last_reminded_at?.slice(0, 10) === today) return false; // idempotencia ante reintentos
         const { data: u } = await db.auth.admin.getUserById(p.reminder_user_id);

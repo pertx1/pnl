@@ -1,5 +1,6 @@
 import { getTranslations } from "next-intl/server";
-import { Download } from "lucide-react";
+import Link from "next/link";
+import { Download, KeyRound } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { requireUser } from "@/lib/server/dal";
@@ -38,6 +39,20 @@ export default async function SettingsPage() {
         <CardContent className="space-y-8">
           <PasswordForm />
           <MfaSection />
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>{t("apiKeys")}</CardTitle>
+          <CardDescription>{t("apiKeysBody")}</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <Button asChild variant="outline">
+            <Link href="/app/settings/api-keys">
+              <KeyRound /> {t("apiKeysOpen")}
+            </Link>
+          </Button>
         </CardContent>
       </Card>
 

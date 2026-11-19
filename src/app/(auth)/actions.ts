@@ -37,6 +37,7 @@ const signupSchema = z.object({
   email: z.email().max(254),
   password: z.string().min(10).max(200),
   terms: z.literal("on"),
+  ref: z.string().regex(/^[A-Z0-9]{6,16}$/).optional().catch(undefined),
 });
 
 export async function signup(_prev: ActionState, formData: FormData): Promise<ActionState> {
@@ -52,7 +53,7 @@ export async function signup(_prev: ActionState, formData: FormData): Promise<Ac
     options: {
       emailRedirectTo: `${appUrl()}/auth/callback?next=/app`,
       // El consentimiento de marketing se pedirá aparte con doble opt-in cuando tengamos proveedor de email.
-      data: { full_name: parsed.data.name, locale, terms_accepted_at: new Date().toISOString() },
+      data: { full_name: parsed.data.name, locale, terms_accepted_at: new Date().toISOString(), ...(parsed.data.ref ? { ref: parsed.data.ref } : {}) },
     },
   });
   if (error) return { error: toErrorKey(error), values };

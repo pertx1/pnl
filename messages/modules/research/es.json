@@ -23,6 +23,7 @@
       "refusal": "La IA no ha podido completar esta petición. No se te ha cobrado.",
       "provider_error": "La IA ha fallado. Te hemos devuelto los créditos.",
       "no_data": "Todavía no hay publicaciones guardadas para analizar.",
+      "youtube_derived_locked": "Análisis con IA no disponible para YouTube: sus políticas solo permiten datos derivados a desarrolladores auditados.",
       "duplicate": "Ya existe una lista con ese nombre."
     },
     "youtube": {

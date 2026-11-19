@@ -202,7 +202,7 @@ export default async function CompetitorDetailPage({ params }: Params) {
             competitorId={c.id}
             credits={RESEARCH_CREDITS.analyzeCompetitor}
             balance={balance}
-            enabled={canEdit && isAgentsConfigured() && posts.length > 0}
+            enabled={canEdit && derived && isAgentsConfigured() && posts.length > 0}
             initial={last}
           />
         </CardContent>

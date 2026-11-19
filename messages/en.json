@@ -213,7 +213,10 @@
     "deleting": "Deleting…",
     "deleteBlocked": "You own workspaces with other members ({names}). Transfer ownership before deleting your account.",
     "deleteMismatch": "The email doesn't match.",
-    "deleted": "Your account has been deleted. Thanks for trying Kreo."
+    "deleted": "Your account has been deleted. Thanks for trying Kreo.",
+    "apiKeys": "API keys & MCP",
+    "apiKeysBody": "Connect Kreo to Claude or other assistants through the MCP server.",
+    "apiKeysOpen": "Manage API keys"
   },
   "brandKitLogo": {
     "upload": "Upload logo",

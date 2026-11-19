@@ -134,6 +134,9 @@ export async function analyzeCompetitorAction(competitorId: string): Promise<AiR
     .eq("id", competitorId)
     .maybeSingle();
   if (!c) return { error: "not_found" };
+  // YouTube Developer Policies III.E.2.b / III.E.4.h: un análisis de IA sobre datos de un canal ajeno es "derived data"
+  // (insights calculados por Kreo). Solo se permite si Google aprueba la auditoría (III.L), igual que los outliers.
+  if (!derivedAllowed(c.platform)) return { error: "youtube_derived_locked" };
   const { data: posts } = await supabase
     .from("research_competitor_posts")
     .select("id, title, published_at, views, likes, comments")
