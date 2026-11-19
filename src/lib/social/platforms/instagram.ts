@@ -40,13 +40,12 @@ export const instagram: PlatformAdapter = {
   isConfigured: () => Boolean(creds().id && creds().secret),
 
   authorizeUrl({ state, redirectUri }) {
-    const p = new URLSearchParams({
-      client_id: creds().id,
-      redirect_uri: redirectUri,
-      state,
-      response_type: "code",
-      scope: this.scopes.join(","),
-    });
+    const p = new URLSearchParams({ client_id: creds().id, redirect_uri: redirectUri, state, response_type: "code" });
+    // Apps de tipo Empresa (Facebook Login for Business): los permisos van en una "configuración" (config_id).
+    // Sin configuración, se piden por scope (Facebook Login clásico).
+    const configId = process.env.META_LOGIN_CONFIG_ID;
+    if (configId) p.set("config_id", configId);
+    else p.set("scope", this.scopes.join(","));
     return `https://www.facebook.com/${version()}/dialog/oauth?${p}`;
   },
 

@@ -41,7 +41,11 @@ async function graphGet<T>(path: string, token: string, code: string) {
 }
 
 export function igAuthorizeUrl(o: { state: string; redirectUri: string }) {
-  const p = new URLSearchParams({ client_id: creds().id, redirect_uri: o.redirectUri, state: o.state, response_type: "code", scope: IG_INBOX_SCOPES.join(",") });
+  const p = new URLSearchParams({ client_id: creds().id, redirect_uri: o.redirectUri, state: o.state, response_type: "code" });
+  // Facebook Login for Business: misma "configuración" que la publicación (incluye instagram_manage_messages).
+  const configId = process.env.META_INBOX_LOGIN_CONFIG_ID || process.env.META_LOGIN_CONFIG_ID;
+  if (configId) p.set("config_id", configId);
+  else p.set("scope", IG_INBOX_SCOPES.join(","));
   return `https://www.facebook.com/${version()}/dialog/oauth?${p}`;
 }
 

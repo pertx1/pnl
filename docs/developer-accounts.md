@@ -117,3 +117,17 @@ Sustituye `<dominio>` por tu dominio (o `kreo-nine.vercel.app` para pruebas):
   proveedor de texto (Claude) — Fase 1/3. Firmar DPA con cada uno.
 - [ ] Proveedor de email transaccional con región UE — Fase 1
 - [ ] Proveedor de datos públicos de TikTok (con declaración de cumplimiento legal) — Fase 2
+
+## Dominio de producción y URLs registradas (2026-11-19)
+- **Dominio público: `https://kreo-nine.vercel.app`** (`NEXT_PUBLIC_APP_URL`). `kreo-mnysoon-1995.vercel.app` es un alias del
+  equipo protegido por Vercel Authentication (responde 302 al login de Vercel): NO sirve para OAuth ni webhooks.
+- Las URIs de redirección se construyen en código con `appUrl()` (src/lib/env.ts) + la ruta:
+  - Google: `/api/oauth/youtube/callback`, `/api/inbox/oauth/gmail/callback`
+  - Meta: `/api/oauth/instagram/callback`, `/api/inbox/oauth/instagram/callback`; webhook `/api/inbox/meta/webhook` (objeto Instagram, campo `messages`)
+  - TikTok: `/api/oauth/tiktok/callback`
+  - Microsoft: `/api/inbox/oauth/outlook/callback`
+  - Shopify: `/api/shopify/callback` (+ `/api/shopify/install`, `/api/shopify/webhooks`)
+- Meta (app tipo Empresa → Facebook Login for Business): crear una "configuración" con instagram_basic, instagram_content_publish,
+  instagram_manage_insights, instagram_manage_messages, pages_show_list, pages_read_engagement, pages_manage_metadata y
+  business_management, y poner su ID en `META_LOGIN_CONFIG_ID`. Sin esa variable se piden los permisos por `scope`.
+- TikTok, verificación de URL por archivo: el archivo que da TikTok se sirve desde `public/` (p. ej. `public/tiktokXXXX.txt`).
