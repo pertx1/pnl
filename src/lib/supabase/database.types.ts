@@ -83,6 +83,16 @@ export type Database = {
       has_workspace_role: { Args: { p_min_role: WorkspaceRole; p_workspace_id: string }; Returns: boolean };
       shares_workspace_with: { Args: { p_user_id: string }; Returns: boolean };
       workspace_role_of: { Args: { p_workspace_id: string }; Returns: WorkspaceRole };
+      my_blocking_workspaces: { Args: Record<string, never>; Returns: { workspace_id: string; name: string }[] };
+      my_solo_workspaces: { Args: Record<string, never>; Returns: string[] };
+      delete_my_account: { Args: Record<string, never>; Returns: undefined };
+      waitlist_join: {
+        Args: { p_email: string; p_ref: string; p_locale: string };
+        Returns: { confirm_token: string | null; unsubscribe_token: string | null; already_confirmed: boolean }[];
+      };
+      waitlist_confirm: { Args: { p_token: string }; Returns: string | null };
+      waitlist_unsubscribe: { Args: { p_token: string }; Returns: boolean };
+      waitlist_status: { Args: { p_code: string }; Returns: { rank_position: number; total: number; referrals: number }[] };
     };
     Enums: { workspace_role: WorkspaceRole };
     CompositeTypes: { [_ in never]: never };
