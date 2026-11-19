@@ -27,7 +27,7 @@ export function ListsBar({
   const [name, setName] = useState("");
   const [busy, start] = useTransition();
   const base = `/app/p/${projectId}/products`;
-  const chip = (on: boolean) => cn("inline-flex items-center gap-1 rounded-full border px-3 py-1 text-xs", on ? "border-primary bg-primary/10 font-semibold" : "hover:bg-accent");
+  const chip = (on: boolean) => cn("inline-flex items-center gap-1 rounded-full border px-3 py-1 text-xs", on ? "border-selected bg-primary/10 font-semibold" : "hover:bg-accent");
 
   return (
     <div className="flex flex-wrap items-center gap-2">

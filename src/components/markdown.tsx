@@ -18,7 +18,7 @@ export function Markdown({ children, className }: { children: string; className?
         "[&_table]:w-full [&_table]:border-collapse [&_table]:text-sm",
         "[&_th]:border [&_th]:border-border [&_th]:bg-secondary [&_th]:px-2 [&_th]:py-1.5 [&_th]:text-left",
         "[&_td]:border [&_td]:border-border [&_td]:px-2 [&_td]:py-1.5 [&_td]:align-top",
-        "[&_blockquote]:border-l-2 [&_blockquote]:border-primary [&_blockquote]:pl-4 [&_blockquote]:text-muted-foreground",
+        "[&_blockquote]:border-l-2 [&_blockquote]:border-selected [&_blockquote]:pl-4 [&_blockquote]:text-muted-foreground",
         className,
       )}
     >

@@ -44,7 +44,7 @@ export default async function ProjectPage({ params }: PageProps<"/app/p/[project
         <div className="grid gap-3 md:grid-cols-3">
           {steps.map((s, i) => {
             const card = (
-              <Card className={s.href ? "h-full transition-colors hover:border-primary/50" : "h-full opacity-70"}>
+              <Card className={s.href ? "h-full transition-colors hover:border-selected/50" : "h-full opacity-70"}>
                 <CardHeader>
                   <div className="flex items-center justify-between">
                     <span className="font-mono text-xs text-muted-foreground">0{i + 1}</span>

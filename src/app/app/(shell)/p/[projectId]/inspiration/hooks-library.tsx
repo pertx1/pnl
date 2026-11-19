@@ -53,7 +53,7 @@ export function HooksLibrary({
     for (const [k, v] of Object.entries({ ...filters, ...patch })) if (v) p.set(k, v);
     return `${base}?${p}`;
   };
-  const chip = (on: boolean) => cn("rounded-full border px-3 py-1 text-xs", on ? "border-primary bg-primary/10 font-semibold" : "hover:bg-accent");
+  const chip = (on: boolean) => cn("rounded-full border px-3 py-1 text-xs", on ? "border-selected bg-primary/10 font-semibold" : "hover:bg-accent");
 
   async function copy(h: HookView) {
     try {

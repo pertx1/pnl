@@ -248,7 +248,7 @@ function SegmentCard({
   const len = seg.end - seg.start;
 
   return (
-    <li className={cn("space-y-3 rounded-md border p-3", selected && "border-primary bg-primary/5")}>
+    <li className={cn("space-y-3 rounded-md border p-3", selected && "border-selected bg-primary/5")}>
       <div className="flex items-start gap-2">
         {editable && <Checkbox checked={selected} onCheckedChange={(v) => onToggle(Boolean(v))} aria-label={t("selectMoment", { title: seg.title })} className="mt-1" />}
         <div className="min-w-0 flex-1">

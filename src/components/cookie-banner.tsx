@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
@@ -11,6 +11,7 @@ import { OPEN_PREFERENCES_EVENT, readConsent, writeConsent } from "@/lib/consent
 export function CookieBanner() {
   const t = useTranslations("cookieBanner");
   const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
   const [custom, setCustom] = useState(false);
   const [analytics, setAnalytics] = useState(false);
   const [marketing, setMarketing] = useState(false);
@@ -34,6 +35,23 @@ export function CookieBanner() {
     };
   }, []);
 
+  // Mientras el aviso está abierto, reserva su altura al final de la página para que nunca tape
+  // contenido ni botones (en móvil tapaba "Entrar").
+  useEffect(() => {
+    const el = ref.current;
+    if (!open || !el) return;
+    const apply = () => {
+      document.body.style.paddingBottom = `${el.offsetHeight + 24}px`;
+    };
+    apply();
+    const ro = new ResizeObserver(apply);
+    ro.observe(el);
+    return () => {
+      ro.disconnect();
+      document.body.style.paddingBottom = "";
+    };
+  }, [open, custom]);
+
   if (!open) return null;
 
   const save = (a: boolean, m: boolean) => {
@@ -43,7 +61,7 @@ export function CookieBanner() {
   };
 
   return (
-    <div role="dialog" aria-modal="false" aria-labelledby="cookie-title" className="fixed inset-x-3 bottom-3 z-[60] mx-auto max-w-xl rounded-lg border bg-card p-4 shadow-2xl sm:inset-x-auto sm:right-4 sm:bottom-4">
+    <div ref={ref} role="dialog" aria-modal="false" aria-labelledby="cookie-title" className="fixed inset-x-3 bottom-3 z-[60] mx-auto max-w-xl rounded-lg border bg-card p-4 shadow-2xl sm:inset-x-auto sm:right-4 sm:bottom-4">
       <h2 id="cookie-title" className="label-mono">
         {t("title")}
       </h2>

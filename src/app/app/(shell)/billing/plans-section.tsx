@@ -89,7 +89,7 @@ export function PlansGrid({
       {plans.map((p) => {
         const current = p.id === currentPlanId;
         return (
-          <Card key={p.id} className={cn("flex flex-col", p.highlight && !current && "border-primary", current && "ring-1 ring-primary/50")}>
+          <Card key={p.id} className={cn("flex flex-col", p.highlight && !current && "border-selected", current && "ring-1 ring-primary/50")}>
             <CardContent className="flex flex-1 flex-col gap-4">
               <div className="flex items-center justify-between gap-2">
                 <h3 className="text-lg font-medium">{p.name}</h3>

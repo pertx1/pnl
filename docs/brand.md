@@ -86,3 +86,13 @@ Ejemplos: "+38 % de views esta semana. Tu mejor hora: 19:00." · "3 posts listos
 ## Accesibilidad
 - Contraste WCAG AA comprobado para texto principal, secundario y botones en los dos modos.
 - Foco visible (`ring` lima en oscuro, verde en claro) en todos los controles. No usar solo color para transmitir estado: los badges llevan texto.
+
+## Accesibilidad y HIG de Apple (revisión 2026-11-19)
+- Contrastes medidos (WCAG): texto principal 17,6:1 (oscuro) / 17,9:1 (claro); texto secundario 7,5:1 / 5,3:1.
+- Límites de campos (`--input`) ≥ 3:1: `#5a6455` en oscuro (3,1:1), `#949494` en claro (3,0:1).
+- Estado seleccionado: token `--selected` (`border-selected`). En claro `#5e9100` (3,8:1); la lima pura sobre blanco da 1,3:1 y no se usa para indicar estado.
+- Aviso (`--warning`) en claro `#a3480a`: 5,2:1 sobre su fondo.
+- Pantallas táctiles: botones y campos de al menos 44 px (`@media (pointer: coarse)`).
+- `prefers-reduced-motion` desactiva animaciones y transiciones; `prefers-contrast: more` refuerza bordes y texto secundario.
+- El tema sigue al del sistema por defecto; el botón de tema vuelve a "sistema" si eliges lo mismo que el sistema.
+- El aviso de cookies reserva su altura al final de la página: nunca tapa botones.

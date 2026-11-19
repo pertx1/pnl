@@ -54,7 +54,7 @@ export default async function CompetitorsPage({ params }: { params: Promise<{ pr
       </div>
 
       {(alerts?.length ?? 0) > 0 && (
-        <Card className="border-primary/40">
+        <Card className="border-selected/40">
           <CardHeader className="flex flex-row flex-wrap items-center justify-between gap-2">
             <CardTitle className="flex items-center gap-2">
               <Bell className="size-4 text-primary-ink" aria-hidden />
@@ -111,7 +111,7 @@ export default async function CompetitorsPage({ params }: { params: Promise<{ pr
               <li key={c.id}>
                 <Link
                   href={`/app/p/${projectId}/competitors/${c.id}`}
-                  className="group flex h-full flex-col gap-3 rounded-xl border bg-card p-4 transition-colors hover:border-primary/40 focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:outline-none"
+                  className="group flex h-full flex-col gap-3 rounded-xl border bg-card p-4 transition-colors hover:border-selected/40 focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:outline-none"
                 >
                   <div className="flex items-center gap-3">
                     {c.avatar_url ? (

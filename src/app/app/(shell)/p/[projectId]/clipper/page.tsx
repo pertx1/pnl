@@ -117,7 +117,7 @@ export default async function ClipperPage({
               key={j.id}
               href={`/app/p/${projectId}/clipper?job=${j.id}`}
               aria-current={j.id === current?.id ? "page" : undefined}
-              className={cn("shrink-0 rounded-md border px-3 py-2 text-left text-xs", j.id === current?.id ? "border-primary bg-primary/5" : "text-muted-foreground hover:text-foreground")}
+              className={cn("shrink-0 rounded-md border px-3 py-2 text-left text-xs", j.id === current?.id ? "border-selected bg-primary/5" : "text-muted-foreground hover:text-foreground")}
             >
               <span className="block max-w-[180px] truncate font-medium text-foreground">{j.title ?? t("untitled")}</span>
               <span className="font-mono tabular-nums">

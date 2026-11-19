@@ -13,7 +13,7 @@ export function ScoreBadge({ score }: { score: number | null }) {
     <span
       className={cn(
         "inline-flex shrink-0 flex-col items-center rounded-md border px-2 py-1 leading-none",
-        level === "high" ? "border-primary/50 bg-primary/10" : level === "mid" ? "border-warning/40 bg-warning/10" : "border-border",
+        level === "high" ? "border-selected/50 bg-primary/10" : level === "mid" ? "border-warning/40 bg-warning/10" : "border-border",
       )}
       title={t("tooltip")}
     >

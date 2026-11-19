@@ -120,7 +120,7 @@ export function ThreadView({
         {messages.length === 0 && <p className="text-center text-sm text-muted-foreground">{t("noMessages")}</p>}
         {messages.map((m) => (
           <article key={m.id} className={cn("flex", m.direction === "out" ? "justify-end" : "justify-start")}>
-            <div className={cn("max-w-[85%] rounded-lg border px-3 py-2", m.direction === "out" ? "border-primary/30 bg-primary/5" : "bg-secondary")}>
+            <div className={cn("max-w-[85%] rounded-lg border px-3 py-2", m.direction === "out" ? "border-selected/30 bg-primary/5" : "bg-secondary")}>
               <p className="mb-1 flex flex-wrap items-center gap-x-2 text-[11px] text-muted-foreground">
                 <span className="font-medium text-foreground/80">{m.direction === "out" ? t("you") : (m.sender ?? thread.name ?? t("unknownSender"))}</span>
                 <time dateTime={m.sentAt} className="font-mono tabular-nums">

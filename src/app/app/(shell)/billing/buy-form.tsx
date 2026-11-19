@@ -28,7 +28,7 @@ export function BuyPackForm({
   const [state, action] = useActionState(buyCredits, undefined);
   const [waiver, setWaiver] = useState(false);
   return (
-    <Card className={cn(highlight && "border-primary")}>
+    <Card className={cn(highlight && "border-selected")}>
       <CardContent>
         <form action={action} className="space-y-3">
           <input type="hidden" name="packId" value={packId} />

@@ -166,7 +166,7 @@ export default async function InboxPage({
                   aria-current={filter === f ? "page" : undefined}
                   className={cn(
                     "inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs transition-colors",
-                    filter === f ? "border-primary bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground",
+                    filter === f ? "border-selected bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground",
                   )}
                 >
                   {t(`filters.${f}`)}
@@ -304,7 +304,7 @@ export default async function InboxPage({
 
 function Tag({ tone, children }: { tone: "primary" | "warning" | "success" | "muted"; children: React.ReactNode }) {
   const cls = {
-    primary: "border-primary/40 text-primary-ink",
+    primary: "border-selected/40 text-primary-ink",
     warning: "border-warning/40 text-warning",
     success: "border-success/40 text-success",
     muted: "text-muted-foreground",

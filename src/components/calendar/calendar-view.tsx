@@ -128,7 +128,7 @@ export function CalendarView({
       href={`/app/p/${p.projectId}/posts/${p.id}`}
       draggable={DRAGGABLE.includes(p.status)}
       onDragStart={(e) => e.dataTransfer.setData("text/post-id", p.id)}
-      className="block rounded-sm border bg-card px-1.5 py-1 text-xs hover:border-primary/60 focus-visible:outline-2 focus-visible:outline-ring"
+      className="block rounded-sm border bg-card px-1.5 py-1 text-xs hover:border-selected/60 focus-visible:outline-2 focus-visible:outline-ring"
       style={{ borderLeft: `3px solid ${STATUS_COLOR[p.status]}` }}
       title={`${tp(p.status)} · ${p.title || p.caption.slice(0, 60)}`}
     >

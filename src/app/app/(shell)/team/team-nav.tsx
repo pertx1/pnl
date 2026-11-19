@@ -22,7 +22,7 @@ export async function TeamNav({ active, isAdmin, pendingCount }: { active: "memb
                 aria-current={isActive ? "page" : undefined}
                 className={cn(
                   "-mb-px inline-flex items-center gap-2 border-b-2 px-3 py-2 text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
-                  isActive ? "border-primary font-medium text-foreground" : "border-transparent text-muted-foreground hover:text-foreground",
+                  isActive ? "border-selected font-medium text-foreground" : "border-transparent text-muted-foreground hover:text-foreground",
                 )}
               >
                 {item.label}

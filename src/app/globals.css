@@ -15,6 +15,7 @@
   --color-brand-amber-ink: var(--brand-amber-ink);
   --color-success: var(--success);
   --color-border-strong: var(--border-strong);
+  --color-selected: var(--selected);
   --color-surface-elevated: var(--surface-elevated);
   --color-warning: var(--warning);
   --color-info: var(--info);
@@ -88,8 +89,9 @@
   --destructive: #dc2626;
   --border: #e5e5e5;
   --border-strong: #d4d4d4;
-  --input: #d4d4d4;
+  --input: #949494; /* 3,0:1 sobre blanco: límite de campo visible (WCAG 1.4.11) */
   --ring: #6a9c00;
+  --selected: #5e9100; /* estado seleccionado: 3,8:1 sobre blanco (la lima pura da 1,3:1) */
   --surface-elevated: #fafafa;
   --highlight: rgba(255, 255, 255, 0);
   --dot: rgba(0, 0, 0, 0.07);
@@ -99,7 +101,7 @@
   --brand-amber-foreground: #0a0a0a;
   --brand-amber-ink: #a15c00;
   --success: #15803d;
-  --warning: #b45309;
+  --warning: #a3480a; /* 5,2:1 sobre su fondo warning/10 (antes 4,4:1) */
   --info: #1d4ed8;
 
   --chart-1: #6a9c00;
@@ -137,8 +139,9 @@
   --destructive: #f87171;
   --border: #1e231d;
   --border-strong: #2b3229;
-  --input: #2b3229;
+  --input: #5a6455; /* 3,1:1 sobre card */
   --ring: #c6f432;
+  --selected: #c6f432;
   --surface-elevated: #121512;
   --highlight: rgba(255, 255, 255, 0.035);
   --dot: rgba(238, 242, 234, 0.055);
@@ -242,5 +245,50 @@
 @keyframes kreo-blink {
   50% {
     opacity: 0;
+  }
+}
+
+/* =========================================================================
+   Accesibilidad (revisión con las HIG de Apple, ver docs/brand.md)
+   ========================================================================= */
+
+/* Movimiento reducido: sin animaciones automáticas ni transiciones de desplazamiento. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Más contraste: bordes y texto secundario más marcados. */
+@media (prefers-contrast: more) {
+  :root {
+    --muted-foreground: #4a4a4a;
+    --border: #a3a3a3;
+    --border-strong: #737373;
+    --input: #737373;
+  }
+  .dark {
+    --muted-foreground: #c4ccbe;
+    --border: #3d4539;
+    --border-strong: #5a6455;
+    --input: #7a8574;
+  }
+}
+
+/* Pantallas táctiles: controles de al menos 44 px (HIG: 44×44 pt por defecto en móvil). */
+@media (pointer: coarse) {
+  [data-slot="button"],
+  [data-slot="input"],
+  [data-slot="select-trigger"],
+  select {
+    min-height: 2.75rem;
+  }
+  [data-slot="button"][data-size^="icon"] {
+    min-width: 2.75rem;
   }
 }

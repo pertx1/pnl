@@ -8,12 +8,15 @@ import { Button } from "@/components/ui/button";
 /** Conmutador claro/oscuro con etiqueta traducida (el de src/components aún tiene el texto fijo en español). */
 export function MarketingThemeToggle() {
   const t = useTranslations("landing.nav");
-  const { resolvedTheme, setTheme } = useTheme();
+  const { resolvedTheme, systemTheme, setTheme } = useTheme();
   return (
     <Button
       variant="ghost"
       size="icon"
-      onClick={() => setTheme(resolvedTheme === "dark" ? "light" : "dark")}
+      onClick={() => {
+        const next = resolvedTheme === "dark" ? "light" : "dark";
+        setTheme(next === systemTheme ? "system" : next);
+      }}
       aria-label={t("theme")}
     >
       <Sun className="hidden dark:block" aria-hidden />

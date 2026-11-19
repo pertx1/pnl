@@ -88,7 +88,7 @@ export function AudioForm({ projectId, balance, enabled, voices }: { projectId: 
                     key={m.id}
                     onClick={() => setModelId(m.id)}
                     aria-pressed={modelId === m.id}
-                    className={cn("rounded-md border p-3 text-left transition-colors", modelId === m.id ? "border-primary bg-primary/5" : "hover:border-primary/40")}
+                    className={cn("rounded-md border p-3 text-left transition-colors", modelId === m.id ? "border-selected bg-primary/5" : "hover:border-selected/40")}
                   >
                     <span className="font-semibold">{m.label}</span>
                     <p className="mt-1 text-xs text-muted-foreground">{m.tagline[locale]}</p>

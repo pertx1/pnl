@@ -135,7 +135,7 @@ export function StudioForm({
                     if (m.durations.length) setDuration(m.durations[0]);
                   }}
                   aria-pressed={modelId === m.id}
-                  className={cn("rounded-md border p-3 text-left transition-colors", modelId === m.id ? "border-primary bg-primary/5" : "hover:border-primary/40")}
+                  className={cn("rounded-md border p-3 text-left transition-colors", modelId === m.id ? "border-selected bg-primary/5" : "hover:border-selected/40")}
                 >
                   <div className="flex items-center justify-between gap-2">
                     <span className="font-semibold">{m.label}</span>
@@ -203,7 +203,7 @@ export function StudioForm({
                       key={img.id}
                       onClick={() => setSourceId(img.id)}
                       aria-pressed={sourceId === img.id}
-                      className={cn("size-16 overflow-hidden rounded-md border-2", sourceId === img.id ? "border-primary" : "border-transparent opacity-70 hover:opacity-100")}
+                      className={cn("size-16 overflow-hidden rounded-md border-2", sourceId === img.id ? "border-selected" : "border-transparent opacity-70 hover:opacity-100")}
                     >
                       {/* eslint-disable-next-line @next/next/no-img-element */}
                       {img.url && <img src={img.url} alt="" className="size-full object-cover" />}

@@ -69,7 +69,7 @@ export function SwipeFile({
     const qs = p.toString();
     return qs ? `${base}?${qs}` : base;
   };
-  const chip = (on: boolean) => cn("rounded-full border px-3 py-1 text-xs", on ? "border-primary bg-primary/10 font-semibold" : "hover:bg-accent");
+  const chip = (on: boolean) => cn("rounded-full border px-3 py-1 text-xs", on ? "border-selected bg-primary/10 font-semibold" : "hover:bg-accent");
   const hasYouTube = swipes.some((s) => s.network === "youtube");
 
   return (
