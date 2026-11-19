@@ -55,6 +55,24 @@ export async function falResult(responseUrl: string) {
   return (await res.json()) as { images?: FalFile[]; video?: FalFile };
 }
 
+/** Resultado de la cola con un esquema propio del modelo (p. ej. Whisper o utilidades de vídeo). */
+export async function falResultJson<T>(responseUrl: string): Promise<T> {
+  assertFalQueueUrl(responseUrl);
+  const res = await fetch(responseUrl, { headers: headers(), signal: AbortSignal.timeout(30_000), cache: "no-store" });
+  if (!res.ok) throw new Error(`fal_${res.status}`);
+  return (await res.json()) as T;
+}
+
+/** ¿Es una URL de archivo de fal.ai? (para encadenar pasos sin aceptar URLs arbitrarias). */
+export function isFalFileUrl(url: string) {
+  try {
+    const u = new URL(url);
+    return u.protocol === "https:" && (u.hostname === "fal.media" || u.hostname.endsWith(".fal.media") || u.hostname.endsWith(".fal.ai") || u.hostname.endsWith(".fal.run"));
+  } catch {
+    return false;
+  }
+}
+
 /** Descarga un archivo generado (solo desde CDNs de fal) con límite de tamaño. */
 export async function downloadFalFile(url: string, maxBytes = 50 * 1024 * 1024) {
   const u = new URL(url);

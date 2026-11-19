@@ -3,7 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useEffect, useState, useTransition } from "react";
 import { useLocale, useTranslations } from "next-intl";
-import { Film, ImageIcon, Loader2, Sparkles } from "lucide-react";
+import { AudioLines, Film, ImageIcon, Loader2, Sparkles } from "lucide-react";
 import { toast } from "sonner";
 import { CreditCost } from "@/components/kreo/credit-cost";
 import { Button } from "@/components/ui/button";
@@ -13,6 +13,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
 import { checkGeneration, startGeneration } from "./actions";
+import { AudioForm, type VoiceOption } from "./audio-form";
 
 type Model = {
   id: string;
@@ -36,6 +37,7 @@ export function StudioForm({
   pendingIds,
   images,
   models,
+  audio,
 }: {
   projectId: string;
   balance: number;
@@ -43,12 +45,15 @@ export function StudioForm({
   pendingIds: string[];
   images: { id: string; url: string | null }[];
   models: Model[];
+  /** Pestaña de audio (ElevenLabs): voces disponibles y si está configurado. */
+  audio: { enabled: boolean; voices: VoiceOption[] };
 }) {
   const t = useTranslations("studio");
   const tb = useTranslations("billing");
+  const ta = useTranslations("studioAudio");
   const locale = useLocale() as "es" | "en";
   const router = useRouter();
-  const [kind, setKind] = useState<"image" | "video">("image");
+  const [kind, setKind] = useState<"image" | "video" | "audio">("image");
   const [prompt, setPrompt] = useState("");
   const [aspect, setAspect] = useState<Aspect>("9:16");
   const [modelId, setModelId] = useState(models.find((m) => m.kind === "image")?.id ?? "");
@@ -80,8 +85,9 @@ export function StudioForm({
     return () => clearInterval(id);
   }, [pending, router, t]);
 
-  function switchKind(k: "image" | "video") {
+  function switchKind(k: "image" | "video" | "audio") {
     setKind(k);
+    if (k === "audio") return;
     const first = models.find((m) => m.kind === k);
     setModelId(first?.id ?? "");
     setDuration(first?.durations[0] ?? 5);
@@ -96,6 +102,7 @@ export function StudioForm({
             [
               ["image", ImageIcon, t("tabImage")],
               ["video", Film, t("tabVideo")],
+              ["audio", AudioLines, ta("tab")],
             ] as const
           ).map(([k, Icon, label]) => (
             <button
@@ -109,6 +116,11 @@ export function StudioForm({
             </button>
           ))}
         </div>
+
+        {kind === "audio" ? (
+          <AudioForm projectId={projectId} balance={balance} enabled={audio.enabled} voices={audio.voices} />
+        ) : (
+          <>
 
         <fieldset disabled={!enabled || busy} className="space-y-5">
           <div className="space-y-2">
@@ -274,6 +286,8 @@ export function StudioForm({
             <Sparkles /> {busy ? t("generating") : `${t("generate")} · ${credits}`}
           </Button>
         </div>
+          </>
+        )}
       </CardContent>
     </Card>
   );
