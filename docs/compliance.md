@@ -68,3 +68,27 @@ Mantenido por el subagente `seguridad-legal`. Cada módulo añade una entrada **
   4. Textos legales: páginas creadas como borrador vacío; hay que redactarlas y que las revise un abogado.
   5. El checkbox de marketing se eliminó del registro hasta implementar doble opt-in.
   6. La aceptación de términos se guarda en los metadatos de registro; conviene versionar los términos aceptados.
+
+## Textos legales — borradores — 2026-11-18 — Estado: ⚠️ borrador, pendiente de abogado
+- Redactado (es + en, mismos nombres de archivo): `content/legal/{es,en}/privacidad.md`, `terminos.md`, `cookies.md`,
+  `aviso-legal.md`, `afiliados.md`. Además `docs/subprocessors.md` (subencargados) y `docs/ropa.md` (registro art. 30,
+  como responsable y como encargado). Los datos de empresa usan los mismos marcadores en ambos idiomas
+  (`[RAZÓN SOCIAL]`, `[NIF]`, `[DOMICILIO]`, `[EMAIL DE CONTACTO]`, `[EMAIL DPD/PRIVACIDAD]`, `[DOMINIO]`, `[FECHA]`…) para sustituirlos de una vez.
+- Cláusulas de plataformas incluidas en la política de privacidad: Google Limited Use (frase literal en inglés + traducción,
+  sin uso para IA general ni lectura humana), YouTube API Services (Términos de YouTube, Política de privacidad de Google,
+  enlace de revocación, borrado ≤ 7 días tras revocar, refresco ≤ 30 días), Meta (datos obtenidos + instrucciones de
+  eliminación y código de confirmación), TikTok (datos por scope + cómo revocar), Microsoft Graph (scopes + revocación),
+  Shopify (Kreo encargado, webhooks RGPD).
+- La página `/legal/[slug]` todavía no carga estos Markdown y no tiene ruta para `afiliados`; hay que conectarlo (no lo he tocado).
+- **El abogado DEBE revisar**:
+  1. Roles responsable/encargado: bandeja de DMs/emails, Shopify y agencias → Kreo como encargado; falta redactar el **DPA para clientes** (art. 28.3) al que remiten los términos.
+  2. Base legal del análisis de competencia, Ad Library y proveedor de TikTok (interés legítimo + LIA + deber de información del art. 14) y la licitud del método de obtención del proveedor de TikTok.
+  3. Desistimiento: cobro proporcional de la suscripción, pérdida del derecho sobre créditos consumidos (art. 103.m TRLGDCU) y **función de desistimiento** de la Directiva (UE) 2023/2673 (aplicable desde el 19-06-2026). Política de no reembolso y caducidad de créditos (definir plazo).
+  4. ODR: la plataforma europea cerró el 20-07-2025 (Reglamento (UE) 2024/3228); he quitado el enlace y lo he sustituido por información sobre resolución alternativa de litigios. Confirmar y decidir adhesión a arbitraje de consumo.
+  5. AI Act art. 50 (obligaciones de transparencia aplicables desde el 02-08-2026 salvo cambios por el "Digital Omnibus"; verificar estado): si Kreo es "proveedor" del sistema que genera contenido sintético y debe aplicar marcado legible por máquina (C2PA/metadatos); si se permite al usuario desactivar la etiqueta IA.
+  6. Limitación de responsabilidad (consumidores vs. profesionales), indemnidad, cambios unilaterales de términos y precios.
+  7. Plazos de conservación propuestos (30/90 días, caché de mensajes 30 días, logs 90 días) y necesidad de DPD y de EIPD para la bandeja + IA.
+  8. Afiliados: régimen fiscal (factura, IVA, retención IRPF, no residentes), aplicación del RD 444/2024 y método de atribución (las cookies de afiliación requieren consentimiento).
+  9. Prevalencia de la versión española sobre la inglesa.
+- **Pendiente técnico/negocio**: datos de la empresa; firmar DPA de todos los subencargados (todos "pendiente"); verificar que fal.ai, Replicate y ElevenLabs no entrenan con los datos y sus plazos de retención; elegir proveedor de email UE; publicar URL de instrucciones de eliminación de datos para Meta; versionar los términos aceptados; banner y enlace "Configurar cookies" con `kreo_consent`.
+- ⚖️ Recordatorio a Oier: **ningún texto puede publicarse sin revisión de un abogado**; las revisiones de Meta, TikTok y Google exigen estas páginas publicadas en el dominio definitivo.
