@@ -222,7 +222,7 @@
         },
         "data": {
           "q": "What happens to my data?",
-          "a": "It's hosted on servers in the EU and only used to provide the service. We don't sell it. You'll be able to export it or delete your account whenever you want. Details are in the privacy policy."
+          "a": "The database and files are hosted on servers in the EU. Some providers (AI, email, scheduled jobs) may process it outside the EU under legal safeguards (standard contractual clauses). It's only used to provide the service. We don't sell it. You'll be able to export it or delete your account whenever you want. Details are in the privacy policy."
         },
         "dms": {
           "q": "Can I use it with TikTok direct messages?",

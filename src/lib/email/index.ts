@@ -64,6 +64,7 @@ ${opts.paragraphs.map((p) => `<p style="font-size:15px;line-height:1.5;color:#C9
 ${opts.cta ? `<p style="margin:24px 0"><a href="${esc(opts.cta.url)}" style="background:#C6F432;color:#0A0C08;text-decoration:none;font-weight:bold;padding:12px 20px;border-radius:4px;display:inline-block">${esc(opts.cta.label)}</a></p>` : ""}
 <p style="font-size:12px;line-height:1.5;color:#8A9480;margin:24px 0 0">${opts.footer}</p>
 </td></tr></table></td></tr></table></body></html>`;
-  const text = [opts.title, "", ...opts.paragraphs, "", opts.cta ? `${opts.cta.label}: ${opts.cta.url}` : "", "", opts.footer.replace(/<[^>]+>/g, "")].join("\n");
+  const text = [opts.title, "", ...opts.paragraphs, "", opts.cta ? `${opts.cta.label}: ${opts.cta.url}` : "", "", opts.footer.replace(/<a [^>]*href="([^"]+)"[^>]*>([^<]*)<\/a>/g, "$2: $1").replace(/<[^>]+>/g, "")].join("\n");
+  // ↑ En la versión de texto los enlaces (p. ej. la baja) se conservan como "texto: URL".
   return { html, text };
 }

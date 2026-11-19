@@ -513,7 +513,8 @@ function TikTokOptions({ handle, options, onChange }: { handle: string; options:
       ).map(([key, label]) => (
         <label key={key} className="flex items-center justify-between gap-2">
           <span>{t(label)}</span>
-          <Switch checked={!options[key]} onCheckedChange={(v) => onChange({ [key]: !v })} />
+          {/* TikTok Content Sharing Guidelines: ninguna interacción activada por defecto (el usuario la activa). */}
+          <Switch checked={options[key] === false} onCheckedChange={(v) => onChange({ [key]: !v })} />
         </label>
       ))}
       <div className="space-y-2 rounded-md bg-secondary/60 p-2">
@@ -533,7 +534,7 @@ function TikTokOptions({ handle, options, onChange }: { handle: string; options:
           </span>
         </label>
       </div>
-      <p className="text-[11px] text-muted-foreground">{t("music")}</p>
+      <p className="text-[11px] text-muted-foreground">{options.brand_content_toggle ? t("musicBranded") : t("music")}</p>
       <p className="text-[11px] text-warning">{t("unaudited")}</p>
     </div>
   );

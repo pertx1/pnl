@@ -53,9 +53,14 @@ export default async function AnalyticsPage({ params }: { params: Promise<{ proj
       .gte("published_at", mid),
   ]);
 
-  // Sumas por día de todas las cuentas del proyecto.
+  // Sumas por día de las cuentas del proyecto. YouTube queda FUERA de totales y comparativas: sus Developer
+  // Policies (III.E.2 y III.E.4.h) prohíben combinar sus datos con otros y crear métricas derivadas.
+  // Sus cifras se muestran solo por canal, tal cual las da la API.
+  const youtubeIds = new Set((accounts ?? []).filter((a) => a.platform === "youtube").map((a) => a.id));
+  const hasYouTube = youtubeIds.size > 0;
   const byDay = new Map<string, { followers: number; views: number; likes: number }>();
   for (const m of metrics ?? []) {
+    if (youtubeIds.has(m.social_account_id)) continue;
     const d = byDay.get(m.day) ?? { followers: 0, views: 0, likes: 0 };
     d.followers += m.followers ?? 0;
     d.views += m.views ?? 0;
@@ -91,6 +96,7 @@ export default async function AnalyticsPage({ params }: { params: Promise<{ proj
       </div>
 
       <p className="label-mono">{t("period", { days: DAYS })}</p>
+      {hasYouTube && <p className="text-xs text-muted-foreground">{t("youtubeSeparate")}</p>}
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
         <StatCard label={t("followers")} value={n(last(current, "followers"))} delta={fmtDelta(followersDelta)} trend={followersDelta === undefined ? "flat" : followersDelta >= 0 ? "up" : "down"} icon={Users} />
         <StatCard label={t("views")} value={n(last(current, "views"))} delta={fmtDelta(viewsDelta)} trend={viewsDelta === undefined ? "flat" : viewsDelta >= 0 ? "up" : "down"} icon={Eye} />

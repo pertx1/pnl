@@ -13,11 +13,11 @@ export async function GET(request: NextRequest) {
     .order("day");
   if (error) return NextResponse.json({ error: "forbidden" }, { status: 403 });
 
-  // Evita inyección de fórmulas en hojas de cálculo (=, +, -, @ al inicio).
+  // Evita inyección de fórmulas en hojas de cálculo (=, +, -, @, tabulador o retorno al inicio; OWASP).
   const cell = (v: unknown) => {
     const s = v === null || v === undefined ? "" : String(v);
-    const safe = /^[=+\-@]/.test(s) ? `'${s}` : s;
-    return /[",\n]/.test(safe) ? `"${safe.replace(/"/g, '""')}"` : safe;
+    const safe = /^[=+\-@\t\r]/.test(s) ? `'${s}` : s;
+    return /[",\r\n]/.test(safe) ? `"${safe.replace(/"/g, '""')}"` : safe;
   };
   const rows = [["day", "platform", "account", "followers", "views", "likes", "posts"]];
   for (const r of data ?? []) {

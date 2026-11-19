@@ -100,9 +100,10 @@ async function publishTikTok(tokens: TokenSet, input: PublishInput): Promise<Pub
       post_info: {
         title: input.caption.slice(0, 2200),
         privacy_level: input.options.privacy_level,
-        disable_comment: Boolean(input.options.disable_comment) || info.data.comment_disabled,
-        disable_duet: Boolean(input.options.disable_duet) || info.data.duet_disabled,
-        disable_stitch: Boolean(input.options.disable_stitch) || info.data.stitch_disabled,
+        // Interacciones desactivadas salvo que el usuario las active expresamente (`disable_* === false`).
+        disable_comment: input.options.disable_comment !== false || info.data.comment_disabled,
+        disable_duet: input.options.disable_duet !== false || info.data.duet_disabled,
+        disable_stitch: input.options.disable_stitch !== false || info.data.stitch_disabled,
         brand_content_toggle: Boolean(input.options.brand_content_toggle),
         brand_organic_toggle: Boolean(input.options.brand_organic_toggle),
         is_aigc: input.aiGenerated,

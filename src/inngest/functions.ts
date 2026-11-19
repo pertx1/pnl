@@ -102,24 +102,29 @@ export const publishTarget = inngest.createFunction(
         .update({ status: "publishing", attempts: 1 })
         .eq("id", postTargetId)
         .eq("status", "scheduled")
-        .select("id, post_id, social_account_id, caption_override, platform_options")
+        .select("id, post_id, social_account_id")
         .maybeSingle();
       if (!data) return null;
-      const { data: post } = await db.from("posts").select("id, caption, asset_ids, ai_generated, status, approved_by").eq("id", data.post_id).single();
+      const { data: post } = await db.from("posts").select("id, status, approved_by").eq("id", data.post_id).single();
       // Garantía final: sin aprobación humana no se publica nada.
       if (!post || post.status !== "scheduled" || !post.approved_by) {
         await db.from("post_targets").update({ status: "scheduled" }).eq("id", postTargetId);
         return null;
       }
       await db.from("posts").update({ status: "publishing" }).eq("id", post.id);
-      return { target: data, post };
+      // Solo IDs: lo que devuelve un paso se guarda en Inngest (minimización, sin captions ni datos personales).
+      return { postId: post.id, socialAccountId: data.social_account_id };
     });
     if (!claimed) return { skipped: true };
-    const post = claimed.post;
 
     const result = await step.run("publish", async () => {
       const db = admin();
-      const { data: account } = await db.from("social_accounts").select("id, platform, external_id, status").eq("id", claimed.target.social_account_id).single();
+      const [{ data: target }, { data: post }] = await Promise.all([
+        db.from("post_targets").select("caption_override, platform_options").eq("id", postTargetId).single(),
+        db.from("posts").select("id, caption, asset_ids, ai_generated").eq("id", claimed.postId).single(),
+      ]);
+      if (!target || !post) throw new NonRetriableError("post_not_found");
+      const { data: account } = await db.from("social_accounts").select("id, platform, external_id, status").eq("id", claimed.socialAccountId).single();
       if (!account || account.status !== "active") throw new NonRetriableError("account_not_active");
       const platform = account.platform as Platform;
       const tokens = await freshTokens(account.id, platform);
@@ -139,10 +144,10 @@ export const publishTarget = inngest.createFunction(
       try {
         return await publishTo(platform, tokens, {
           externalId: account.external_id,
-          caption: claimed.target.caption_override ?? post.caption,
+          caption: target.caption_override ?? post.caption,
           media,
           aiGenerated: post.ai_generated,
-          options: (claimed.target.platform_options ?? {}) as PlatformOptions,
+          options: (target.platform_options ?? {}) as PlatformOptions,
           aiDisclosure: AI_DISCLOSURE,
         });
       } catch (e) {
@@ -158,7 +163,7 @@ export const publishTarget = inngest.createFunction(
         .from("post_targets")
         .update({ status: "published", external_post_id: result.externalPostId, external_url: result.url ?? null, published_at: new Date().toISOString(), error_code: null })
         .eq("id", postTargetId);
-      await settlePost(post.id);
+      await settlePost(claimed.postId);
     });
     return { published: result.externalPostId };
   },
@@ -205,7 +210,7 @@ export const dataRetention = inngest.createFunction(
   async ({ step }) => {
     const waitlist = await step.run("waitlist-unconfirmed", async () => {
       const cutoff = new Date(Date.now() - 7 * 86400000).toISOString();
-      const { count } = await admin().from("waitlist").delete({ count: "exact" }).is("confirmed_at", null).lt("created_at", cutoff);
+      const { count } = await admin().from("waitlist").delete({ count: "exact" }).is("confirmed_at", null).lt("consent_at", cutoff);
       return count ?? 0;
     });
     return { waitlistDeleted: waitlist };

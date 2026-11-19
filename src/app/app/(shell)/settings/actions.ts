@@ -25,6 +25,7 @@ export async function changePassword(_prev: ActionState, formData: FormData): Pr
   const parsed = z.object({ password: z.string().min(10).max(200) }).safeParse(Object.fromEntries(formData));
   if (!parsed.success) return { error: "weak_password" };
   const supabase = await createClient();
+  if (await mfaPending(supabase)) return { error: "forbidden" };
   const { error } = await supabase.auth.updateUser({ password: parsed.data.password });
   if (error) return { error: toErrorKey(error) };
   return { ok: true };
@@ -34,13 +35,16 @@ export async function changePassword(_prev: ActionState, formData: FormData): Pr
  * Borrado de cuenta (RGPD art. 17).
  * 1) Comprueba que no es el único owner de workspaces con más miembros.
  * 2) Borra los archivos de Storage de sus workspaces en solitario (Postgres no puede borrar archivos).
- * 3) [Cuando existan cuentas sociales] revoca los tokens OAuth en cada plataforma.
+ * 3) Revoca en cada plataforma los tokens OAuth de las cuentas sociales de esos workspaces.
  * 4) Borra usuario y workspaces en cascada (función SQL) y cierra sesión.
  */
 export async function deleteAccount(_prev: ActionState, formData: FormData): Promise<ActionState> {
   const supabase = await createClient();
   const { data: auth } = await supabase.auth.getUser();
   if (!auth.user) redirect("/login");
+
+  // Las server actions no pasan por el layout que exige aal2: si tiene 2FA, la sesión debe estar verificada.
+  if (await mfaPending(supabase)) return { error: "forbidden" };
 
   const confirmEmail = String(formData.get("confirm") ?? "").trim().toLowerCase();
   if (confirmEmail !== (auth.user.email ?? "").toLowerCase()) return { error: "invalid_input", message: "mismatch" };
@@ -54,9 +58,10 @@ export async function deleteAccount(_prev: ActionState, formData: FormData): Pro
 
   for (const wsId of solo ?? []) {
     await removeFolder(supabase, "brand-assets", wsId);
+    await removeFolder(supabase, "project-media", wsId); // subidas y generaciones de IA
   }
 
-  // Revocación de tokens OAuth de cuentas sociales: ver src/lib/social/revoke.ts (se ejecuta aquí cuando existan).
+  // Revocación de tokens OAuth en cada plataforma ANTES de borrar (la cascada solo los borra de nuestra base de datos).
   const { revokeAllForWorkspaces } = await import("@/lib/social/revoke");
   await revokeAllForWorkspaces(solo ?? []);
 
@@ -69,6 +74,12 @@ export async function deleteAccount(_prev: ActionState, formData: FormData): Pro
 }
 
 type Client = Awaited<ReturnType<typeof createClient>>;
+
+/** true si el usuario tiene 2FA activada pero esta sesión aún no ha verificado el código (aal1). */
+async function mfaPending(supabase: Client) {
+  const { data } = await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
+  return Boolean(data && data.nextLevel === "aal2" && data.currentLevel !== "aal2");
+}
 
 /** Borra recursivamente todos los objetos bajo `prefix` en un bucket (con la sesión del usuario → RLS). */
 async function removeFolder(supabase: Client, bucket: string, prefix: string) {
