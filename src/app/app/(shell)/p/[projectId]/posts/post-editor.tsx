@@ -4,7 +4,8 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useRef, useState, useTransition } from "react";
 import { useTranslations } from "next-intl";
-import { AlertTriangle, CalendarCheck, Check, ImageUp, Send, Trash2, Undo2, X } from "lucide-react";
+import { AlertTriangle, CalendarCheck, Check, ImageUp, Send, Sparkles, Trash2, Undo2, X } from "lucide-react";
+import { CreditCost } from "@/components/kreo/credit-cost";
 import { toast } from "sonner";
 import { AiBadge } from "@/components/kreo/ai-badge";
 import { StatusBadge, type PostStatus } from "@/components/kreo/status-badge";
@@ -20,6 +21,7 @@ import { duplicateCaptionWarning, TIKTOK_PRIVACY, type PlatformOptions, type Rul
 import type { EditorAccount, EditorAsset } from "@/lib/server/posts";
 import { createClient } from "@/lib/supabase/client";
 import { addUploadedAsset, approvePost, deletePost, savePost, submitPost, unschedulePost, type PostActionResult } from "./actions";
+import { aiCaptionVariations, aiSuggestCaptions } from "./ai-actions";
 
 type Target = { socialAccountId: string; captionOverride: string; platformOptions: PlatformOptions };
 type Initial = {
@@ -80,6 +82,9 @@ export function PostEditor({
   const [errorKey, setErrorKey] = useState<string>();
   const [violations, setViolations] = useState<{ accountId: string; rules: RuleViolation[] }[]>([]);
   const [limits, setLimits] = useState<{ handle: string | null; planned: number; limit: number }[]>([]);
+  const [aiPending, startAi] = useTransition();
+  const [suggestions, setSuggestions] = useState<{ caption: string; hook: string }[]>([]);
+  const [aiError, setAiError] = useState<string>();
 
   // La fecha guardada se muestra en la hora local del navegador (solo en cliente para evitar desajustes de zona).
   useEffect(() => {
@@ -198,7 +203,43 @@ export function PostEditor({
               <div className="space-y-2">
                 <Label htmlFor="caption">{t("caption")}</Label>
                 <Textarea id="caption" rows={6} value={caption} maxLength={5000} placeholder={t("captionPlaceholder")} onChange={(e) => setCaption(e.target.value)} />
-                <p className="text-right font-mono text-xs text-muted-foreground">{t("chars", { count: caption.length })}</p>
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <div className="flex items-center gap-2">
+                    <Button
+                      type="button"
+                      variant="brand"
+                      size="sm"
+                      disabled={aiPending || caption.trim().length < 3}
+                      onClick={() =>
+                        startAi(async () => {
+                          setAiError(undefined);
+                          const platform = accounts.find((a) => targets.some((x) => x.socialAccountId === a.id))?.platform ?? "instagram";
+                          const res = await aiSuggestCaptions(projectId, caption, platform);
+                          if (res.ok) setSuggestions(res.data);
+                          else setAiError(res.error);
+                        })
+                      }
+                    >
+                      <Sparkles /> {aiPending ? t("suggesting") : t("suggest")}
+                    </Button>
+                    <CreditCost credits={1} />
+                  </div>
+                  <p className="font-mono text-xs text-muted-foreground">{t("chars", { count: caption.length })}</p>
+                </div>
+                {aiError && <p className="text-xs text-destructive">{t.has(`aiErrors.${aiError}`) ? t(`aiErrors.${aiError}`) : t("errorsX.generic")}</p>}
+                {suggestions.length > 0 && (
+                  <div className="space-y-2 rounded-md border border-brand-amber/40 p-3">
+                    <p className="text-xs text-muted-foreground">{t("aiReview")}</p>
+                    {suggestions.map((s, i) => (
+                      <div key={i} className="space-y-1 rounded-sm bg-secondary/60 p-2 text-sm">
+                        <p className="whitespace-pre-line">{s.caption}</p>
+                        <Button type="button" size="xs" variant="secondary" onClick={() => { setCaption(s.caption); setSuggestions([]); }}>
+                          {t("useThis")}
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
             </CardContent>
           </Card>
@@ -307,9 +348,31 @@ export function PostEditor({
                   );
                 })}
                 {duplicate && (
-                  <p className="flex gap-2 rounded-md border border-warning/40 bg-warning/10 p-2 text-xs text-warning">
-                    <AlertTriangle className="size-4 shrink-0" aria-hidden /> {t("duplicateWarning")}
-                  </p>
+                  <div className="space-y-2 rounded-md border border-warning/40 bg-warning/10 p-2 text-xs text-warning">
+                    <p className="flex gap-2">
+                      <AlertTriangle className="size-4 shrink-0" aria-hidden /> {t("duplicateWarning")}
+                    </p>
+                    <div className="flex items-center gap-2">
+                      <Button
+                        type="button"
+                        size="xs"
+                        variant="brand"
+                        disabled={aiPending}
+                        onClick={() =>
+                          startAi(async () => {
+                            setAiError(undefined);
+                            const accs = targets.map((x) => ({ key: x.socialAccountId, platform: accounts.find((a) => a.id === x.socialAccountId)?.platform ?? "" }));
+                            const res = await aiCaptionVariations(projectId, caption, accs);
+                            if (!res.ok) return setAiError(res.error);
+                            for (const v of res.data) patchTarget(v.accountKey, { captionOverride: v.caption });
+                          })
+                        }
+                      >
+                        <Sparkles /> {t("variations")}
+                      </Button>
+                      <CreditCost credits={1} className="text-warning" />
+                    </div>
+                  </div>
                 )}
               </CardContent>
             </Card>

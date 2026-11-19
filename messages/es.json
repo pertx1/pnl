@@ -366,7 +366,22 @@
       "published": "Publicada",
       "failed": "Error",
       "cancelled": "Cancelada"
-    }
+    },
+    "suggest": "Sugerir con IA",
+    "suggesting": "Pensando…",
+    "variations": "Crear variaciones con IA",
+    "aiCost": "Cuesta {credits} crédito",
+    "useThis": "Usar este",
+    "aiErrors": {
+      "not_configured": "La IA de texto se activará cuando configuremos la clave de Claude.",
+      "insufficient_credits": "No tienes créditos suficientes.",
+      "refusal": "La IA no ha podido generar este contenido. Prueba a reformularlo.",
+      "provider_error": "La IA ha fallado. Te hemos devuelto el crédito.",
+      "invalid_input": "Escribe al menos 3 caracteres en el texto.",
+      "forbidden": "No tienes permisos.",
+      "not_found": "No encontrado."
+    },
+    "aiReview": "Propuesta de la IA: revísala antes de aprobar."
   },
   "calendar": {
     "title": "Calendario",
@@ -404,5 +419,41 @@
     "never": "Nunca",
     "topPosts": "Mejores publicaciones",
     "topPostsEmpty": "Cuando publiques con Kreo verás aquí tus publicaciones con mejor rendimiento."
+  },
+  "studio": {
+    "title": "Estudio de IA",
+    "subtitle": "Genera imágenes con el estilo de tu marca. Todo lo generado queda etiquetado como contenido IA.",
+    "prompt": "Describe la imagen",
+    "promptPlaceholder": "Bodegón de un sérum sobre piedra clara, luz natural de mañana, estilo editorial",
+    "aspect": "Formato",
+    "aspects": {
+      "square": "Cuadrado 1:1",
+      "portrait": "Vertical 3:4",
+      "landscape": "Horizontal 16:9",
+      "story": "Story / Reel 9:16"
+    },
+    "model": "Modelo",
+    "brandColors": "Usar la paleta del brand kit",
+    "generate": "Generar",
+    "generating": "Generando…",
+    "cost": "Coste",
+    "balance": "Saldo: {balance}",
+    "license": "Licencia: {name} · uso comercial permitido",
+    "licenseLink": "Ver condiciones",
+    "notConfigured": "La generación de imágenes se activará cuando configuremos el proveedor de IA (fal.ai).",
+    "gallery": "Biblioteca del proyecto",
+    "galleryEmpty": "Aún no hay imágenes. Genera la primera o súbela desde el editor de publicaciones.",
+    "usePost": "Usar en publicación",
+    "errors": {
+      "insufficient_credits": "No tienes créditos suficientes.",
+      "banned_word": "El texto contiene una palabra prohibida de tu brand kit.",
+      "provider_error": "El proveedor de IA ha fallado. Te hemos devuelto los créditos.",
+      "not_configured": "El proveedor de IA aún no está configurado.",
+      "forbidden": "No tienes permisos para generar en este proyecto.",
+      "invalid_input": "Revisa el texto (mínimo 3 caracteres).",
+      "generic": "Algo ha fallado. Inténtalo de nuevo."
+    },
+    "generated": "Imagen generada",
+    "termsNote": "No generes imágenes de personas reales, marcas de terceros ni contenido engañoso. Revisa siempre el resultado antes de publicarlo."
   }
 }

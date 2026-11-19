@@ -74,7 +74,6 @@ function NavItem({
 
 export function AppSidebar({ workspace, workspaces, projects, credits, monthlyCredits, email }: Props) {
   const t = useTranslations("nav");
-  const tc = useTranslations("common");
   const tp = useTranslations("projects");
   const tcr = useTranslations("credits");
   const ta = useTranslations("auth");
@@ -152,7 +151,7 @@ export function AppSidebar({ workspace, workspaces, projects, credits, monthlyCr
           <NavItem href={`${base}/brand-kit`} icon={Palette} label={t("brandKit")} active={pathname === `${base}/brand-kit`} />
           <NavItem href={`${base}/accounts`} icon={Plug} label={t("accounts")} active={pathname === `${base}/accounts`} />
           <NavItem href={`${base}/calendar`} icon={CalendarDays} label={t("calendar")} active={pathname.startsWith(`${base}/calendar`) || pathname.startsWith(`${base}/posts`)} />
-          <NavItem icon={Sparkles} label={t("studio")} soon soonLabel={tc("soon")} />
+          <NavItem href={`${base}/studio`} icon={Sparkles} label={t("studio")} active={pathname === `${base}/studio`} />
           <NavItem href={`${base}/analytics`} icon={BarChart3} label={t("analytics")} active={pathname === `${base}/analytics`} />
         </nav>
       )}

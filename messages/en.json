@@ -366,7 +366,22 @@
       "published": "Published",
       "failed": "Failed",
       "cancelled": "Cancelled"
-    }
+    },
+    "suggest": "Suggest with AI",
+    "suggesting": "Thinking…",
+    "variations": "Create variations with AI",
+    "aiCost": "Costs {credits} credit",
+    "useThis": "Use this",
+    "aiErrors": {
+      "not_configured": "Text AI will be enabled once we set up the Claude key.",
+      "insufficient_credits": "You don't have enough credits.",
+      "refusal": "The AI couldn't generate this content. Try rephrasing it.",
+      "provider_error": "The AI failed. We've refunded the credit.",
+      "invalid_input": "Write at least 3 characters in the caption.",
+      "forbidden": "You don't have permission.",
+      "not_found": "Not found."
+    },
+    "aiReview": "AI suggestion: review it before approving."
   },
   "calendar": {
     "title": "Calendar",
@@ -404,5 +419,41 @@
     "never": "Never",
     "topPosts": "Top posts",
     "topPostsEmpty": "Once you publish with Kreo you'll see your best-performing posts here."
+  },
+  "studio": {
+    "title": "AI Studio",
+    "subtitle": "Generate images in your brand's style. Everything generated is labeled as AI content.",
+    "prompt": "Describe the image",
+    "promptPlaceholder": "Still life of a serum on light stone, natural morning light, editorial style",
+    "aspect": "Format",
+    "aspects": {
+      "square": "Square 1:1",
+      "portrait": "Portrait 3:4",
+      "landscape": "Landscape 16:9",
+      "story": "Story / Reel 9:16"
+    },
+    "model": "Model",
+    "brandColors": "Use the brand kit palette",
+    "generate": "Generate",
+    "generating": "Generating…",
+    "cost": "Cost",
+    "balance": "Balance: {balance}",
+    "license": "License: {name} · commercial use allowed",
+    "licenseLink": "See terms",
+    "notConfigured": "Image generation will be enabled once we set up the AI provider (fal.ai).",
+    "gallery": "Project library",
+    "galleryEmpty": "No images yet. Generate the first one or upload it from the post editor.",
+    "usePost": "Use in a post",
+    "errors": {
+      "insufficient_credits": "You don't have enough credits.",
+      "banned_word": "The text contains a banned word from your brand kit.",
+      "provider_error": "The AI provider failed. We've refunded your credits.",
+      "not_configured": "The AI provider isn't set up yet.",
+      "forbidden": "You don't have permission to generate in this project.",
+      "invalid_input": "Check the text (at least 3 characters).",
+      "generic": "Something went wrong. Please try again."
+    },
+    "generated": "Image generated",
+    "termsNote": "Don't generate images of real people, third-party brands or misleading content. Always review the result before publishing it."
   }
 }
