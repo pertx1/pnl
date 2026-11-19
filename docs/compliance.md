@@ -262,8 +262,5 @@ hay que aplicarla y pasar `qa-tester` antes del merge.
 > ⚖️ Recordatorio a Oier: un abogado debe revisar todos los textos legales (privacidad, términos, cookies, aviso legal,
 > afiliados) y los avisos de la app que tienen efecto legal (YouTube, TikTok, IA, lista de espera) antes del lanzamiento público.
 
-> ⚠️ **Pendiente (2026-11-19):** la migración `supabase/migrations/20261119120000_compliance_fixes.sql` está en el repo pero
-> **todavía NO aplicada** en Supabase (la confirmación del conector caducó). Hasta aplicarla, la base de datos AÚN NO impone:
-> la re-aprobación al editar destinos de un post aprobado, el 2FA dentro de las funciones y la etiqueta IA forzada por trigger
-> (la app ya aplica las dos últimas a nivel de servidor). No hay cuentas reales conectadas, así que no hay riesgo práctico hoy.
-> Aplicarla es el primer paso de la próxima sesión.
+> ✅ **2026-11-19:** migración `20261119120000_compliance_fixes.sql` aplicada en Supabase y verificada: editar un destino
+> de un post programado lo devuelve a "pendiente de aprobación" y un admin puede volver a aprobarlo.
