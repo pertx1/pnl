@@ -1,1 +1,281 @@
-{}
+{
+  "strategy": {
+    "title": "Estrategia",
+    "subtitle": "Pilares, público, frecuencia, objetivos y roadmap. Todo editable.",
+    "warmupLink": "Calentamiento de cuentas",
+    "readOnly": "Tienes acceso de lectura. Un editor puede crear o cambiar la estrategia.",
+    "readOnlyBadge": "Solo lectura",
+    "updated": "Actualizada: {date}",
+    "saved": "Estrategia guardada.",
+    "deleted": "Estrategia borrada.",
+    "unsaved": "Tienes cambios sin guardar.",
+    "discard": "Descartar",
+    "save": "Guardar",
+    "saving": "Guardando…",
+    "delete": "Borrar estrategia",
+    "deleteTitle": "¿Borrar esta estrategia?",
+    "deleteBody": "Se borran los pilares, objetivos, hitos y tareas. Los borradores que ya pasaste al calendario se quedan.",
+    "scope": {
+      "label": "Ámbito de la estrategia",
+      "project": "Todo el proyecto",
+      "hasStrategy": "Tiene estrategia"
+    },
+    "common": {
+      "balance": "saldo {count}",
+      "moveUp": "Subir «{item}»",
+      "moveDown": "Bajar «{item}»",
+      "remove": "Quitar «{item}»"
+    },
+    "errors": {
+      "generic": "Algo ha fallado. Inténtalo de nuevo.",
+      "invalid_input": "Revisa los campos: hay alguno vacío o demasiado largo.",
+      "not_found": "No encontrado.",
+      "forbidden": "No tienes permisos para hacer esto.",
+      "insufficient_credits": "No tienes créditos suficientes.",
+      "not_configured": "La IA está pendiente de configurar.",
+      "refusal": "La IA no ha podido generar esta propuesta. No se te ha cobrado.",
+      "provider_error": "La IA no ha respondido. Te hemos devuelto los créditos.",
+      "already_exists": "Ya hay una estrategia en este ámbito.",
+      "assignee_not_member": "El responsable debe ser miembro del espacio.",
+      "no_accounts": "Conecta al menos una cuenta activa con una red de la frecuencia para rellenar el calendario.",
+      "no_pillars": "Añade al menos un pilar y guarda.",
+      "daily_limit_exceeded": "Algún día supera el límite diario de una cuenta. Vuelve a generar la vista previa.",
+      "duplicate_text": "Hay textos idénticos entre cuentas distintas. Cámbialos antes de crear (anti-baneo)."
+    },
+    "empty": {
+      "title": "Aún no hay estrategia aquí",
+      "body": "Empieza con una plantilla (gratis) o deja que el Estratega la proponga con tu brand kit y tus métricas. Después lo editas todo.",
+      "noAccounts": "Sin cuentas conectadas la estrategia funciona igual, pero no podrás rellenar el calendario.",
+      "connect": "Conectar cuentas",
+      "templates": "Plantillas",
+      "templatesBody": "Elige tu objetivo principal. Sin IA y sin coste.",
+      "scratch": "Empezar en blanco",
+      "created": "Estrategia creada desde la plantilla. Ajústala a tu caso."
+    },
+    "goals": {
+      "audience": { "title": "Crecer audiencia", "body": "Contenido útil y constante en pocos formatos. Para creadores." },
+      "sales": { "title": "Vender un producto", "body": "Problema → solución, demos honestas y prueba social. Para dropshipping y marcas." },
+      "launch": { "title": "Lanzar una cuenta o marca", "body": "Calentamiento, identidad y primeras 12 piezas. Para cuentas nuevas." }
+    },
+    "ai": {
+      "title": "Estratega IA",
+      "body": "Propone estrategia y roadmap de 90 días a partir de tu objetivo, el brand kit y las métricas del proyecto.",
+      "goal": "Objetivo principal",
+      "goalPlaceholder": "Ej.: vender 100 unidades al mes de mi producto",
+      "notes": "Contexto (opcional)",
+      "notesPlaceholder": "Producto, presupuesto, tiempo disponible, lo que ya funciona…",
+      "context": "Se envía a la IA tu brand kit y las métricas de TikTok/Instagram del proyecto (YouTube no). Nada se publica.",
+      "generate": "Generar estrategia",
+      "generating": "Generando…",
+      "notConfigured": "IA pendiente de configurar. Puedes crear la estrategia con una plantilla y editarla a mano.",
+      "done": "Estrategia propuesta. Revísala y edita lo que quieras.",
+      "regenerate": "Regenerar con IA",
+      "regenerateBody": "El Estratega propone una estrategia nueva para este ámbito.",
+      "replaceWarning": "Sustituye pilares, objetivos, hitos y tareas actuales. Los borradores del calendario no se tocan."
+    },
+    "sections": {
+      "summary": "Resumen y público",
+      "pillars": "Pilares de contenido",
+      "frequency": "Frecuencia por red",
+      "objectives": "Objetivos y KPIs",
+      "roadmap": "Roadmap"
+    },
+    "fields": {
+      "title": "Nombre",
+      "titlePlaceholder": "Ej.: Estrategia Q1",
+      "summary": "Enfoque",
+      "summaryPlaceholder": "Qué vas a hacer y por qué, en 2–3 frases.",
+      "audience": "Público",
+      "audiencePlaceholder": "Edad, país, idioma, problemas e intereses."
+    },
+    "pillars": {
+      "help": "Temas fijos sobre los que publicas. El peso (%) reparte los borradores del planificador.",
+      "total": "Total: {total} %",
+      "empty": "Sin pilares. Añade 3–5.",
+      "name": "Nombre del pilar",
+      "share": "Peso en %",
+      "description": "De qué trata este pilar",
+      "examples": "Ideas de ejemplo (una por línea)",
+      "add": "Añadir pilar"
+    },
+    "frequency": {
+      "help": "Publicaciones por semana y hora preferida. Se respetan los límites diarios de cada cuenta.",
+      "empty": "Añade al menos una red.",
+      "perWeek": "Publicaciones por semana en {platform}",
+      "unit": "/ semana",
+      "hour": "Hora preferida en {platform}",
+      "high": "Más de 7 por semana es mucho para una cuenta nueva. Prioriza calidad."
+    },
+    "objectives": {
+      "help": "Metas medibles con las estadísticas nativas de cada red.",
+      "empty": "Sin objetivos todavía.",
+      "objective": "Objetivo",
+      "kpi": "KPI",
+      "target": "Meta",
+      "deadline": "Fecha límite",
+      "add": "Añadir objetivo"
+    },
+    "roadmap": {
+      "help": "Hitos con fecha y tareas. Pasa una tarea al calendario y se crea un borrador.",
+      "progress": "{done}/{total} tareas",
+      "progressLabel": "Progreso del roadmap",
+      "empty": "Sin hitos. Añade el primero.",
+      "milestone": "Hito",
+      "milestoneDate": "Fecha del hito",
+      "milestoneDescription": "Descripción del hito",
+      "addTask": "Añadir tarea",
+      "addMilestone": "Añadir hito",
+      "member": "Miembro",
+      "status": "Estado",
+      "statuses": { "todo": "Pendiente", "doing": "En curso", "done": "Hecha" },
+      "task": "Tarea",
+      "more": "Detalles",
+      "less": "Ocultar",
+      "brief": "Brief",
+      "briefPlaceholder": "Idea, gancho, formato. Será el texto inicial del borrador.",
+      "platform": "Red",
+      "noPlatform": "Sin red",
+      "assignee": "Responsable",
+      "unassigned": "Sin asignar",
+      "dueDate": "Fecha",
+      "openDraft": "Abrir borrador",
+      "toCalendar": "Pasar al calendario",
+      "saveFirst": "Guarda antes de pasar tareas al calendario.",
+      "toCalendarDone": "Borrador creado en el calendario. Revísalo y envíalo a aprobación cuando quieras.",
+      "toCalendarNoAccount": "Borrador creado sin cuenta destino: elige la cuenta en el editor."
+    },
+    "planner": {
+      "open": "Rellenar 2 semanas",
+      "title": "Rellenar el calendario de las próximas 2 semanas",
+      "body": "Vista previa según tus pilares y frecuencia. Revisa, quita lo que no quieras y confirma.",
+      "connect": "Conectar cuentas",
+      "nothing": "No caben más publicaciones: los límites diarios o la frecuencia ya están cubiertos.",
+      "limitsNote": "Respeta el límite diario de cada cuenta contando lo que ya tienes en el calendario. Un texto distinto por cuenta.",
+      "skipped": "{count, plural, one {# publicación no cabe} other {# publicaciones no caben}} por el límite diario de {account}",
+      "include": "Incluir «{title}»",
+      "caption": "Texto de «{title}»",
+      "draftsOnly": "Se crean como BORRADORES: nada se envía a aprobación ni se programa hasta que lo apruebes.",
+      "aiWrite": "Redactar textos con IA",
+      "aiNotConfigured": "IA pendiente de configurar: se usan textos de plantilla.",
+      "aiDone": "Textos propuestos. Revísalos antes de crear.",
+      "create": "Crear {count, plural, one {# borrador} other {# borradores}}",
+      "created": "{count, plural, one {# borrador creado} other {# borradores creados}} en el calendario.",
+      "openCalendar": "Ver calendario",
+      "saveFirst": "Guarda los cambios primero"
+    }
+  },
+  "warmup": {
+    "title": "Calentamiento",
+    "subtitle": "Plan de 7–14 días para que una cuenta nueva arranque sana: checklist diaria de acciones que haces tú.",
+    "newPlan": "Nuevo plan",
+    "manualOnly": "Todo lo que ves aquí lo haces tú, a mano, en la app oficial. Kreo nunca da likes, sigue, comenta ni publica por ti: es solo una guía.",
+    "plans": "Planes de calentamiento",
+    "plannedAccount": "Cuenta planificada",
+    "progressPct": "{pct} % completado",
+    "readOnly": "Tienes acceso de lectura. Un editor puede crear planes.",
+    "created": "Plan creado. Empieza por el día 1.",
+    "dates": "{from} → {to} · {days} días",
+    "archive": "Archivar",
+    "unarchive": "Reactivar",
+    "delete": "Borrar plan",
+    "deleteTitle": "¿Borrar este plan?",
+    "deleteBody": "Se borran el plan y su checklist. No afecta a tu cuenta en la red social.",
+    "attention": {
+      "title": "Tienes tareas de calentamiento pendientes",
+      "item": "{account}: {count, plural, one {# tarea} other {# tareas}}"
+    },
+    "status": { "active": "Activo", "completed": "Completado", "archived": "Archivado" },
+    "empty": {
+      "title": "Sin planes de calentamiento",
+      "body": "Crea uno para cada cuenta nueva (o una que aún vas a abrir). Funciona sin IA."
+    },
+    "practices": {
+      "title": "Buenas prácticas",
+      "profile": { "title": "Perfil completo", "body": "Foto, nombre, bio clara y enlace donde se permita, antes de publicar." },
+      "frequency": { "title": "Frecuencia sana", "body": "Máx. 1 publicación al día al empezar. Constancia antes que volumen." },
+      "original": { "title": "Contenido original", "body": "Nada de resubir vídeos ajenos ni el mismo vídeo en varias cuentas." },
+      "aiLabel": { "title": "Etiqueta la IA", "body": "Si usas imagen o vídeo generado con IA, márcalo con la etiqueta de la red." },
+      "noBuy": { "title": "No compres seguidores", "body": "Ni likes, ni views, ni grupos de engagement. Se detecta y limita el alcance." },
+      "device": { "title": "Mismo dispositivo y red", "body": "Sin VPN ni proxies y sin cambiar de móvil cada día." }
+    },
+    "form": {
+      "title": "Nuevo plan de calentamiento",
+      "body": "Para una cuenta conectada o una que todavía no has conectado.",
+      "account": "Cuenta",
+      "planned": "Cuenta planificada (aún no conectada)",
+      "platform": "Red",
+      "handle": "Usuario",
+      "optional": "opcional",
+      "niche": "Nicho",
+      "nichePlaceholder": "Ej.: recetas fit, gadgets de cocina…",
+      "duration": "Duración",
+      "days": "{count} días",
+      "start": "Empieza el",
+      "plannedHelp": "Cuando conectes la cuenta, el plan seguirá aquí.",
+      "coach": "Personalizar con el Coach según el nicho",
+      "creating": "Creando…",
+      "createCoach": "Crear y personalizar",
+      "create": "Crear plan",
+      "cancel": "Cancelar"
+    },
+    "coach": {
+      "done": "El Coach ha ajustado tu plan.",
+      "notConfigured": "IA pendiente de configurar: puedes usar la plantilla y el ajuste gratuito.",
+      "personalize": "Personalizar con el Coach",
+      "replaceNote": "El Coach sustituye las tareas pendientes desde el día {day}. Las hechas se conservan."
+    },
+    "stats": {
+      "progress": "Progreso",
+      "tasks": "{done}/{total} tareas",
+      "streak": "Racha",
+      "streakDays": "{count, plural, one {# día} other {# días}}",
+      "streakHelp": "Días seguidos con todas las tareas hechas.",
+      "day": "Día",
+      "finished": "Fin",
+      "startsOn": "Empieza el {date}.",
+      "finishedHelp": "Plan terminado. Sigue publicando con constancia.",
+      "todayLeft": "{count, plural, =0 {Hoy está todo hecho.} one {Te queda # tarea hoy.} other {Te quedan # tareas hoy.}}"
+    },
+    "reminders": {
+      "on": "Recordatorio por email activado.",
+      "off": "Recordatorio por email desactivado.",
+      "overdue": "{count, plural, one {Tienes # tarea de días anteriores sin hacer.} other {Tienes # tareas de días anteriores sin hacer.}} Ponte al día sin forzar: mejor despacio que todo de golpe.",
+      "today": "{count, plural, one {Hoy tienes # tarea.} other {Hoy tienes # tareas.}}",
+      "email": "Recordatorio diario por email",
+      "emailHelp": "Solo los días con tareas pendientes. Lo puedes quitar cuando quieras.",
+      "other": "Otro miembro recibe los recordatorios. Si lo activas, pasarán a ti."
+    },
+    "checklist": {
+      "title": "Checklist diaria",
+      "help": "Marca cada tarea al hacerla. Todo a mano, desde la app oficial.",
+      "day": "Día {n}",
+      "today": "hoy",
+      "emptyDay": "Sin tareas este día.",
+      "aiTask": "Propuesta por la IA"
+    },
+    "categories": {
+      "profile": "Perfil",
+      "content": "Contenido",
+      "engage": "Interacción",
+      "safety": "Seguridad",
+      "learn": "Aprender"
+    },
+    "issues": {
+      "title": "¿Algo no va bien?",
+      "help": "Marca lo que te pasa y ajustamos el plan: gratis con la guía, o personalizado con el Coach.",
+      "list": {
+        "zero_views": "Mis vídeos tienen 0 views",
+        "low_reach": "Llego a muy poca gente",
+        "low_engagement": "Casi nadie comenta",
+        "restricted": "Tengo un aviso o restricción",
+        "no_ideas": "No sé qué publicar",
+        "no_time": "No me da tiempo"
+      },
+      "reported": "ya marcado",
+      "adjust": "Ajustar plan (gratis)",
+      "adjustAi": "Ajustar con el Coach",
+      "added": "{count, plural, one {# tarea añadida} other {# tareas añadidas}} al plan.",
+      "nothingNew": "Esas recomendaciones ya estaban en tu plan."
+    }
+  }
+}

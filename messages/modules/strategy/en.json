@@ -1,1 +1,281 @@
-{}
+{
+  "strategy": {
+    "title": "Strategy",
+    "subtitle": "Pillars, audience, frequency, goals and roadmap. All editable.",
+    "warmupLink": "Account warm-up",
+    "readOnly": "You have read access. An editor can create or change the strategy.",
+    "readOnlyBadge": "Read only",
+    "updated": "Updated: {date}",
+    "saved": "Strategy saved.",
+    "deleted": "Strategy deleted.",
+    "unsaved": "You have unsaved changes.",
+    "discard": "Discard",
+    "save": "Save",
+    "saving": "Saving…",
+    "delete": "Delete strategy",
+    "deleteTitle": "Delete this strategy?",
+    "deleteBody": "Pillars, goals, milestones and tasks are deleted. Drafts already sent to the calendar stay.",
+    "scope": {
+      "label": "Strategy scope",
+      "project": "Whole project",
+      "hasStrategy": "Has a strategy"
+    },
+    "common": {
+      "balance": "balance {count}",
+      "moveUp": "Move “{item}” up",
+      "moveDown": "Move “{item}” down",
+      "remove": "Remove “{item}”"
+    },
+    "errors": {
+      "generic": "Something went wrong. Please try again.",
+      "invalid_input": "Check the fields: one is empty or too long.",
+      "not_found": "Not found.",
+      "forbidden": "You don't have permission to do this.",
+      "insufficient_credits": "You don't have enough credits.",
+      "not_configured": "AI is pending setup.",
+      "refusal": "The AI couldn't produce this proposal. You haven't been charged.",
+      "provider_error": "The AI didn't respond. Your credits have been refunded.",
+      "already_exists": "There's already a strategy in this scope.",
+      "assignee_not_member": "The assignee must be a workspace member.",
+      "no_accounts": "Connect at least one active account on a network in your frequency to fill the calendar.",
+      "no_pillars": "Add at least one pillar and save.",
+      "daily_limit_exceeded": "A day exceeds an account's daily limit. Generate the preview again.",
+      "duplicate_text": "There are identical texts across different accounts. Change them before creating (anti-ban)."
+    },
+    "empty": {
+      "title": "No strategy here yet",
+      "body": "Start from a template (free) or let the Strategist propose one using your brand kit and metrics. Then edit everything.",
+      "noAccounts": "Without connected accounts the strategy works the same, but you can't fill the calendar.",
+      "connect": "Connect accounts",
+      "templates": "Templates",
+      "templatesBody": "Pick your main goal. No AI, no cost.",
+      "scratch": "Start blank",
+      "created": "Strategy created from the template. Tailor it to your case."
+    },
+    "goals": {
+      "audience": { "title": "Grow an audience", "body": "Useful, consistent content in a few formats. For creators." },
+      "sales": { "title": "Sell a product", "body": "Problem → solution, honest demos and social proof. For dropshipping and brands." },
+      "launch": { "title": "Launch an account or brand", "body": "Warm-up, identity and first 12 pieces. For new accounts." }
+    },
+    "ai": {
+      "title": "AI Strategist",
+      "body": "Proposes a 90-day strategy and roadmap from your goal, brand kit and project metrics.",
+      "goal": "Main goal",
+      "goalPlaceholder": "E.g. sell 100 units a month of my product",
+      "notes": "Context (optional)",
+      "notesPlaceholder": "Product, budget, available time, what already works…",
+      "context": "Your brand kit and the project's TikTok/Instagram metrics are sent to the AI (not YouTube). Nothing is published.",
+      "generate": "Generate strategy",
+      "generating": "Generating…",
+      "notConfigured": "AI pending setup. You can create the strategy from a template and edit it by hand.",
+      "done": "Strategy proposed. Review it and edit anything you like.",
+      "regenerate": "Regenerate with AI",
+      "regenerateBody": "The Strategist proposes a new strategy for this scope.",
+      "replaceWarning": "Replaces current pillars, goals, milestones and tasks. Calendar drafts are not touched."
+    },
+    "sections": {
+      "summary": "Summary and audience",
+      "pillars": "Content pillars",
+      "frequency": "Frequency per network",
+      "objectives": "Goals and KPIs",
+      "roadmap": "Roadmap"
+    },
+    "fields": {
+      "title": "Name",
+      "titlePlaceholder": "E.g. Q1 strategy",
+      "summary": "Approach",
+      "summaryPlaceholder": "What you'll do and why, in 2–3 sentences.",
+      "audience": "Audience",
+      "audiencePlaceholder": "Age, country, language, problems and interests."
+    },
+    "pillars": {
+      "help": "Recurring topics you post about. The weight (%) distributes the planner's drafts.",
+      "total": "Total: {total}%",
+      "empty": "No pillars. Add 3–5.",
+      "name": "Pillar name",
+      "share": "Weight in %",
+      "description": "What this pillar is about",
+      "examples": "Example ideas (one per line)",
+      "add": "Add pillar"
+    },
+    "frequency": {
+      "help": "Posts per week and preferred time. Each account's daily limits are respected.",
+      "empty": "Add at least one network.",
+      "perWeek": "Posts per week on {platform}",
+      "unit": "/ week",
+      "hour": "Preferred time on {platform}",
+      "high": "More than 7 a week is a lot for a new account. Prioritise quality."
+    },
+    "objectives": {
+      "help": "Goals measurable with each network's native analytics.",
+      "empty": "No goals yet.",
+      "objective": "Goal",
+      "kpi": "KPI",
+      "target": "Target",
+      "deadline": "Deadline",
+      "add": "Add goal"
+    },
+    "roadmap": {
+      "help": "Dated milestones and tasks. Send a task to the calendar to create a draft.",
+      "progress": "{done}/{total} tasks",
+      "progressLabel": "Roadmap progress",
+      "empty": "No milestones. Add the first one.",
+      "milestone": "Milestone",
+      "milestoneDate": "Milestone date",
+      "milestoneDescription": "Milestone description",
+      "addTask": "Add task",
+      "addMilestone": "Add milestone",
+      "member": "Member",
+      "status": "Status",
+      "statuses": { "todo": "To do", "doing": "In progress", "done": "Done" },
+      "task": "Task",
+      "more": "Details",
+      "less": "Hide",
+      "brief": "Brief",
+      "briefPlaceholder": "Idea, hook, format. It becomes the draft's starting text.",
+      "platform": "Network",
+      "noPlatform": "No network",
+      "assignee": "Assignee",
+      "unassigned": "Unassigned",
+      "dueDate": "Date",
+      "openDraft": "Open draft",
+      "toCalendar": "Send to calendar",
+      "saveFirst": "Save before sending tasks to the calendar.",
+      "toCalendarDone": "Draft created in the calendar. Review it and submit it for approval when ready.",
+      "toCalendarNoAccount": "Draft created without a target account: pick one in the editor."
+    },
+    "planner": {
+      "open": "Fill 2 weeks",
+      "title": "Fill the calendar for the next 2 weeks",
+      "body": "Preview based on your pillars and frequency. Review, remove what you don't want and confirm.",
+      "connect": "Connect accounts",
+      "nothing": "No more posts fit: daily limits or frequency are already covered.",
+      "limitsNote": "Respects each account's daily limit, counting what's already in your calendar. A different text per account.",
+      "skipped": "{count, plural, one {# post doesn't fit} other {# posts don't fit}} due to {account}'s daily limit",
+      "include": "Include “{title}”",
+      "caption": "Text for “{title}”",
+      "draftsOnly": "Created as DRAFTS: nothing is submitted or scheduled until you approve it.",
+      "aiWrite": "Write texts with AI",
+      "aiNotConfigured": "AI pending setup: template texts are used.",
+      "aiDone": "Texts proposed. Review them before creating.",
+      "create": "Create {count, plural, one {# draft} other {# drafts}}",
+      "created": "{count, plural, one {# draft created} other {# drafts created}} in the calendar.",
+      "openCalendar": "View calendar",
+      "saveFirst": "Save your changes first"
+    }
+  },
+  "warmup": {
+    "title": "Warm-up",
+    "subtitle": "A 7–14 day plan so a new account starts healthy: a daily checklist of actions you do yourself.",
+    "newPlan": "New plan",
+    "manualOnly": "Everything here is done by you, by hand, in the official app. Kreo never likes, follows, comments or posts for you: it's only a guide.",
+    "plans": "Warm-up plans",
+    "plannedAccount": "Planned account",
+    "progressPct": "{pct}% complete",
+    "readOnly": "You have read access. An editor can create plans.",
+    "created": "Plan created. Start with day 1.",
+    "dates": "{from} → {to} · {days} days",
+    "archive": "Archive",
+    "unarchive": "Reactivate",
+    "delete": "Delete plan",
+    "deleteTitle": "Delete this plan?",
+    "deleteBody": "The plan and its checklist are deleted. It doesn't affect your social account.",
+    "attention": {
+      "title": "You have pending warm-up tasks",
+      "item": "{account}: {count, plural, one {# task} other {# tasks}}"
+    },
+    "status": { "active": "Active", "completed": "Completed", "archived": "Archived" },
+    "empty": {
+      "title": "No warm-up plans",
+      "body": "Create one for each new account (or one you're about to open). Works without AI."
+    },
+    "practices": {
+      "title": "Good practices",
+      "profile": { "title": "Complete profile", "body": "Photo, name, clear bio and a link where allowed, before posting." },
+      "frequency": { "title": "Healthy frequency", "body": "Max 1 post a day at the start. Consistency over volume." },
+      "original": { "title": "Original content", "body": "No re-uploading others' videos or the same video on several accounts." },
+      "aiLabel": { "title": "Label AI", "body": "If you use AI-generated images or video, apply the network's AI label." },
+      "noBuy": { "title": "Don't buy followers", "body": "No likes, views or engagement pods. It's detected and limits reach." },
+      "device": { "title": "Same device and network", "body": "No VPN or proxies, and don't switch phones every day." }
+    },
+    "form": {
+      "title": "New warm-up plan",
+      "body": "For a connected account or one you haven't connected yet.",
+      "account": "Account",
+      "planned": "Planned account (not connected yet)",
+      "platform": "Network",
+      "handle": "Username",
+      "optional": "optional",
+      "niche": "Niche",
+      "nichePlaceholder": "E.g. healthy recipes, kitchen gadgets…",
+      "duration": "Duration",
+      "days": "{count} days",
+      "start": "Starts on",
+      "plannedHelp": "When you connect the account, the plan will still be here.",
+      "coach": "Personalise with the Coach for your niche",
+      "creating": "Creating…",
+      "createCoach": "Create and personalise",
+      "create": "Create plan",
+      "cancel": "Cancel"
+    },
+    "coach": {
+      "done": "The Coach has adjusted your plan.",
+      "notConfigured": "AI pending setup: you can use the template and the free adjustment.",
+      "personalize": "Personalise with the Coach",
+      "replaceNote": "The Coach replaces pending tasks from day {day}. Completed ones are kept."
+    },
+    "stats": {
+      "progress": "Progress",
+      "tasks": "{done}/{total} tasks",
+      "streak": "Streak",
+      "streakDays": "{count, plural, one {# day} other {# days}}",
+      "streakHelp": "Consecutive days with every task done.",
+      "day": "Day",
+      "finished": "End",
+      "startsOn": "Starts on {date}.",
+      "finishedHelp": "Plan finished. Keep posting consistently.",
+      "todayLeft": "{count, plural, =0 {All done for today.} one {# task left today.} other {# tasks left today.}}"
+    },
+    "reminders": {
+      "on": "Email reminder on.",
+      "off": "Email reminder off.",
+      "overdue": "{count, plural, one {You have # task from previous days not done.} other {You have # tasks from previous days not done.}} Catch up without forcing it: slow beats all at once.",
+      "today": "{count, plural, one {You have # task today.} other {You have # tasks today.}}",
+      "email": "Daily email reminder",
+      "emailHelp": "Only on days with pending tasks. Turn it off anytime.",
+      "other": "Another member gets the reminders. If you turn it on, they'll go to you."
+    },
+    "checklist": {
+      "title": "Daily checklist",
+      "help": "Tick each task when done. All by hand, from the official app.",
+      "day": "Day {n}",
+      "today": "today",
+      "emptyDay": "No tasks this day.",
+      "aiTask": "Proposed by AI"
+    },
+    "categories": {
+      "profile": "Profile",
+      "content": "Content",
+      "engage": "Engagement",
+      "safety": "Safety",
+      "learn": "Learn"
+    },
+    "issues": {
+      "title": "Something not working?",
+      "help": "Tick what's happening and we'll adjust the plan: free with the guide, or personalised with the Coach.",
+      "list": {
+        "zero_views": "My videos get 0 views",
+        "low_reach": "I reach very few people",
+        "low_engagement": "Hardly anyone comments",
+        "restricted": "I have a warning or restriction",
+        "no_ideas": "I don't know what to post",
+        "no_time": "I don't have time"
+      },
+      "reported": "already reported",
+      "adjust": "Adjust plan (free)",
+      "adjustAi": "Adjust with the Coach",
+      "added": "{count, plural, one {# task added} other {# tasks added}} to the plan.",
+      "nothingNew": "Those recommendations were already in your plan."
+    }
+  }
+}
