@@ -42,7 +42,7 @@ function SubscribeForm({ planId, disabled, highlight }: { planId: string; disabl
         <span>
           {t.rich("subscribeTerms", {
             terms: (chunks) => (
-              <Link href="/legal/terminos" target="_blank" className="text-primary-ink underline-offset-2 hover:underline">
+              <Link href="/legal/terminos" target="_blank" className="link">
                 {chunks}
               </Link>
             ),
@@ -109,7 +109,7 @@ export function PlansGrid({
                   ] as const
                 ).map(([k, n]) => (
                   <li key={k} className="flex items-center gap-2">
-                    <Check className="size-3.5 shrink-0 text-primary-ink" strokeWidth={1.5} aria-hidden />
+                    <Check className="size-3.5 shrink-0 text-muted-foreground" strokeWidth={1.5} aria-hidden />
                     {t(`features.${k}`, { n })}
                   </li>
                 ))}

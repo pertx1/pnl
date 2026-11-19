@@ -1,6 +1,7 @@
 "use client";
 
 import { useFormStatus } from "react-dom";
+import { TerminalCursor } from "@/components/brand/terminal-cursor";
 import { Button } from "@/components/ui/button";
 import type { ComponentProps } from "react";
 
@@ -12,7 +13,14 @@ export function SubmitButton({
   const { pending } = useFormStatus();
   return (
     <Button type="submit" disabled={pending || props.disabled} aria-busy={pending} {...props}>
-      {pending ? pendingLabel : children}
+      {pending ? (
+        <>
+          {pendingLabel}
+          <TerminalCursor />
+        </>
+      ) : (
+        children
+      )}
     </Button>
   );
 }

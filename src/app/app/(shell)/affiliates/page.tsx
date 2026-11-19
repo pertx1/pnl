@@ -63,7 +63,7 @@ export default async function AffiliatesPage() {
         <Card>
           <CardContent className="grid gap-6 md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
             <div className="space-y-3">
-              <HandCoins className="size-8 text-primary-ink" strokeWidth={1.5} aria-hidden />
+              <HandCoins className="size-8 text-muted-foreground" strokeWidth={1.5} aria-hidden />
               <h2 className="text-lg font-medium">{t("join.title")}</h2>
               <ul className="space-y-2 text-sm text-muted-foreground">
                 <li>{t("join.point1", { pct, months })}</li>
@@ -169,7 +169,7 @@ export default async function AffiliatesPage() {
               <CardContent className="space-y-2 text-sm text-muted-foreground">
                 <p>{t("disclosure.body")}</p>
                 <p>{t("disclosure.noSpam")}</p>
-                <Link href="/legal/afiliados" className="inline-block text-primary-ink hover:underline">
+                <Link href="/legal/afiliados" className="link inline-block">
                   {t("disclosure.terms")}
                 </Link>
               </CardContent>

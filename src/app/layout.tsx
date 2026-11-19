@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { JetBrains_Mono, Space_Grotesk } from "next/font/google";
 import { NextIntlClientProvider } from "next-intl";
 import { getLocale } from "next-intl/server";
@@ -11,6 +11,15 @@ import "./globals.css";
 // Google Fonts con licencia SIL OFL, auto-alojadas por next/font (sin peticiones a Google desde el navegador).
 const spaceGrotesk = Space_Grotesk({ subsets: ["latin"], variable: "--font-space-grotesk" });
 const jetbrainsMono = JetBrains_Mono({ subsets: ["latin"], variable: "--font-jetbrains-mono" });
+
+// viewport-fit=cover habilita env(safe-area-inset-*) para la barra de pestañas en iPhone.
+export const viewport: Viewport = {
+  viewportFit: "cover",
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#ffffff" },
+    { media: "(prefers-color-scheme: dark)", color: "#08090a" },
+  ],
+};
 
 export const metadata: Metadata = {
   title: { default: "Kreo", template: "%s · Kreo" },

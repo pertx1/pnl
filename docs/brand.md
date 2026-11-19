@@ -96,3 +96,18 @@ Ejemplos: "+38 % de views esta semana. Tu mejor hora: 19:00." · "3 posts listos
 - `prefers-reduced-motion` desactiva animaciones y transiciones; `prefers-contrast: more` refuerza bordes y texto secundario.
 - El tema sigue al del sistema por defecto; el botón de tema vuelve a "sistema" si eliges lo mismo que el sistema.
 - El aviso de cookies reserva su altura al final de la página: nunca tapa botones.
+
+## Uso de la lima (desde 2026-11-19)
+La lima solo significa tres cosas:
+1. **Acción principal** (botón por defecto, un solo botón lima por pantalla).
+2. **Lo seleccionado o actual** (pestaña, filtro, tarjeta elegida, día de hoy, sección activa).
+3. **El cursor de Kreo** (`kreo_`): el bloque que cierra el logo es también el indicador de "Kreo está trabajando"
+   (`<TerminalCursor />`, en todos los estados de carga y botones pendientes).
+
+Todo lo demás es neutro: enlaces de texto (`link`: color del texto + subrayado), iconos decorativos (`text-muted-foreground`),
+barras de progreso y datos (`bg-foreground/70`), insignias por defecto (neutras). Confirmaciones y "listo" usan `success`.
+
+## Navegación en móvil
+Barra de pestañas inferior (`md:hidden`): en un proyecto, Panel · Estudio · Calendario · Bandeja · Más; fuera de un proyecto,
+Proyectos · Calendario · Equipo · Ajustes · Más. "Más" abre el menú completo y se marca activa cuando la sección actual
+no tiene pestaña propia. Respeta la zona segura del iPhone (`viewport-fit=cover` + `env(safe-area-inset-bottom)`).

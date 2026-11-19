@@ -278,7 +278,7 @@ export default async function ShopifyPage({ params, searchParams }: { params: Pr
                         <td className="max-w-[320px] py-2 pr-4">
                           <div className="truncate">{r.label}</div>
                           {r.kind === "utm" ? (
-                            <a href={r.url!} target="_blank" rel="noreferrer" className="block truncate font-mono text-xs text-primary-ink hover:underline">
+                            <a href={r.url!} target="_blank" rel="noreferrer" className="link block truncate font-mono text-xs">
                               {r.url}
                             </a>
                           ) : (

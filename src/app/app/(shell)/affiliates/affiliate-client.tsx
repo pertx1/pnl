@@ -33,7 +33,7 @@ export function JoinForm() {
         <span>
           {t.rich("join.terms", {
             link: (chunks) => (
-              <Link href="/legal/afiliados" target="_blank" className="text-primary-ink underline-offset-2 hover:underline">
+              <Link href="/legal/afiliados" target="_blank" className="link">
                 {chunks}
               </Link>
             ),

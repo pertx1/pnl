@@ -1,10 +1,11 @@
 "use client";
 
 import Link from "next/link";
+import { TerminalCursor } from "@/components/brand/terminal-cursor";
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 import { useTranslations } from "next-intl";
-import { Bookmark, ExternalLink, Loader2, Pencil, Plus, Sparkles, Trash2, Wand2, X } from "lucide-react";
+import {Bookmark, ExternalLink, Pencil, Plus, Sparkles, Trash2, Wand2, X } from "lucide-react";
 import { toast } from "sonner";
 import { CreditCost } from "@/components/kreo/credit-cost";
 import { PlatformIcon } from "@/components/social/platform-icon";
@@ -119,7 +120,7 @@ export function SwipeFile({
           <div className="flex flex-wrap items-center justify-between gap-2">
             <p className="text-xs text-muted-foreground">{t("legal")}</p>
             <Button type="submit" disabled={busy || url.trim().length < 8}>
-              {busy ? <Loader2 className="animate-spin" /> : <Plus />} {t("add")}
+              {busy ? <TerminalCursor /> : <Plus />} {t("add")}
             </Button>
           </div>
         </form>
@@ -298,7 +299,7 @@ function SwipeCard({
           <div className="mt-auto space-y-2 border-t pt-2">
             <div className="flex flex-wrap items-center gap-2">
               <Button size="xs" variant="brand" disabled={busy || !canAi} onClick={() => remix(true)}>
-                {busy ? <Loader2 className="animate-spin" /> : <Sparkles />} {t("remix")}
+                {busy ? <TerminalCursor /> : <Sparkles />} {t("remix")}
               </Button>
               <CreditCost credits={remixCredits} />
             </div>

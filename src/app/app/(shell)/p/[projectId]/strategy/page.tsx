@@ -54,7 +54,7 @@ export default async function StrategyPage({ params, searchParams }: { params: P
           <h1 className="text-[28px] leading-tight font-medium">{t("title")}</h1>
           <p className="text-sm text-muted-foreground">{t("subtitle")}</p>
         </div>
-        <Link href={`/app/p/${projectId}/warmup`} className="inline-flex items-center gap-1.5 text-sm text-primary-ink underline-offset-4 hover:underline">
+        <Link href={`/app/p/${projectId}/warmup`} className="link inline-flex items-center gap-1.5 text-sm">
           <Flame className="size-4" strokeWidth={1.5} aria-hidden /> {t("warmupLink")}
         </Link>
       </div>
@@ -74,7 +74,7 @@ export default async function StrategyPage({ params, searchParams }: { params: P
             >
               {s.platform ? <PlatformIcon platform={s.platform} className="size-5 text-[8px]" /> : <Layers className="size-4" strokeWidth={1.5} aria-hidden />}
               {s.label}
-              {s.has && <span className="size-1.5 rounded-full bg-primary-ink" aria-label={t("scope.hasStrategy")} />}
+              {s.has && <span className="size-1.5 rounded-full bg-foreground/70" aria-label={t("scope.hasStrategy")} />}
             </Link>
           );
         })}

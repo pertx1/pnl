@@ -1,8 +1,9 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import { TerminalCursor } from "@/components/brand/terminal-cursor";
 import { useFormatter, useTranslations } from "next-intl";
-import { Loader2, Sparkles } from "lucide-react";
+import {Sparkles } from "lucide-react";
 import { toast } from "sonner";
 import { AiBadge } from "@/components/kreo/ai-badge";
 import { CreditCost } from "@/components/kreo/credit-cost";
@@ -46,7 +47,7 @@ export function CompetitorAnalysisPanel({
             })
           }
         >
-          {busy ? <Loader2 className="animate-spin" /> : <Sparkles />} {data ? t("rerun") : t("run")}
+          {busy ? <TerminalCursor /> : <Sparkles />} {data ? t("rerun") : t("run")}
         </Button>
         <CreditCost credits={credits} />
         {!canPay && <span className="text-xs text-destructive">{t("noCredits")}</span>}

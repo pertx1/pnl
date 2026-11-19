@@ -76,7 +76,7 @@ export default async function CompetitorDetailPage({ params }: Params) {
               <PlatformIcon platform={c.platform} className="size-5 text-[8px]" />
               {c.handle}
               {c.profile_url && (
-                <a href={c.profile_url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-primary-ink hover:underline">
+                <a href={c.profile_url} target="_blank" rel="noopener noreferrer" className="link inline-flex items-center gap-1">
                   {t("detail.openProfile")} <ExternalLink className="size-3.5" aria-hidden />
                 </a>
               )}
@@ -152,7 +152,7 @@ export default async function CompetitorDetailPage({ params }: Params) {
               <ul className="divide-y">
                 {outliers.map(({ post: p, multiple }) => (
                   <li key={p.id} className="flex items-center gap-3 py-2">
-                    <span className="w-14 shrink-0 rounded-sm bg-primary px-1.5 py-0.5 text-center font-mono text-xs font-semibold text-primary-foreground tabular-nums">
+                    <span className="w-14 shrink-0 rounded-sm border bg-secondary px-1.5 py-0.5 text-center font-mono text-xs font-semibold text-foreground tabular-nums">
                       {format.number(multiple, { maximumFractionDigits: 1 })}×
                     </span>
                     <PostLine p={p} metricLabel={metricLabel} n={n} date={date} untitled={t("untitled")} />

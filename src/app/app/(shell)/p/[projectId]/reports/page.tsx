@@ -74,7 +74,7 @@ export default async function ReportsPage({ params }: { params: Promise<{ projec
               )}
             </div>
             <p className="text-xs text-muted-foreground">{t("logoFormats")}</p>
-            <Link href={`/app/p/${projectId}/brand-kit`} className="text-sm text-primary-ink underline-offset-4 hover:underline">
+            <Link href={`/app/p/${projectId}/brand-kit`} className="link text-sm">
               {t("editBrandKit")}
             </Link>
           </CardContent>

@@ -1,9 +1,10 @@
 "use client";
 
 import { useRouter } from "next/navigation";
+import { TerminalCursor } from "@/components/brand/terminal-cursor";
 import { useTransition } from "react";
 import { useTranslations } from "next-intl";
-import { BellOff, Loader2, RefreshCw, Trash2 } from "lucide-react";
+import {BellOff, RefreshCw, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { markAlertsSeen, refreshCompetitorNow, unfollowCompetitor } from "../actions";
@@ -30,7 +31,7 @@ export function CompetitorControls({ projectId, competitorId }: { projectId: str
           })
         }
       >
-        {busy ? <Loader2 className="animate-spin" /> : <RefreshCw />} {t("refresh")}
+        {busy ? <TerminalCursor /> : <RefreshCw />} {t("refresh")}
       </Button>
       <Button
         variant="destructive"

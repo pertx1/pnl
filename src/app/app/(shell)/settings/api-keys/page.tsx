@@ -113,7 +113,7 @@ export default async function ApiKeysPage() {
             <ul className="grid gap-2 sm:grid-cols-2">
               {(["list_projects", "get_project_stats", "create_draft_post", "list_scheduled_posts", "analyze_competitor", "search_products", "draft_reply"] as const).map((tool) => (
                 <li key={tool} className="rounded-md border p-2">
-                  <code className="font-mono text-xs text-primary-ink">{tool}</code>
+                  <code className="font-mono text-xs text-foreground">{tool}</code>
                   <p className="text-xs text-muted-foreground">{t(`tools.${tool}`)}</p>
                 </li>
               ))}

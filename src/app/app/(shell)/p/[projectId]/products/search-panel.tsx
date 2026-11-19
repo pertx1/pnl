@@ -1,8 +1,9 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import { TerminalCursor } from "@/components/brand/terminal-cursor";
 import { useFormatter, useTranslations } from "next-intl";
-import { BookmarkPlus, ExternalLink, Loader2, Search } from "lucide-react";
+import {BookmarkPlus, ExternalLink, Search } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -117,7 +118,7 @@ export function SearchPanel({
               <Input id="ad-terms" value={terms} maxLength={100} onChange={(e) => setTerms(e.target.value)} placeholder={t("keywordPlaceholder")} />
             </div>
             <Button type="submit" className="self-end" disabled={!enabled || busy || terms.trim().length < 2}>
-              {busy ? <Loader2 className="animate-spin" /> : <Search />} {t("submit")}
+              {busy ? <TerminalCursor /> : <Search />} {t("submit")}
             </Button>
           </div>
           <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
@@ -237,7 +238,7 @@ export function SearchPanel({
           {cursor && (
             <div className="text-center">
               <Button variant="outline" disabled={busy} onClick={() => run(cursor)}>
-                {busy && <Loader2 className="animate-spin" />} {t("more")}
+                {busy && <TerminalCursor />} {t("more")}
               </Button>
             </div>
           )}

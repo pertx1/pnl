@@ -89,7 +89,10 @@
     "shopify": "Shopify",
     "reports": "Informes",
     "team": "Equipo",
-    "affiliates": "Afiliados"
+    "affiliates": "Afiliados",
+    "tabStudio": "Estudio",
+    "more": "Más",
+    "mobileTabs": "Navegación principal"
   },
   "projects": {
     "title": "Proyectos",

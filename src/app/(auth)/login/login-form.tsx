@@ -47,7 +47,7 @@ export function LoginForm({ next, callbackError }: { next?: string; callbackErro
       </form>
       <p className="text-center text-sm text-muted-foreground">
         {t("noAccount")}{" "}
-        <Link href="/signup" className="font-medium text-primary-ink hover:underline">
+        <Link href="/signup" className="link font-medium">
           {t("goSignup")}
         </Link>
       </p>

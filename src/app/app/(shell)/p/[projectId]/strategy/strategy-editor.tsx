@@ -462,7 +462,7 @@ function TaskRow(props: {
       <div className="mt-2 flex flex-wrap items-center gap-2 text-xs">
         {task.platform && <PlatformIcon platform={task.platform} className="size-5 text-[8px]" />}
         {task.postId ? (
-          <Link href={`/app/p/${props.projectId}/posts/${task.postId}`} className="inline-flex items-center gap-1 text-primary-ink underline-offset-4 hover:underline">
+          <Link href={`/app/p/${props.projectId}/posts/${task.postId}`} className="link inline-flex items-center gap-1">
             <ExternalLink className="size-3.5" aria-hidden /> {t("roadmap.openDraft")}
             {props.postStatus && <span className="text-muted-foreground">· {tp.has(props.postStatus) ? tp(props.postStatus) : props.postStatus}</span>}
           </Link>

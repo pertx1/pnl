@@ -18,7 +18,7 @@ export function SignupForm({ referral }: { referral?: string }) {
   if (state?.ok) {
     return (
       <div className="space-y-3 text-center">
-        <MailCheck className="mx-auto size-10 text-primary-ink" aria-hidden />
+        <MailCheck className="mx-auto size-10 text-success" aria-hidden />
         <h1 className="text-[28px] leading-tight font-medium">{t("checkEmailTitle")}</h1>
         <p className="text-sm text-muted-foreground">{t("checkEmailBody", { email: state.message ?? "" })}</p>
       </div>
@@ -28,7 +28,7 @@ export function SignupForm({ referral }: { referral?: string }) {
   const link = (href: string) =>
     function LegalLink(chunks: React.ReactNode) {
       return (
-        <Link href={href} target="_blank" className="font-medium text-primary-ink underline-offset-2 hover:underline">
+        <Link href={href} target="_blank" className="link font-medium">
           {chunks}
         </Link>
       );
@@ -71,7 +71,7 @@ export function SignupForm({ referral }: { referral?: string }) {
       </form>
       <p className="text-center text-sm text-muted-foreground">
         {t("haveAccount")}{" "}
-        <Link href="/login" className="font-medium text-primary-ink hover:underline">
+        <Link href="/login" className="link font-medium">
           {t("goLogin")}
         </Link>
       </p>

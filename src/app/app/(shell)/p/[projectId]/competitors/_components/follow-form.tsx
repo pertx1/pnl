@@ -1,10 +1,11 @@
 "use client";
 
 import Link from "next/link";
+import { TerminalCursor } from "@/components/brand/terminal-cursor";
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 import { useTranslations } from "next-intl";
-import { Clock, Loader2, Plus } from "lucide-react";
+import {Clock, Plus } from "lucide-react";
 import { toast } from "sonner";
 import { CreditCost } from "@/components/kreo/credit-cost";
 import { PlatformIcon } from "@/components/social/platform-icon";
@@ -101,7 +102,7 @@ export function FollowForm({
                 autoComplete="off"
               />
               <Button type="submit" disabled={blocked || busy || value.trim().length < 2} className="shrink-0">
-                {busy ? <Loader2 className="animate-spin" /> : <Plus />} {t("follow")}
+                {busy ? <TerminalCursor /> : <Plus />} {t("follow")}
               </Button>
             </div>
             <p id="follow-help" className="text-xs text-muted-foreground">

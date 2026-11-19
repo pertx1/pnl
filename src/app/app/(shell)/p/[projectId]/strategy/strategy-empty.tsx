@@ -75,13 +75,13 @@ export function StrategyEmpty({
     <div className="space-y-4">
       <Card className="bg-dots">
         <CardContent className="flex flex-col items-center gap-2 py-8 text-center">
-          <Map className="size-8 text-primary-ink" strokeWidth={1.5} aria-hidden />
+          <Map className="size-8 text-muted-foreground" strokeWidth={1.5} aria-hidden />
           <h2 className="text-lg font-medium">{t("empty.title")}</h2>
           <p className="max-w-md text-sm text-muted-foreground">{t("empty.body")}</p>
           {!hasAccounts && (
             <p className="text-xs text-muted-foreground">
               {t("empty.noAccounts")}{" "}
-              <Link href={`/app/p/${projectId}/accounts`} className="text-primary-ink underline-offset-4 hover:underline">
+              <Link href={`/app/p/${projectId}/accounts`} className="link">
                 {t("empty.connect")}
               </Link>
             </p>
@@ -108,7 +108,7 @@ export function StrategyEmpty({
                     onClick={() => fromTemplate(g)}
                     className="flex w-full items-start gap-3 rounded-md border border-border p-3 text-left transition-colors hover:border-primary-ink/50 hover:bg-accent focus-visible:outline-2 focus-visible:outline-ring disabled:opacity-50"
                   >
-                    <Icon className="mt-0.5 size-4 shrink-0 text-primary-ink" strokeWidth={1.5} aria-hidden />
+                    <Icon className="mt-0.5 size-4 shrink-0 text-muted-foreground" strokeWidth={1.5} aria-hidden />
                     <span>
                       <span className="block text-sm font-medium">{t(`goals.${g}.title`)}</span>
                       <span className="block text-xs text-muted-foreground">{t(`goals.${g}.body`)}</span>

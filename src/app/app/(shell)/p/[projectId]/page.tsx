@@ -51,7 +51,7 @@ export default async function ProjectPage({ params }: PageProps<"/app/p/[project
                     {s.done ? <Badge>OK</Badge> : s.soon ? <Badge variant="outline">{tc("soon")}</Badge> : null}
                   </div>
                   <CardTitle className="flex items-center gap-2">
-                    <s.icon className="size-4 text-primary-ink" strokeWidth={1.5} aria-hidden />
+                    <s.icon className="size-4 text-muted-foreground" strokeWidth={1.5} aria-hidden />
                     {s.title}
                   </CardTitle>
                   <CardDescription>{s.body}</CardDescription>

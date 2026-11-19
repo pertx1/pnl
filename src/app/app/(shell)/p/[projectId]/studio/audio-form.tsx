@@ -92,7 +92,7 @@ export function AudioForm({ projectId, balance, enabled, voices }: { projectId: 
                   >
                     <span className="font-semibold">{m.label}</span>
                     <p className="mt-1 text-xs text-muted-foreground">{m.tagline[locale]}</p>
-                    <p className="mt-2 font-mono text-[11px] text-primary-ink">{t("per1k", { usd: m.usdPer1kChars.toFixed(2) })}</p>
+                    <p className="mt-2 font-mono text-[11px] text-muted-foreground">{t("per1k", { usd: m.usdPer1kChars.toFixed(2) })}</p>
                   </button>
                 ))}
               </div>
@@ -147,7 +147,7 @@ export function AudioForm({ projectId, balance, enabled, voices }: { projectId: 
                     </option>
                   ))}
                 </select>
-                <p className="font-mono text-[11px] text-primary-ink">{t("perMinute", { usd: "0.15" })}</p>
+                <p className="font-mono text-[11px] text-muted-foreground">{t("perMinute", { usd: "0.15" })}</p>
               </div>
               <label className="flex items-center gap-2 self-center text-sm">
                 <Checkbox checked={instrumental} onCheckedChange={(v) => setInstrumental(Boolean(v))} /> {t("instrumental")}

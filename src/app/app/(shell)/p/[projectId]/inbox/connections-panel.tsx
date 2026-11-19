@@ -45,7 +45,7 @@ export function ConnectionsPanel({
           {igAccounts.length === 0 ? (
             <p className="text-xs text-muted-foreground">
               {t("igNeedsAccount")}{" "}
-              <Link href={`/app/p/${projectId}/accounts`} className="text-primary-ink underline-offset-4 hover:underline">
+              <Link href={`/app/p/${projectId}/accounts`} className="link">
                 {t("goAccounts")}
               </Link>
             </p>
@@ -179,7 +179,7 @@ function ConnectionRow({ conn, canEdit, isAdmin, reconnectHref }: { conn: Conn; 
           : t("expired")}
       </p>
       {!active && canEdit && (
-        <a href={reconnectHref} className="text-xs text-primary-ink underline-offset-4 hover:underline">
+        <a href={reconnectHref} className="link text-xs">
           {t("reconnect")}
         </a>
       )}

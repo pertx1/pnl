@@ -18,9 +18,9 @@ export function ForgotForm() {
   if (state?.ok) {
     return (
       <div className="space-y-3 text-center">
-        <MailCheck className="mx-auto size-10 text-primary-ink" aria-hidden />
+        <MailCheck className="mx-auto size-10 text-success" aria-hidden />
         <p className="text-sm text-muted-foreground">{t("forgotSent", { email: state.message ?? "" })}</p>
-        <Link href="/login" className="text-sm font-medium text-primary-ink hover:underline">
+        <Link href="/login" className="link text-sm font-medium">
           {ta("goLogin")}
         </Link>
       </div>
@@ -44,7 +44,7 @@ export function ForgotForm() {
         </SubmitButton>
       </form>
       <p className="text-center text-sm">
-        <Link href="/login" className="font-medium text-primary-ink hover:underline">
+        <Link href="/login" className="link font-medium">
           {ta("goLogin")}
         </Link>
       </p>

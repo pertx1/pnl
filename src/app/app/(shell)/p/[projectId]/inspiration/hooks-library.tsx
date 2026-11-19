@@ -1,9 +1,10 @@
 "use client";
 
 import Link from "next/link";
+import { TerminalCursor } from "@/components/brand/terminal-cursor";
 import { useState, useTransition } from "react";
 import { useTranslations } from "next-intl";
-import { Check, Copy, Loader2, Plus, Quote, Sparkles, Trash2 } from "lucide-react";
+import {Check, Copy, Plus, Quote, Sparkles, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { AiBadge } from "@/components/kreo/ai-badge";
 import { CreditCost } from "@/components/kreo/credit-cost";
@@ -103,7 +104,7 @@ export function HooksLibrary({
                 })
               }
             >
-              {busy ? <Loader2 className="animate-spin" /> : <Sparkles />} {t("generate")}
+              {busy ? <TerminalCursor /> : <Sparkles />} {t("generate")}
             </Button>
             <CreditCost credits={credits} />
             {!aiEnabled && <span className="text-xs text-muted-foreground">{t("aiNotConfigured")}</span>}

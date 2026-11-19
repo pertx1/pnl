@@ -152,7 +152,7 @@ export default async function BillingPage({ searchParams }: { searchParams: Prom
                     <span className="font-mono">{eur(p.amount_total, p.currency)}</span>
                     <span className="text-xs text-muted-foreground">{t.has(`status.${p.status}`) ? t(`status.${p.status}`) : p.status}</span>
                     {p.invoice_url && (
-                      <a href={p.invoice_url} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 text-xs text-primary-ink hover:underline">
+                      <a href={p.invoice_url} target="_blank" rel="noreferrer" className="link inline-flex items-center gap-1 text-xs">
                         {t("invoice")} <ExternalLink className="size-3" />
                       </a>
                     )}

@@ -1,8 +1,9 @@
 "use client";
 
 import { useMemo, useState, useTransition } from "react";
+import { TerminalCursor } from "@/components/brand/terminal-cursor";
 import { useFormatter, useTranslations } from "next-intl";
-import { Calculator, ExternalLink, Loader2, Save, Sparkles, Trash2 } from "lucide-react";
+import {Calculator, ExternalLink, Save, Sparkles, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { AiBadge } from "@/components/kreo/ai-badge";
 import { CreditCost } from "@/components/kreo/credit-cost";
@@ -229,7 +230,7 @@ export function ProductCard({
       {canEdit && (
         <div className="flex flex-wrap gap-2">
           <Button size="sm" onClick={save} disabled={busy}>
-            {busy ? <Loader2 className="animate-spin" /> : <Save />} {t("save")}
+            {busy ? <TerminalCursor /> : <Save />} {t("save")}
           </Button>
           <Button
             size="sm"
@@ -262,7 +263,7 @@ export function ProductCard({
               })
             }
           >
-            {aiBusy ? <Loader2 className="animate-spin" /> : <Sparkles />} {t("analyze")}
+            {aiBusy ? <TerminalCursor /> : <Sparkles />} {t("analyze")}
           </Button>
           <CreditCost credits={credits} />
           {!aiEnabled && <span className="text-xs text-muted-foreground">{t("aiNotConfigured")}</span>}
@@ -291,7 +292,7 @@ function AnalysisView({ a }: { a: ProductAnalysis }) {
         <span
           className={cn(
             "rounded-sm px-1.5 py-0.5 text-xs font-semibold",
-            a.verdict === "test" ? "bg-primary text-primary-foreground" : a.verdict === "maybe" ? "bg-warning/15 text-warning" : "bg-destructive/10 text-destructive",
+            a.verdict === "test" ? "bg-success/15 text-success" : a.verdict === "maybe" ? "bg-warning/15 text-warning" : "bg-destructive/10 text-destructive",
           )}
         >
           {t(`verdict.${a.verdict}`)}

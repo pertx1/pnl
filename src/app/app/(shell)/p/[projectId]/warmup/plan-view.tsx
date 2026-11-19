@@ -221,7 +221,7 @@ export function PlanView({ projectId, plan, tasks, canEdit, aiReady, balance }: 
             )}
             {overdue === 0 && todayLeft > 0 && (
               <p className="flex items-start gap-2 text-sm">
-                <BellRing className="mt-0.5 size-4 shrink-0 text-primary-ink" strokeWidth={1.5} aria-hidden /> {t("reminders.today", { count: todayLeft })}
+                <BellRing className="mt-0.5 size-4 shrink-0 text-muted-foreground" strokeWidth={1.5} aria-hidden /> {t("reminders.today", { count: todayLeft })}
               </p>
             )}
             <div className="flex flex-wrap items-center justify-between gap-2">
@@ -258,10 +258,10 @@ export function PlanView({ projectId, plan, tasks, canEdit, aiReady, balance }: 
                     onClick={() => setOpenDays((s) => { const c = new Set(s); if (c.has(n)) c.delete(n); else c.add(n); return c; })}
                     className="flex w-full items-center gap-3 rounded-md p-3 text-left hover:bg-accent focus-visible:outline-2 focus-visible:outline-ring"
                   >
-                    <span className={cn("grid size-7 shrink-0 place-items-center rounded-md font-mono text-xs tabular-nums", complete ? "bg-primary text-primary-foreground" : "bg-secondary")}>{n}</span>
+                    <span className={cn("grid size-7 shrink-0 place-items-center rounded-md font-mono text-xs tabular-nums", complete ? "bg-success/15 text-success" : "bg-secondary")}>{n}</span>
                     <span className="min-w-0 flex-1">
                       <span className="block text-sm font-medium">
-                        {t("checklist.day", { n })} {isToday && <span className="ml-1 text-xs text-primary-ink">· {t("checklist.today")}</span>}
+                        {t("checklist.day", { n })} {isToday && <span className="ml-1 text-xs font-medium text-foreground">· {t("checklist.today")}</span>}
                       </span>
                       <span className="block text-xs text-muted-foreground">{fmtDay(n)}</span>
                     </span>

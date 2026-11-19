@@ -67,7 +67,7 @@ export function CookieBanner() {
       </h2>
       <p className="mt-2 text-sm text-muted-foreground">
         {t("body")}{" "}
-        <Link href="/legal/cookies" className="text-primary-ink underline-offset-2 hover:underline">
+        <Link href="/legal/cookies" className="link">
           {t("policy")}
         </Link>
       </p>

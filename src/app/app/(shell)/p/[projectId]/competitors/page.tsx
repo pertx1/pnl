@@ -57,7 +57,7 @@ export default async function CompetitorsPage({ params }: { params: Promise<{ pr
         <Card className="border-selected/40">
           <CardHeader className="flex flex-row flex-wrap items-center justify-between gap-2">
             <CardTitle className="flex items-center gap-2">
-              <Bell className="size-4 text-primary-ink" aria-hidden />
+              <Bell className="size-4 text-muted-foreground" aria-hidden />
               {t("alerts.title", { count: alerts!.length })}
             </CardTitle>
             {canEdit && <MarkAlertsSeenButton projectId={projectId} />}
@@ -66,7 +66,7 @@ export default async function CompetitorsPage({ params }: { params: Promise<{ pr
             <ul className="divide-y">
               {alerts!.map((a) => (
                 <li key={a.id} className="flex items-center gap-3 py-2 text-sm">
-                  <span className="rounded-sm bg-primary px-1.5 py-0.5 font-mono text-xs font-semibold text-primary-foreground tabular-nums">
+                  <span className="rounded-sm border bg-secondary px-1.5 py-0.5 font-mono text-xs font-semibold text-foreground tabular-nums">
                     {format.number(Number(a.multiple), { maximumFractionDigits: 1 })}×
                   </span>
                   <span className="min-w-0 flex-1">
@@ -75,7 +75,7 @@ export default async function CompetitorsPage({ params }: { params: Promise<{ pr
                       {a.research_competitors.display_name ?? a.research_competitors.handle} · {format.relativeTime(new Date(a.created_at))}
                     </span>
                   </span>
-                  <Link href={`/app/p/${projectId}/competitors/${a.competitor_id}`} className="text-xs text-primary-ink hover:underline">
+                  <Link href={`/app/p/${projectId}/competitors/${a.competitor_id}`} className="link text-xs">
                     {t("alerts.view")}
                   </Link>
                 </li>

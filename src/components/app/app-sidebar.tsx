@@ -22,7 +22,7 @@ import {
   FolderKanban,
   LayoutDashboard,
   LogOut,
-  Menu,
+  MoreHorizontal,
   Palette,
   Plug,
   Plus,
@@ -135,6 +135,24 @@ export function AppSidebar({ workspace, workspaces, projects, credits, monthlyCr
   const currentProject = projects.find((p) => p.id === currentProjectId);
   const base = currentProject ? `/app/p/${currentProject.id}` : null;
 
+  // Pestañas de la barra inferior (móvil): las 4 secciones más usadas del contexto actual.
+  const tabs = (
+    base
+      ? [
+          { key: "dashboard", href: base, icon: LayoutDashboard, label: t("dashboard"), active: pathname === base },
+          { key: "studio", href: `${base}/studio`, icon: Sparkles, label: t("tabStudio"), active: pathname.startsWith(`${base}/studio`) },
+          { key: "calendar", href: `${base}/calendar`, icon: CalendarDays, label: t("calendar"), active: pathname.startsWith(`${base}/calendar`) || pathname.startsWith(`${base}/posts`) },
+          { key: "inbox", href: `${base}/inbox`, icon: Inbox, label: t("inbox"), active: pathname.startsWith(`${base}/inbox`) },
+        ]
+      : [
+          { key: "projects", href: "/app", icon: FolderKanban, label: t("projects"), active: pathname === "/app" },
+          { key: "calendar", href: "/app/calendar", icon: CalendarDays, label: t("calendar"), active: pathname === "/app/calendar" },
+          { key: "team", href: "/app/team", icon: Users, label: t("team"), active: pathname.startsWith("/app/team") },
+          { key: "settings", href: "/app/settings", icon: Settings, label: t("settings"), active: pathname.startsWith("/app/settings") },
+        ]
+  ) satisfies { key: string; href: string; icon: typeof LayoutDashboard; label: string; active: boolean }[];
+  const moreActive = !tabs.some((tab) => tab.active);
+
   const sidebar = (
     <div className="flex h-full flex-col gap-4 overflow-y-auto p-4">
       <div className="flex items-center justify-between">
@@ -243,13 +261,55 @@ export function AppSidebar({ workspace, workspaces, projects, credits, monthlyCr
   return (
     <>
       <div className="fixed inset-x-0 top-0 z-30 flex h-14 items-center justify-between border-b bg-background/90 px-4 backdrop-blur md:hidden">
-        <KreoLogo className="h-5" />
-        <Button variant="ghost" size="icon" onClick={() => setOpen(true)} aria-label={t("openMenu")}>
-          <Menu />
-        </Button>
+        <Link href="/app" aria-label="Kreo">
+          <KreoLogo className="h-5" />
+        </Link>
       </div>
+
+      {/* Barra de pestañas inferior en móvil (HIG: la navegación principal en móvil va en una barra de pestañas).
+          Las pestañas solo navegan; "Más" abre el menú completo con el resto de secciones. */}
+      <nav
+        aria-label={t("mobileTabs")}
+        className="fixed inset-x-0 bottom-0 z-30 border-t bg-background/90 pb-[env(safe-area-inset-bottom)] backdrop-blur md:hidden"
+      >
+        <ul className="grid grid-cols-5">
+          {tabs.map((tab) => (
+            <li key={tab.key}>
+              <Link
+                href={tab.href}
+                aria-current={tab.active ? "page" : undefined}
+                className={cn(
+                  "flex min-h-14 flex-col items-center justify-center gap-1 text-[11px]",
+                  tab.active ? "font-medium text-foreground" : "text-muted-foreground",
+                )}
+              >
+                <tab.icon className={cn("size-5", tab.active && "text-primary-ink")} strokeWidth={1.5} aria-hidden />
+                {tab.label}
+              </Link>
+            </li>
+          ))}
+          <li>
+            <button
+              type="button"
+              onClick={() => setOpen(true)}
+              aria-haspopup="dialog"
+              aria-expanded={open}
+              className={cn(
+                "flex min-h-14 w-full flex-col items-center justify-center gap-1 text-[11px]",
+                moreActive ? "font-medium text-foreground" : "text-muted-foreground",
+              )}
+            >
+              <MoreHorizontal className={cn("size-5", moreActive && "text-primary-ink")} strokeWidth={1.5} aria-hidden />
+              {t("more")}
+            </button>
+          </li>
+        </ul>
+      </nav>
       {open && <div className="fixed inset-0 z-40 bg-black/60 md:hidden" onClick={() => setOpen(false)} />}
       <aside
+        onClick={(e) => {
+          if ((e.target as HTMLElement).closest("a")) setOpen(false);
+        }}
         className={cn(
           "fixed inset-y-0 left-0 z-50 w-64 shrink-0 border-r border-sidebar-border bg-sidebar transition-transform md:sticky md:top-0 md:h-screen md:translate-x-0",
           open ? "translate-x-0" : "-translate-x-full",

@@ -74,7 +74,7 @@ export default async function WarmupPage({ params, searchParams }: { params: Pro
       </div>
 
       <p className="flex items-start gap-2 rounded-md border border-border bg-card p-3 text-sm">
-        <BadgeCheck className="mt-0.5 size-4 shrink-0 text-primary-ink" strokeWidth={1.5} aria-hidden />
+        <BadgeCheck className="mt-0.5 size-4 shrink-0 text-muted-foreground" strokeWidth={1.5} aria-hidden />
         <span>{t("manualOnly")}</span>
       </p>
 
@@ -114,7 +114,7 @@ export default async function WarmupPage({ params, searchParams }: { params: Pro
                   {p.status !== "active" && <span className="ml-auto text-[11px] text-muted-foreground">{t(`status.${p.status}`)}</span>}
                 </span>
                 <span className="h-1 w-full overflow-hidden rounded-full bg-secondary" aria-hidden>
-                  <span className="block h-full rounded-full bg-primary" style={{ width: `${pct}%` }} />
+                  <span className="block h-full rounded-full bg-foreground/70" style={{ width: `${pct}%` }} />
                 </span>
                 <span className="font-mono text-[11px] tabular-nums text-muted-foreground">{t("progressPct", { pct })}</span>
               </Link>
@@ -157,7 +157,7 @@ export default async function WarmupPage({ params, searchParams }: { params: Pro
       ) : (
         <Card className="bg-dots">
           <CardContent className="flex flex-col items-center gap-2 py-10 text-center">
-            <Flame className="size-8 text-primary-ink" strokeWidth={1.5} aria-hidden />
+            <Flame className="size-8 text-muted-foreground" strokeWidth={1.5} aria-hidden />
             <h2 className="text-lg font-medium">{t("empty.title")}</h2>
             <p className="max-w-md text-sm text-muted-foreground">{t("empty.body")}</p>
             {!canEdit && <p className="text-xs text-muted-foreground">{t("readOnly")}</p>}
@@ -173,7 +173,7 @@ export default async function WarmupPage({ params, searchParams }: { params: Pro
           <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {PRACTICES.map(({ key, icon: Icon }) => (
               <li key={key} className="flex gap-2.5">
-                <Icon className="mt-0.5 size-4 shrink-0 text-primary-ink" strokeWidth={1.5} aria-hidden />
+                <Icon className="mt-0.5 size-4 shrink-0 text-muted-foreground" strokeWidth={1.5} aria-hidden />
                 <span>
                   <span className="block text-sm font-medium">{t(`practices.${key}.title`)}</span>
                   <span className="block text-xs text-muted-foreground">{t(`practices.${key}.body`)}</span>

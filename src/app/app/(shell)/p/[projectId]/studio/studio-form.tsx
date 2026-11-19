@@ -1,9 +1,10 @@
 "use client";
 
 import { useRouter } from "next/navigation";
+import { TerminalCursor } from "@/components/brand/terminal-cursor";
 import { useEffect, useState, useTransition } from "react";
 import { useLocale, useTranslations } from "next-intl";
-import { AudioLines, Film, ImageIcon, Loader2, Sparkles } from "lucide-react";
+import {AudioLines, Film, ImageIcon, Sparkles } from "lucide-react";
 import { toast } from "sonner";
 import { CreditCost } from "@/components/kreo/credit-cost";
 import { Button } from "@/components/ui/button";
@@ -142,7 +143,7 @@ export function StudioForm({
                     <span className="label-mono !text-[9px]">{t(`tiers.${m.tier}`)}</span>
                   </div>
                   <p className="mt-1 text-xs text-muted-foreground">{m.tagline[locale]}</p>
-                  <p className="mt-2 font-mono text-[11px] text-primary-ink">
+                  <p className="mt-2 font-mono text-[11px] text-muted-foreground">
                     {m.kind === "image" ? t("perImage", { usd: m.usdPerUnit.toFixed(3) }) : t("perSecond", { usd: m.usdPerUnit.toFixed(3) })}
                   </p>
                 </button>
@@ -249,7 +250,7 @@ export function StudioForm({
         )}
         {pending.length > 0 && (
           <p role="status" className="flex items-center gap-2 rounded-md border bg-secondary/50 px-3 py-2 text-sm">
-            <Loader2 className="size-4 animate-spin" /> {t("pending")}
+            <TerminalCursor /> {t("pending")}
           </p>
         )}
 

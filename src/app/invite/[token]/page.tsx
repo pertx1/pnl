@@ -45,7 +45,7 @@ export default async function InvitePage({ params }: { params: Promise<{ token: 
   return (
     <div className="space-y-5">
       <div className="space-y-2 text-center">
-        <MailCheck className="mx-auto size-8 text-primary-ink" strokeWidth={1.5} aria-hidden />
+        <MailCheck className="mx-auto size-8 text-success" strokeWidth={1.5} aria-hidden />
         <p className="label-mono">{t("eyebrow")}</p>
         <h1 className="text-xl font-medium">
           {preview ? t("title", { workspace: preview.workspace_name }) : t("titleGeneric")}
@@ -64,7 +64,7 @@ export default async function InvitePage({ params }: { params: Promise<{ token: 
           <AcceptForm token={token} />
           <form action="/auth/signout" method="post" className="text-center text-xs text-muted-foreground">
             {t("wrongAccount")}{" "}
-            <button type="submit" className="text-primary-ink hover:underline">
+            <button type="submit" className="link">
               {t("signOut")}
             </button>
           </form>

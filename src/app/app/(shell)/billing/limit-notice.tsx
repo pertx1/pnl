@@ -25,7 +25,7 @@ export async function LimitNotice({ status, always, className }: { status: Limit
       <p className="min-w-0 flex-1">
         {status.reached ? t("limitReached", { what, max: status.max }) : t("limitNear", { what, used: status.used, max: status.max })}
       </p>
-      <Link href="/app/billing#plans" className="inline-flex items-center gap-1 font-medium text-primary-ink hover:underline">
+      <Link href="/app/billing#plans" className="link inline-flex items-center gap-1 font-medium">
         {t("upgrade")} <ArrowUpRight className="size-3.5" aria-hidden />
       </Link>
     </div>
@@ -52,7 +52,7 @@ export function UsageMeter({ label, status }: { label: string; status: LimitStat
         aria-valuenow={status.used}
       >
         <div
-          className={cn("h-full rounded-full", status.reached ? "bg-warning" : status.near ? "bg-brand-amber" : "bg-primary")}
+          className={cn("h-full rounded-full", status.reached ? "bg-warning" : status.near ? "bg-brand-amber" : "bg-foreground/70")}
           style={{ width: `${pct}%` }}
         />
       </div>

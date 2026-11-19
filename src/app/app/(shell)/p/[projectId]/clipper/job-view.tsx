@@ -1,10 +1,11 @@
 "use client";
 
 import Link from "next/link";
+import { TerminalCursor } from "@/components/brand/terminal-cursor";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useRef, useState, useTransition } from "react";
 import { useTranslations } from "next-intl";
-import { CalendarPlus, Captions, Download, FileText, Loader2, Scissors, Trash2 } from "lucide-react";
+import {CalendarPlus, Captions, Download, FileText, Scissors, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { CreditCost } from "@/components/kreo/credit-cost";
 import { Button } from "@/components/ui/button";
@@ -142,7 +143,7 @@ export function JobView({
       <CardContent className="space-y-4 px-4 py-4">
         {(job.status === "transcribing" || job.status === "analyzing") && (
           <p role="status" className="flex items-center gap-2 rounded-md border bg-secondary/50 px-3 py-2 text-sm">
-            <Loader2 className="size-4 animate-spin" aria-hidden /> {job.status === "transcribing" ? t("progress.transcribing") : t("progress.analyzing")}
+            <TerminalCursor /> {job.status === "transcribing" ? t("progress.transcribing") : t("progress.analyzing")}
           </p>
         )}
         {job.status === "failed" && (
@@ -272,7 +273,7 @@ function SegmentCard({
 
       {seg.status === "rendering" && (
         <p role="status" className="flex items-center gap-2 text-xs text-muted-foreground">
-          <Loader2 className="size-3.5 animate-spin" aria-hidden /> {t(`steps.${seg.step ?? "trim"}`)}
+          <TerminalCursor /> {t(`steps.${seg.step ?? "trim"}`)}
         </p>
       )}
       {seg.status === "failed" && <p className="text-xs text-destructive">{t("renderFailed")}</p>}
@@ -342,7 +343,7 @@ function SegmentCard({
             <a href={seg.assetUrl} download className="inline-flex items-center gap-1 text-muted-foreground hover:text-foreground">
               <Download className="size-3.5" aria-hidden /> {t("download")}
             </a>
-            <Link href={`/app/p/${projectId}/posts/new?caption=${encodeURIComponent(seg.hook ?? seg.title)}`} className="inline-flex items-center gap-1 text-primary-ink hover:underline">
+            <Link href={`/app/p/${projectId}/posts/new?caption=${encodeURIComponent(seg.hook ?? seg.title)}`} className="link inline-flex items-center gap-1">
               <CalendarPlus className="size-3.5" aria-hidden /> {t("schedule")}
             </Link>
           </>
