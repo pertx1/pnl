@@ -263,6 +263,7 @@ hay que aplicarla y pasar `qa-tester` antes del merge.
 > afiliados) y los avisos de la app que tienen efecto legal (YouTube, TikTok, IA, lista de espera) antes del lanzamiento público.
 
 > ⚠️ **Pendiente (2026-11-19):** la migración `supabase/migrations/20261119120000_compliance_fixes.sql` está en el repo pero
-> **todavía NO aplicada** en Supabase (la confirmación del conector caducó). Hasta aplicarla, siguen activos en la base de datos:
+> **todavía NO aplicada** en Supabase (la confirmación del conector caducó). Hasta aplicarla, la base de datos AÚN NO impone:
 > la re-aprobación al editar destinos de un post aprobado, el 2FA dentro de las funciones y la etiqueta IA forzada por trigger
-> (la app ya aplica las dos últimas a nivel de servidor). Aplicarla es el primer paso de la próxima sesión.
+> (la app ya aplica las dos últimas a nivel de servidor). No hay cuentas reales conectadas, así que no hay riesgo práctico hoy.
+> Aplicarla es el primer paso de la próxima sesión.
