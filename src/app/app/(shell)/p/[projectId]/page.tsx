@@ -4,6 +4,7 @@ import { ArrowRight, CalendarDays, Palette, Plug } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { getBrandKit, getProject } from "@/lib/server/dal";
+import { createClient } from "@/lib/supabase/server";
 
 export async function generateMetadata({ params }: PageProps<"/app/p/[projectId]">) {
   const { projectId } = await params;
@@ -18,11 +19,16 @@ export default async function ProjectPage({ params }: PageProps<"/app/p/[project
   const project = await getProject(projectId);
   const kit = await getBrandKit(projectId);
   const kitDone = Boolean(kit.tone_of_voice && kit.target_audience);
+  const supabase = await createClient();
+  const [{ count: accountsCount }, { count: postsCount }] = await Promise.all([
+    supabase.from("social_accounts").select("id", { count: "exact", head: true }).eq("project_id", projectId),
+    supabase.from("posts").select("id", { count: "exact", head: true }).eq("project_id", projectId).in("status", ["scheduled", "published"]),
+  ]);
 
-  const steps = [
+  const steps: { icon: typeof Palette; title: string; body: string; href?: string; done?: boolean; soon?: boolean }[] = [
     { icon: Palette, title: t("stepBrandKit"), body: t("stepBrandKitBody"), href: `/app/p/${projectId}/brand-kit`, done: kitDone },
-    { icon: Plug, title: t("stepAccounts"), body: t("stepAccountsBody"), soon: true },
-    { icon: CalendarDays, title: t("stepCalendar"), body: t("stepCalendarBody"), soon: true },
+    { icon: Plug, title: t("stepAccounts"), body: t("stepAccountsBody"), href: `/app/p/${projectId}/accounts`, done: (accountsCount ?? 0) > 0 },
+    { icon: CalendarDays, title: t("stepCalendar"), body: t("stepCalendarBody"), href: `/app/p/${projectId}/calendar`, done: (postsCount ?? 0) > 0 },
   ];
 
   return (
