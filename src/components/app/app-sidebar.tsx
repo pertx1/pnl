@@ -15,6 +15,7 @@ import {
   Palette,
   Plug,
   Plus,
+  Settings,
   Sparkles,
   X,
 } from "lucide-react";
@@ -156,6 +157,7 @@ export function AppSidebar({ workspace, workspaces, projects, credits, monthlyCr
       )}
 
       <div className="mt-auto space-y-3 border-t border-sidebar-border pt-4">
+        <NavItem href="/app/settings" icon={Settings} label={t("settings")} active={pathname === "/app/settings"} />
         <div className="flex items-center justify-between rounded-md bg-sidebar-accent px-3 py-2">
           <span className="flex items-center gap-2 text-sm">
             <Coins className="size-4 text-brand-amber-ink" aria-hidden />

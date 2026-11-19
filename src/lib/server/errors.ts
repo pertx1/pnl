@@ -10,9 +10,11 @@ export type ErrorKey =
   | "forbidden"
   | "plan_limit_projects"
   | "insufficient_credits"
-  | "not_found";
+  | "not_found"
+  | "transfer_ownership_required"
+  | "mfa_invalid";
 
-const KNOWN: ErrorKey[] = ["forbidden", "plan_limit_projects", "insufficient_credits"];
+const KNOWN: ErrorKey[] = ["forbidden", "plan_limit_projects", "insufficient_credits", "transfer_ownership_required"];
 
 export function toErrorKey(error: unknown): ErrorKey {
   const e = error as { message?: string; code?: string; status?: number } | null;

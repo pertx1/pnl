@@ -11,6 +11,7 @@ import { login } from "../actions";
 
 export function LoginForm({ next, callbackError }: { next?: string; callbackError?: boolean }) {
   const t = useTranslations("auth");
+  const tx = useTranslations("auth_extra");
   const [state, action] = useActionState(login, undefined);
 
   return (
@@ -31,7 +32,12 @@ export function LoginForm({ next, callbackError }: { next?: string; callbackErro
           <Input id="email" name="email" type="email" autoComplete="email" required defaultValue={state?.values?.email} />
         </div>
         <div className="space-y-2">
-          <Label htmlFor="password">{t("password")}</Label>
+          <div className="flex items-center justify-between">
+            <Label htmlFor="password">{t("password")}</Label>
+            <Link href="/forgot-password" className="text-xs text-muted-foreground hover:text-foreground hover:underline">
+              {tx("forgot")}
+            </Link>
+          </div>
           <Input id="password" name="password" type="password" autoComplete="current-password" required />
         </div>
         <FormError error={state?.error} />

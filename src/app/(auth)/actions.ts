@@ -61,3 +61,16 @@ export async function signup(_prev: ActionState, formData: FormData): Promise<Ac
   if (!data.session) return { ok: true, message: parsed.data.email };
   redirect("/app");
 }
+
+export async function requestPasswordReset(_prev: ActionState, formData: FormData): Promise<ActionState> {
+  const values = keep(formData, ["email"]);
+  const parsed = z.object({ email: z.email().max(254) }).safeParse(values);
+  if (!parsed.success) return { error: "invalid_input", values };
+  const supabase = await createClient();
+  const { error } = await supabase.auth.resetPasswordForEmail(parsed.data.email, {
+    redirectTo: `${appUrl()}/auth/callback?next=/app/settings%23security`,
+  });
+  // Misma respuesta exista o no la cuenta (no revelamos qué emails están registrados), salvo límite de envíos.
+  if (error && toErrorKey(error) === "rate_limited") return { error: "rate_limited", values };
+  return { ok: true, message: parsed.data.email };
+}
