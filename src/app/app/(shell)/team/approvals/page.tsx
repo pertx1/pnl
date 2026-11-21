@@ -31,7 +31,7 @@ export default async function ApprovalsPage() {
   const list = posts ?? [];
 
   return (
-    <div className="mx-auto max-w-4xl space-y-6">
+    <div className="mx-auto w-full max-w-[1360px] space-y-6">
       <TeamHeader workspaceName={workspace.name} />
       <TeamNav active="approvals" isAdmin={isAdmin} pendingCount={list.length} />
       <p className="text-sm text-muted-foreground">{isAdmin ? t("introAdmin") : t("introEditor")}</p>

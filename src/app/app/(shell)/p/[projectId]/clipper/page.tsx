@@ -83,7 +83,7 @@ export default async function ClipperPage({
   }
 
   return (
-    <div className="mx-auto max-w-5xl space-y-6">
+    <div className="mx-auto w-full max-w-[1360px] space-y-6">
       <div>
         <p className="label-mono">{project.name}</p>
         <h1 className="text-[28px] leading-tight font-medium">{t("title")}</h1>

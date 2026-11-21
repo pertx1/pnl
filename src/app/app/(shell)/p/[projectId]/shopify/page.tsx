@@ -61,7 +61,7 @@ export default async function ShopifyPage({ params, searchParams }: { params: Pr
   // ------------------------------------------------------------------ Sin tienda vinculada
   if (!store) {
     return (
-      <div className="mx-auto max-w-3xl space-y-6">
+      <div className="mx-auto w-full max-w-[1360px] [&>*]:max-w-3xl space-y-6">
         {header}
         {alerts}
         <Card>
@@ -146,7 +146,7 @@ export default async function ShopifyPage({ params, searchParams }: { params: Pr
   const shopUrl = `https://${store.shop_domain}`;
 
   return (
-    <div className="mx-auto max-w-5xl space-y-6">
+    <div className="mx-auto w-full max-w-[1360px] space-y-6">
       <div className="flex flex-wrap items-end justify-between gap-3">
         {header}
         <nav aria-label={t("period")} className="flex gap-1 rounded-full border p-1">

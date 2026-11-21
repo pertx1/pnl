@@ -26,7 +26,7 @@ export default async function ApiKeysPage() {
   const jsonConfig = JSON.stringify({ mcpServers: { kreo: { type: "http", url: serverUrl, headers: { Authorization: "Bearer <KREO_API_KEY>" } } } }, null, 2);
 
   return (
-    <div className="mx-auto max-w-2xl space-y-6">
+    <div className="mx-auto w-full max-w-[1360px] [&>*]:max-w-3xl space-y-6">
       <div>
         <Link href="/app/settings" className="mb-2 inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground">
           <ArrowLeft className="size-3.5" aria-hidden /> {t("back")}

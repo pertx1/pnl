@@ -32,7 +32,7 @@ export default async function ActivityPage({ searchParams }: { searchParams: Pro
 
   if (!isAdmin) {
     return (
-      <div className="mx-auto max-w-4xl space-y-6">
+      <div className="mx-auto w-full max-w-[1360px] space-y-6">
         <TeamHeader workspaceName={workspace.name} />
         <TeamNav active="activity" isAdmin={false} />
         <div className="flex flex-col items-center gap-2 rounded-md border border-dashed border-border px-4 py-12 text-center">
@@ -83,7 +83,7 @@ export default async function ActivityPage({ searchParams }: { searchParams: Pro
     "h-8 w-full rounded-lg border border-input bg-transparent px-2.5 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 dark:bg-input/30";
 
   return (
-    <div className="mx-auto max-w-4xl space-y-6">
+    <div className="mx-auto w-full max-w-[1360px] space-y-6">
       <TeamHeader workspaceName={workspace.name} />
       <TeamNav active="activity" isAdmin />
 

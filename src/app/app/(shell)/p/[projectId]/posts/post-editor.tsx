@@ -178,7 +178,7 @@ export function PostEditor({
   const run = (fn: () => Promise<void>) => start(fn);
 
   return (
-    <div className="mx-auto max-w-5xl space-y-6">
+    <div className="mx-auto w-full max-w-[1360px] space-y-6">
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
           <p className="label-mono">{projectName}</p>

@@ -87,7 +87,7 @@ export default async function InspirationPage({ params, searchParams }: { params
     cn("flex flex-1 items-center justify-center gap-2 rounded-sm px-3 py-1.5 text-sm sm:flex-none", on ? "bg-secondary font-semibold" : "text-muted-foreground hover:text-foreground");
 
   return (
-    <div className="mx-auto max-w-5xl space-y-6">
+    <div className="mx-auto w-full max-w-[1360px] space-y-6">
       <div>
         <p className="label-mono">{project.name}</p>
         <h1 className="text-[28px] leading-tight font-medium">{t("title")}</h1>

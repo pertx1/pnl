@@ -311,7 +311,7 @@ export function AppSidebar({ workspace, workspaces, projects, credits, monthlyCr
           if ((e.target as HTMLElement).closest("a")) setOpen(false);
         }}
         className={cn(
-          "fixed inset-y-0 left-0 z-50 w-64 shrink-0 border-r border-sidebar-border bg-sidebar transition-transform md:sticky md:top-0 md:h-screen md:translate-x-0",
+          "fixed inset-y-0 left-0 z-50 w-64 shrink-0 overflow-hidden border-r border-sidebar-border bg-sidebar transition-transform md:sticky md:top-0 md:h-screen md:translate-x-0",
           open ? "translate-x-0" : "-translate-x-full",
         )}
       >

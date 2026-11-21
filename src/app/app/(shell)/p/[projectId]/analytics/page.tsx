@@ -81,7 +81,7 @@ export default async function AnalyticsPage({ params }: { params: Promise<{ proj
   const n = (v: number | null) => (v === null ? "—" : format.number(v, { notation: "compact", maximumFractionDigits: 1 }));
 
   return (
-    <div className="mx-auto max-w-5xl space-y-6">
+    <div className="mx-auto w-full max-w-[1360px] space-y-6">
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
           <p className="label-mono">{project.name}</p>

@@ -46,7 +46,7 @@ export default async function CompetitorsPage({ params }: { params: Promise<{ pr
   const igHandle = igAccounts?.[0] ? `@${(igAccounts[0].handle ?? "").replace(/^@/, "")}` : null;
 
   return (
-    <div className="mx-auto max-w-5xl space-y-6">
+    <div className="mx-auto w-full max-w-[1360px] space-y-6">
       <div>
         <p className="label-mono">{project.name}</p>
         <h1 className="text-[28px] leading-tight font-medium">{t("title")}</h1>

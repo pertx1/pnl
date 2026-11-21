@@ -56,7 +56,7 @@ export default async function CompetitorDetailPage({ params }: Params) {
   const last = analyses?.[0] ? { result: analyses[0].result as unknown as CompetitorAnalysis, createdAt: analyses[0].created_at } : null;
 
   return (
-    <div className="mx-auto max-w-5xl space-y-6">
+    <div className="mx-auto w-full max-w-[1360px] space-y-6">
       <Link href={`/app/p/${projectId}/competitors`} className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground">
         <ArrowLeft className="size-4" aria-hidden /> {t("back")}
       </Link>

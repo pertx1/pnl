@@ -16,7 +16,7 @@ export default async function GlobalCalendarPage({ searchParams }: { searchParam
   const posts = await getCalendarPosts({ workspaceId: workspace.id }, d);
   const v = view === "week" || view === "list" ? view : "month";
   return (
-    <div className="mx-auto max-w-6xl space-y-6">
+    <div className="mx-auto w-full max-w-[1360px] space-y-6">
       <div>
         <p className="label-mono">{workspace.name}</p>
         <h1 className="text-[28px] leading-tight font-medium">{t("globalTitle")}</h1>

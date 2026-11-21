@@ -19,7 +19,7 @@ export default async function ShellLayout({ children }: LayoutProps<"/app">) {
         monthlyCredits={plan.monthly_credits}
         email={user?.email ?? ""}
       />
-      <main className="min-w-0 flex-1 px-4 pt-20 pb-[calc(6rem+env(safe-area-inset-bottom))] sm:px-8 md:pt-10 md:pb-12">
+      <main className="min-w-0 flex-1 px-4 pt-20 pb-[calc(6rem+env(safe-area-inset-bottom))] sm:px-8 md:pt-10 md:pb-12 xl:px-12">
         <div className="animate-rise">{children}</div>
       </main>
     </div>

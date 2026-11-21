@@ -37,7 +37,7 @@ export default async function BillingPage({ searchParams }: { searchParams: Prom
   const eur = (cents: number, currency = "eur") => format.number(cents / 100, { style: "currency", currency: currency.toUpperCase() });
 
   return (
-    <div className="mx-auto max-w-4xl space-y-6">
+    <div className="mx-auto w-full max-w-[1360px] space-y-6">
       <div>
         <p className="label-mono">{workspace.name}</p>
         <h1 className="text-[28px] leading-tight font-medium">{tp("pageTitle")}</h1>

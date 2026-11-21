@@ -200,7 +200,7 @@ export function StudioWorkspace({
           )}
         </div>
       ) : (
-        <div className="-mx-4 grid grid-cols-2 gap-1 sm:-mx-8 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6">
+        <div className="-mx-4 grid grid-cols-2 gap-1 sm:-mx-8 xl:-mx-12 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6">
           {shownPending.map((p) => (
             <div key={p.id} role="status" className="bg-dots flex aspect-[4/5] flex-col items-center justify-center gap-2 bg-secondary/50 text-sm text-muted-foreground">
               <TerminalCursor className="text-primary-ink" />

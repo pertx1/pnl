@@ -1,17 +1,21 @@
 import { cn } from "@/lib/utils";
 
-export type PostStatus = "draft" | "pending_approval" | "scheduled" | "published" | "error";
+export type PostStatus = "draft" | "pending_approval" | "approved" | "scheduled" | "publishing" | "published" | "failed" | "cancelled" | "error";
 
 const styles: Record<PostStatus, { label: string; color: string }> = {
   draft: { label: "Borrador", color: "var(--muted-foreground)" },
   pending_approval: { label: "Pendiente de aprobación", color: "var(--warning)" },
   scheduled: { label: "Programado", color: "var(--primary-ink)" },
   published: { label: "Publicado", color: "var(--success)" },
+  approved: { label: "Aprobado", color: "var(--info)" },
+  publishing: { label: "Publicando", color: "var(--primary-ink)" },
+  failed: { label: "Error", color: "var(--destructive)" },
+  cancelled: { label: "Cancelado", color: "var(--muted-foreground)" },
   error: { label: "Error", color: "var(--destructive)" },
 };
 
-/** Estado de una publicación. El texto lo traducirá i18n en la Fase 1. */
-export function StatusBadge({ status, className }: { status: PostStatus; className?: string }) {
+/** Estado de una publicación. Pasa `label` traducido (posts.status.*); si no, usa el texto en español. */
+export function StatusBadge({ status, label, className }: { status: PostStatus; label?: string; className?: string }) {
   const s = styles[status];
   return (
     <span
@@ -19,7 +23,7 @@ export function StatusBadge({ status, className }: { status: PostStatus; classNa
       style={{ color: s.color, background: `color-mix(in srgb, ${s.color} 14%, transparent)` }}
     >
       <span aria-hidden className="size-1.5 rounded-full" style={{ background: s.color }} />
-      {s.label}
+      {label ?? s.label}
     </span>
   );
 }

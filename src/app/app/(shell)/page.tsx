@@ -13,7 +13,7 @@ export default async function ProjectsPage() {
   const canCreate = roleAtLeast(workspace.role, "admin") && projects.length < plan.max_projects;
 
   return (
-    <div className="mx-auto max-w-5xl space-y-6">
+    <div className="mx-auto w-full max-w-[1360px] space-y-6">
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
           <p className="label-mono">{workspace.name}</p>
