@@ -71,8 +71,12 @@ export async function startGeneration(input: z.input<typeof schema>): Promise<St
   });
   if (error) return { error: error.message.includes("insufficient_credits") ? "insufficient_credits" : toErrorKey(error) };
 
-  const { data: gen } = await admin.from("ai_generations").select("id, workspace_id, project_id, created_by, status").eq("id", generationId).single();
-  if (!gen) return { error: "generic" };
+  const { data: gen, error: readError } = await admin.from("ai_generations").select("id, workspace_id, project_id, created_by, status").eq("id", generationId).single();
+  if (!gen) {
+    // Sin poder leerla con la clave de servidor no se puede enviar ni devolver: queda para el barrido programado.
+    console.error("[ai] no se pudo leer la generación con la clave de servidor", readError?.code ?? "", readError?.message?.slice(0, 80) ?? "");
+    return { error: "generic" };
+  }
   if (gen.status !== "running") return { error: "generic" }; // reintento con la misma clave: ya procesada
 
   const falInput = model.buildInput({ prompt, aspect: d.aspect, duration: d.duration, imageUrl });

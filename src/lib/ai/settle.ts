@@ -26,15 +26,16 @@ export const STUDIO_TIMEOUT_MS = 30 * 60_000;
 
 export async function refundGeneration(admin: Admin, generationId: string, workspaceId: string, credits: number, code: string) {
   // Solo una vez: si ya no está "running", otra consulta la cerró antes.
-  const { data: closed } = await admin
+  const { data: closed, error: closeError } = await admin
     .from("ai_generations")
     .update({ status: "refunded", error_code: code, completed_at: new Date().toISOString() })
     .eq("id", generationId)
     .eq("status", "running")
     .select("id");
+  if (closeError) console.error("[ai] no se pudo cerrar la generación para devolverla", closeError.code ?? "", closeError.message?.slice(0, 80) ?? "");
   if (!closed?.length) return;
   if (credits > 0) {
-    await admin.rpc("grant_credits", {
+    const { error: grantError } = await admin.rpc("grant_credits", {
       p_workspace_id: workspaceId,
       p_amount: credits,
       p_reason: "refund_ai_failure",
@@ -42,6 +43,7 @@ export async function refundGeneration(admin: Admin, generationId: string, works
       p_ref_type: "ai_generation",
       p_ref_id: generationId,
     });
+    if (grantError) console.error("[ai] no se pudieron devolver los créditos", grantError.code ?? "", grantError.message?.slice(0, 80) ?? "");
   }
 }
 
