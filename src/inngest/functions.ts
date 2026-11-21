@@ -4,6 +4,7 @@ import { getAdapter } from "@/lib/social";
 import { publishTo } from "@/lib/social/publish";
 import { loadTokens, saveTokens } from "@/lib/social/token-store";
 import { PlatformError, type Platform, type TokenSet } from "@/lib/social/types";
+import { refundGeneration, settleStudioGeneration, STUDIO_TIMEOUT_MS } from "@/lib/ai/settle";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { inngest } from "./client";
 
@@ -217,6 +218,50 @@ export const dataRetention = inngest.createFunction(
   },
 );
 
+// -----------------------------------------------------------------------------------------------
+// 5) Cada 10 min: cerrar generaciones de IA atascadas. Una generación cobrada siempre termina en
+//    "succeeded" o "refunded", aunque la petición del navegador se cortara a mitad.
+// -----------------------------------------------------------------------------------------------
+export const settleStaleGenerations = inngest.createFunction(
+  { id: "settle-stale-generations", triggers: [{ cron: "*/10 * * * *" }], concurrency: 1 },
+  async ({ step }) => {
+    // Estudio (imagen/vídeo en cola de fal.ai): se consulta su estado y se guarda o se devuelve.
+    const studio = await step.run("studio", async () => {
+      const db = admin();
+      const cutoff = new Date(Date.now() - 5 * 60_000).toISOString();
+      const { data } = await db
+        .from("ai_generations")
+        .select("id, workspace_id, project_id, created_by, status, params, credits_cost, created_at")
+        .eq("status", "running")
+        .in("kind", ["image", "video"])
+        .not("params->>model_id", "is", null)
+        .lt("created_at", cutoff)
+        .limit(50);
+      let closed = 0;
+      for (const gen of data ?? []) {
+        const r = await settleStudioGeneration(db, gen);
+        if (r.status !== "pending") closed++;
+      }
+      return { checked: data?.length ?? 0, closed };
+    });
+    // Texto, voz y música son síncronos: si siguen "running" tras 30 min, la petición murió → devolver.
+    const sync = await step.run("sync", async () => {
+      const db = admin();
+      const cutoff = new Date(Date.now() - STUDIO_TIMEOUT_MS).toISOString();
+      const { data } = await db
+        .from("ai_generations")
+        .select("id, workspace_id, credits_cost")
+        .eq("status", "running")
+        .in("kind", ["text", "audio", "music"])
+        .lt("created_at", cutoff)
+        .limit(100);
+      for (const g of data ?? []) await refundGeneration(db, g.id, g.workspace_id, g.credits_cost, "stale");
+      return data?.length ?? 0;
+    });
+    return { studio, syncRefunded: sync };
+  },
+);
+
 import { commerceFunctions } from "./modules/commerce";
 import { inboxFunctions } from "./modules/inbox";
 import { researchFunctions } from "./modules/research";
@@ -228,6 +273,7 @@ export const functions = [
   publishTarget,
   refreshMetrics,
   dataRetention,
+  settleStaleGenerations,
   ...researchFunctions,
   ...strategyFunctions,
   ...inboxFunctions,

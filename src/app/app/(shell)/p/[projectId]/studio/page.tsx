@@ -28,7 +28,7 @@ export default async function StudioPage({ params }: { params: Promise<{ project
   const [balance, { assets }, { data: running }, voices] = await Promise.all([
     getCreditBalance(project.workspace_id),
     getEditorData(projectId),
-    supabase.from("ai_generations").select("id").eq("project_id", projectId).eq("kind", "video").eq("status", "running").order("created_at"),
+    supabase.from("ai_generations").select("id").eq("project_id", projectId).in("kind", ["image", "video"]).eq("status", "running").order("created_at"),
     listVoices(),
   ]);
   const canEdit = roleAtLeast(project.workspace.role, "editor");

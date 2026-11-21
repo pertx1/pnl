@@ -18,6 +18,18 @@ export const getUser = cache(async () => {
   return data.user ?? null;
 });
 
+/**
+ * ¿Tiene el usuario 2FA activada y esta sesión aún no ha verificado el código?
+ * Usa datos verificados: el nivel (aal) sale del JWT validado con getClaims() y los factores del usuario de getUser().
+ * (getAuthenticatorAssuranceLevel() lee la sesión de la cookie sin verificarla y Supabase lo avisa en los logs.)
+ */
+export const mfaPending = cache(async (): Promise<boolean> => {
+  const supabase = await createClient();
+  const [{ data: claims }, user] = await Promise.all([supabase.auth.getClaims(), getUser()]);
+  const hasVerifiedFactor = (user?.factors ?? []).some((f) => f.status === "verified");
+  return hasVerifiedFactor && claims?.claims?.aal !== "aal2";
+});
+
 export async function requireUser() {
   const user = await getUser();
   if (!user) redirect("/login");

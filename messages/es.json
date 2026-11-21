@@ -481,10 +481,10 @@
     "notConfigured": "La generación se activará cuando añadamos la clave de fal.ai (FAL_KEY).",
     "gallery": "Biblioteca del proyecto",
     "galleryEmpty": "Aún no hay nada. Genera tu primera imagen o vídeo.",
-    "pending": "Generando vídeo… suele tardar entre 1 y 4 minutos. Puedes seguir trabajando.",
+    "pending": "Generando… las imágenes tardan unos segundos y los vídeos entre 1 y 4 minutos. Puedes seguir trabajando.",
     "download": "Descargar",
-    "videoDone": "Vídeo listo",
-    "videoFailed": "El vídeo ha fallado. Te hemos devuelto los créditos.",
+    "videoDone": "Listo: ya está en la biblioteca del proyecto",
+    "videoFailed": "La generación ha fallado. Te hemos devuelto los créditos.",
     "errors": {
       "insufficient_credits": "No tienes créditos suficientes.",
       "banned_word": "El texto contiene una palabra prohibida de tu brand kit.",

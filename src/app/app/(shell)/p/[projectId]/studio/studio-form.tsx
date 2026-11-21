@@ -70,7 +70,7 @@ export function StudioForm({
   const credits = model ? (model.kind === "video" ? model.creditsByDuration[String(duration)] : model.creditsByDuration["0"]) ?? 0 : 0;
   const ready = enabled && prompt.trim().length >= 3 && Boolean(model) && balance >= credits && (!model?.needsImage || Boolean(sourceId));
 
-  // Consulta los vídeos en cola cada 6 s hasta que terminan.
+  // Consulta las generaciones en cola (imagen o vídeo) cada 4 s hasta que terminan.
   useEffect(() => {
     if (!pending.length) return;
     const id = setInterval(async () => {
@@ -82,7 +82,7 @@ export function StudioForm({
         else toast.error(t("videoFailed"));
         router.refresh();
       }
-    }, 6000);
+    }, 4000);
     return () => clearInterval(id);
   }, [pending, router, t]);
 

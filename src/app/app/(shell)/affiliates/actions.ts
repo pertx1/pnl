@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { normalizeAffiliateCode } from "@/lib/affiliates";
 import { isStaffEmail } from "@/lib/affiliates/server";
-import { getUser } from "@/lib/server/dal";
+import { getUser, mfaPending } from "@/lib/server/dal";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 
@@ -38,9 +38,7 @@ export async function markCommissionPaid(_prev: AffState, formData: FormData): P
   const user = await getUser();
   if (!isStaffEmail(user?.email)) return { error: "forbidden" };
   // Exige sesión con 2FA si el usuario la tiene activada (aal2), igual que el resto de operaciones sensibles.
-  const supabase = await createClient();
-  const { data: aal } = await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
-  if (aal && aal.nextLevel === "aal2" && aal.currentLevel !== "aal2") return { error: "forbidden" };
+  if (await mfaPending()) return { error: "forbidden" };
   const admin = createAdminClient();
   if (!admin) return { error: "not_configured" };
   const { error } = await admin.rpc("mark_commission_paid", { p_commission_id: parsed.data.id, p_reference: parsed.data.reference });

@@ -481,10 +481,10 @@
     "notConfigured": "Generation will be enabled once we add the fal.ai key (FAL_KEY).",
     "gallery": "Project library",
     "galleryEmpty": "Nothing yet. Generate your first image or video.",
-    "pending": "Generating video… usually takes 1 to 4 minutes. You can keep working.",
+    "pending": "Generating… images take a few seconds and videos 1 to 4 minutes. You can keep working.",
     "download": "Download",
-    "videoDone": "Video ready",
-    "videoFailed": "The video failed. We've refunded your credits.",
+    "videoDone": "Done: it is in the project library",
+    "videoFailed": "The generation failed. We've refunded your credits.",
     "errors": {
       "insufficient_credits": "You don't have enough credits.",
       "banned_word": "The text contains a banned word from your brand kit.",

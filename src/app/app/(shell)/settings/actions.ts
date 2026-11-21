@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { z } from "zod";
-import { WORKSPACE_COOKIE } from "@/lib/server/dal";
+import { mfaPending as mfaPendingVerified, WORKSPACE_COOKIE } from "@/lib/server/dal";
 import { keep, toErrorKey, type ActionState } from "@/lib/server/errors";
 import { createClient } from "@/lib/supabase/server";
 
@@ -25,7 +25,7 @@ export async function changePassword(_prev: ActionState, formData: FormData): Pr
   const parsed = z.object({ password: z.string().min(10).max(200) }).safeParse(Object.fromEntries(formData));
   if (!parsed.success) return { error: "weak_password" };
   const supabase = await createClient();
-  if (await mfaPending(supabase)) return { error: "forbidden" };
+  if (await mfaPending()) return { error: "forbidden" };
   const { error } = await supabase.auth.updateUser({ password: parsed.data.password });
   if (error) return { error: toErrorKey(error) };
   return { ok: true };
@@ -44,7 +44,7 @@ export async function deleteAccount(_prev: ActionState, formData: FormData): Pro
   if (!auth.user) redirect("/login");
 
   // Las server actions no pasan por el layout que exige aal2: si tiene 2FA, la sesión debe estar verificada.
-  if (await mfaPending(supabase)) return { error: "forbidden" };
+  if (await mfaPending()) return { error: "forbidden" };
 
   const confirmEmail = String(formData.get("confirm") ?? "").trim().toLowerCase();
   if (confirmEmail !== (auth.user.email ?? "").toLowerCase()) return { error: "invalid_input", message: "mismatch" };
@@ -76,9 +76,8 @@ export async function deleteAccount(_prev: ActionState, formData: FormData): Pro
 type Client = Awaited<ReturnType<typeof createClient>>;
 
 /** true si el usuario tiene 2FA activada pero esta sesión aún no ha verificado el código (aal1). */
-async function mfaPending(supabase: Client) {
-  const { data } = await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
-  return Boolean(data && data.nextLevel === "aal2" && data.currentLevel !== "aal2");
+async function mfaPending() {
+  return mfaPendingVerified();
 }
 
 /** Borra recursivamente todos los objetos bajo `prefix` en un bucket (con la sesión del usuario → RLS). */
