@@ -496,7 +496,22 @@
       "generic": "Algo ha fallado. Inténtalo de nuevo."
     },
     "generated": "Imagen generada",
-    "termsNote": "No generes personas reales, marcas de terceros ni contenido engañoso. Revisa siempre el resultado antes de publicarlo."
+    "termsNote": "No generes personas reales, marcas de terceros ni contenido engañoso. Revisa siempre el resultado antes de publicarlo.",
+    "emptyTitle": "Tu primera creación aparecerá aquí",
+    "emptyBody": "Escribe abajo qué quieres ver o prueba con una idea:",
+    "examples": [
+      "Taza de café humeante sobre mesa de madera, luz natural de mañana, estilo editorial",
+      "Zapatillas blancas flotando sobre fondo lima, sombra suave, foto de producto",
+      "Mesa de escritorio minimalista vista desde arriba con portátil y planta, tonos cálidos"
+    ],
+    "brandShort": "Paleta de marca",
+    "shortcut": "Ctrl + Enter para generar",
+    "sourcePick": "Imagen de partida",
+    "composerLabel": "Generar con IA",
+    "filterLabel": "Tipo de contenido",
+    "tileGenerating": "Generando…",
+    "balanceShort": "{balance} créditos",
+    "openImage": "Abrir imagen a tamaño completo"
   },
   "billing": {
     "title": "Créditos",

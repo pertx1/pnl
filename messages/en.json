@@ -496,7 +496,22 @@
       "generic": "Something went wrong. Please try again."
     },
     "generated": "Image generated",
-    "termsNote": "Don't generate real people, third-party brands or misleading content. Always review the result before publishing it."
+    "termsNote": "Don't generate real people, third-party brands or misleading content. Always review the result before publishing it.",
+    "emptyTitle": "Your first creation will show up here",
+    "emptyBody": "Describe what you want below or try an idea:",
+    "examples": [
+      "Steaming coffee cup on a wooden table, soft morning light, editorial style",
+      "White sneakers floating over a lime background, soft shadow, product shot",
+      "Minimal desk from above with laptop and plant, warm tones"
+    ],
+    "brandShort": "Brand palette",
+    "shortcut": "Ctrl + Enter to generate",
+    "sourcePick": "Source image",
+    "composerLabel": "Generate with AI",
+    "filterLabel": "Content type",
+    "tileGenerating": "Generating…",
+    "balanceShort": "{balance} credits",
+    "openImage": "Open full-size image"
   },
   "billing": {
     "title": "Credits",
