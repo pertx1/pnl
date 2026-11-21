@@ -23,7 +23,7 @@ const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
 // ------------------------------------------------------------------- Instagram (Content Publishing API)
 async function publishInstagram(tokens: TokenSet, input: PublishInput): Promise<PublishResult> {
-  const graph = `https://graph.facebook.com/${process.env.META_GRAPH_VERSION ?? "v23.0"}`;
+  const graph = `https://graph.facebook.com/${process.env.META_GRAPH_VERSION ?? "v27.0"}`;
   const token = encodeURIComponent(tokens.accessToken);
   const caption = input.aiGenerated ? `${input.caption}\n\n${input.aiDisclosure}` : input.caption;
 

@@ -16,7 +16,7 @@ export const youtubeDerivedAllowed = () => process.env.YOUTUBE_DERIVED_METRICS_A
 export const adLibraryToken = () => process.env.META_AD_LIBRARY_TOKEN ?? "";
 export const isAdLibraryConfigured = () => Boolean(adLibraryToken());
 
-export const graphVersion = () => process.env.META_GRAPH_VERSION ?? "v23.0";
+export const graphVersion = () => process.env.META_GRAPH_VERSION ?? "v27.0";
 
 /** Token de app para el oEmbed de Instagram/Facebook ("oEmbed Read"): APP_ID|CLIENT_TOKEN. */
 export const metaOembedToken = () => {

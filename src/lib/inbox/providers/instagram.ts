@@ -18,7 +18,7 @@ import type { InboxTokenSet, SyncedThread } from "../types";
  */
 export const IG_INBOX_SCOPES = ["instagram_basic", "instagram_manage_messages", "pages_manage_metadata", "pages_show_list"];
 
-const version = () => process.env.META_GRAPH_VERSION ?? "v23.0";
+const version = () => process.env.META_GRAPH_VERSION ?? "v27.0";
 const GRAPH = () => `https://graph.facebook.com/${version()}`;
 const creds = () => ({ id: process.env.META_APP_ID ?? "", secret: process.env.META_APP_SECRET ?? "" });
 

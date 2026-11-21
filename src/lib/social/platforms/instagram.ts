@@ -7,7 +7,7 @@ import { PlatformError, type ConnectedProfile, type PlatformAdapter, type TokenS
  * Usamos esta variante porque Business Discovery (competencia, Fase 2) solo está disponible aquí.
  * Docs: https://developers.facebook.com/docs/instagram-platform/instagram-api-with-facebook-login
  */
-const version = () => process.env.META_GRAPH_VERSION ?? "v23.0"; // verificar la versión vigente al configurar la app
+const version = () => process.env.META_GRAPH_VERSION ?? "v27.0"; // verificar la versión vigente al configurar la app
 const GRAPH = () => `https://graph.facebook.com/${version()}`;
 
 function creds() {
