@@ -428,8 +428,7 @@
       "licenseCc": "Creative Commons (attribution)",
       "notify": "Notify subscribers",
       "embeddable": "Allow embedding on other sites",
-      "shortsHint": "Vertical videos up to 3 minutes are published as Shorts automatically.",
-      "unauditedPrivate": "Until Google audits the app, YouTube keeps the video private even if you choose \"Public\". You can change it in YouTube Studio."
+      "shortsHint": "Vertical videos up to 3 minutes are published as Shorts automatically."
     },
     "rules": {
       "tiktok_privacy_required": "TikTok: choose who can view the post.",

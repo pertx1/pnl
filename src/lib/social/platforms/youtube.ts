@@ -13,7 +13,6 @@ const SCOPES = [
   // Añadir el vídeo a una lista de reproducción (playlistItems.insert) exige youtube.force-ssl:
   // youtube.upload solo permite subir y poner miniatura.
   "https://www.googleapis.com/auth/youtube.force-ssl",
-  "https://www.googleapis.com/auth/yt-analytics.readonly",
 ];
 
 function creds() {

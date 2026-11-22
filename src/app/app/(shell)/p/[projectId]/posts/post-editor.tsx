@@ -608,7 +608,6 @@ function YouTubeOptions({
           </select>
         </div>
       </div>
-      {options.yt_privacy === "public" && <p className="text-[11px] text-warning">{t("unauditedPrivate")}</p>}
 
       <div className="space-y-1">
         <Label className="text-xs">{t("tags")}</Label>

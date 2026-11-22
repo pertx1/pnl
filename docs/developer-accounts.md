@@ -131,3 +131,11 @@ Sustituye `<dominio>` por tu dominio (o `kreo-nine.vercel.app` para pruebas):
   instagram_manage_insights, instagram_manage_messages, pages_show_list, pages_read_engagement, pages_manage_metadata y
   business_management, y poner su ID en `META_LOGIN_CONFIG_ID`. Sin esa variable se piden los permisos por `scope`.
 - TikTok, verificación de URL por archivo: el archivo que da TikTok se sirve desde `public/` (p. ej. `public/tiktokXXXX.txt`).
+
+## Actualización 2026-11-22 (permisos mínimos y YouTube)
+- Retirados del código por no usarse (motivo directo de rechazo en las revisiones): `yt-analytics.readonly` (Google),
+  `video.list` y `video.upload` (TikTok), `instagram_manage_insights` (Meta). Desmárcalos también en cada consola
+  (scopes del sandbox de TikTok, configuración de Facebook Login for Business y pantalla de consentimiento de Google).
+- YouTube: desde el 2026-11-02 los vídeos subidos desde proyectos sin auditar YA NO quedan en privado
+  (https://developers.google.com/youtube/v3/revision_history). La auditoría solo hace falta para ampliar cuota.
+- Dosieres de revisión de las apps: `docs/app-review/`.

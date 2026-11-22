@@ -35,7 +35,7 @@ async function longLived(shortToken: string): Promise<TokenSet> {
 
 export const instagram: PlatformAdapter = {
   id: "instagram",
-  scopes: ["instagram_basic", "instagram_content_publish", "instagram_manage_insights", "pages_show_list", "pages_read_engagement", "business_management"],
+  scopes: ["instagram_basic", "instagram_content_publish", "pages_show_list", "pages_read_engagement", "business_management"],
   usesPkce: false,
   isConfigured: () => Boolean(creds().id && creds().secret),
 

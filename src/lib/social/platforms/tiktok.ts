@@ -54,7 +54,7 @@ async function tokenRequest(body: Record<string, string>): Promise<TokenSet> {
 
 export const tiktok: PlatformAdapter = {
   id: "tiktok",
-  scopes: ["user.info.basic", "user.info.profile", "user.info.stats", "video.list", "video.publish", "video.upload"],
+  scopes: ["user.info.basic", "user.info.profile", "user.info.stats", "video.publish"],
   usesPkce: false,
   isConfigured: () => Boolean(creds().key && creds().secret),
 
