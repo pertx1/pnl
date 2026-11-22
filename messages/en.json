@@ -298,7 +298,7 @@
     },
     "comingSoon": "Coming soon",
     "comingSoonNote": "TikTok direct messages: there's no official public API, so we don't offer it.",
-    "emailSoon": "Email (Gmail and Outlook) will arrive with the unified inbox.",
+    "emailSoon": "Gmail, Outlook and Instagram DMs are connected from the Inbox.",
     "youtubeNote": "Kreo uses YouTube API Services. By connecting you agree to the YouTube Terms of Service and the Google Privacy Policy, and you authorize the members of this workspace to see the channel's data in Kreo.",
     "ytTerms": "YouTube Terms",
     "googlePrivacy": "Google Privacy Policy",
@@ -311,7 +311,8 @@
       "tiktok": "Personal or business account.",
       "instagram": "Professional account (business or creator) linked to a Facebook page.",
       "youtube": "Your YouTube channel."
-    }
+    },
+    "emailOpenInbox": "Go to Inbox"
   },
   "posts": {
     "new": "New post",

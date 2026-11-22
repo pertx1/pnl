@@ -41,8 +41,14 @@ async function tokenRequest(body: Record<string, string>): Promise<TokenSet> {
     headers: { "Content-Type": "application/x-www-form-urlencoded", "Cache-Control": "no-cache" },
     body: new URLSearchParams(body),
   });
-  const json = await jsonOrThrow<TokenResponse>("tiktok", res, "token_exchange_failed");
-  if (json.error || !json.access_token) throw new PlatformError("tiktok", "token_exchange_failed", res.status);
+  const json = (await res.json().catch(() => null)) as (TokenResponse & { error_description?: string; log_id?: string }) | null;
+  if (!res.ok || !json || json.error || !json.access_token) {
+    // Solo el código y la descripción de TikTok (nunca el código de autorización ni las claves).
+    console.error(
+      `[oauth] tiktok token: http=${res.status} error=${json?.error ?? "?"} desc=${(json?.error_description ?? "").slice(0, 160)} log_id=${json?.log_id ?? ""}`,
+    );
+    throw new PlatformError("tiktok", "token_exchange_failed", res.status);
+  }
   return toTokens(json);
 }
 

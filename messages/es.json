@@ -298,7 +298,7 @@
     },
     "comingSoon": "Próximamente",
     "comingSoonNote": "Mensajes directos de TikTok: no hay API pública oficial, así que no lo ofrecemos.",
-    "emailSoon": "Correo (Gmail y Outlook) llegará con la bandeja unificada.",
+    "emailSoon": "Gmail, Outlook y los DMs de Instagram se conectan desde la Bandeja.",
     "youtubeNote": "Kreo usa los Servicios API de YouTube. Al conectar aceptas los Términos de servicio de YouTube y la Política de privacidad de Google, y autorizas que los miembros de este espacio de trabajo vean los datos del canal en Kreo.",
     "ytTerms": "Términos de YouTube",
     "googlePrivacy": "Política de privacidad de Google",
@@ -311,7 +311,8 @@
       "tiktok": "Cuenta personal o de empresa.",
       "instagram": "Cuenta profesional (business o creator) vinculada a una página de Facebook.",
       "youtube": "Tu canal de YouTube."
-    }
+    },
+    "emailOpenInbox": "Ir a la Bandeja"
   },
   "posts": {
     "new": "Nueva publicación",

@@ -1,7 +1,7 @@
+import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 import { Mail, MessageCircleOff } from "lucide-react";
 import { PlatformIcon } from "@/components/social/platform-icon";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { getProject, roleAtLeast } from "@/lib/server/dal";
@@ -117,11 +117,14 @@ export default async function AccountsPage({ params, searchParams }: PageProps<"
             <p className="text-sm text-muted-foreground">{t("comingSoonNote")}</p>
           </CardContent>
         </Card>
-        <Card className="opacity-80">
+        <Card>
           <CardContent className="flex items-start gap-3">
             <Mail className="mt-0.5 size-5 text-muted-foreground" strokeWidth={1.5} aria-hidden />
             <p className="text-sm text-muted-foreground">
-              {t("emailSoon")} <Badge variant="outline">{t("comingSoon")}</Badge>
+              {t("emailSoon")}{" "}
+              <Link href={`/app/p/${projectId}/inbox`} className="link">
+                {t("emailOpenInbox")}
+              </Link>
             </p>
           </CardContent>
         </Card>
