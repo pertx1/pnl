@@ -16,8 +16,11 @@ export type PublishInput = {
   aiGenerated: boolean;
   options: PlatformOptions;
   aiDisclosure: string; // texto de divulgación para redes sin etiqueta nativa
+  /** Miniatura personalizada de YouTube (ya validada como imagen del mismo proyecto). */
+  thumbnail?: PublishMedia;
 };
-export type PublishResult = { externalPostId: string; url?: string };
+/** `warnings`: pasos opcionales que fallaron sin impedir la publicación (p. ej. la miniatura). */
+export type PublishResult = { externalPostId: string; url?: string; warnings?: string[] };
 
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
@@ -143,30 +146,77 @@ async function publishYouTube(tokens: TokenSet, input: PublishInput): Promise<Pu
   const video = input.media.find((m) => m.mime.startsWith("video/"));
   if (!video?.bytes) throw new PlatformError("youtube", "video_required");
   const bytes = await video.bytes();
+  const o = input.options;
+  const auth = { Authorization: `Bearer ${tokens.accessToken}` };
 
-  const start = await platformFetch("youtube", "https://www.googleapis.com/upload/youtube/v3/videos?uploadType=resumable&part=snippet,status", {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${tokens.accessToken}`,
-      "Content-Type": "application/json; charset=UTF-8",
-      "X-Upload-Content-Type": video.mime,
-      "X-Upload-Content-Length": String(bytes.byteLength),
+  const tags = (o.yt_tags ?? []).map((t) => t.trim()).filter(Boolean);
+  const notify = o.yt_notify_subscribers === false ? "false" : "true";
+  const start = await platformFetch(
+    "youtube",
+    `https://www.googleapis.com/upload/youtube/v3/videos?uploadType=resumable&part=snippet,status&notifySubscribers=${notify}`,
+    {
+      method: "POST",
+      headers: { ...auth, "Content-Type": "application/json; charset=UTF-8", "X-Upload-Content-Type": video.mime, "X-Upload-Content-Length": String(bytes.byteLength) },
+      body: JSON.stringify({
+        snippet: {
+          title: (o.yt_title ?? "").slice(0, 100),
+          description: input.caption.slice(0, 5000),
+          ...(tags.length ? { tags } : {}),
+          categoryId: o.yt_category_id ?? "22",
+          ...(o.yt_language ? { defaultLanguage: o.yt_language, defaultAudioLanguage: o.yt_language } : {}),
+        },
+        status: {
+          privacyStatus: o.yt_privacy ?? "private",
+          selfDeclaredMadeForKids: Boolean(o.yt_made_for_kids),
+          containsSyntheticMedia: input.aiGenerated, // divulgación de contenido alterado o sintético
+          embeddable: o.yt_embeddable !== false,
+          license: o.yt_license ?? "youtube",
+        },
+      }),
     },
-    body: JSON.stringify({
-      snippet: { title: (input.options.yt_title ?? "").slice(0, 100), description: input.caption.slice(0, 5000) },
-      status: {
-        privacyStatus: input.options.yt_privacy ?? "private",
-        selfDeclaredMadeForKids: Boolean(input.options.yt_made_for_kids),
-        containsSyntheticMedia: input.aiGenerated, // divulgación de contenido alterado o sintético
-      },
-    }),
-  });
+  );
   const location = start.headers.get("location");
   if (!start.ok || !location) throw new PlatformError("youtube", "upload_init_failed", start.status);
 
   const put = await fetch(location, { method: "PUT", headers: { "Content-Type": video.mime }, body: bytes });
   const json = await jsonOrThrow<{ id: string }>("youtube", put, "upload_failed");
-  return { externalPostId: json.id, url: `https://www.youtube.com/watch?v=${json.id}` };
+  const warnings: string[] = [];
+
+  // Pasos opcionales: si fallan, el vídeo ya está subido; se avisa pero NO se reintenta la subida.
+  if (input.thumbnail?.bytes) {
+    try {
+      const img = await input.thumbnail.bytes();
+      if (img.byteLength > 2 * 1024 * 1024) throw new Error("too_big");
+      const th = await platformFetch("youtube", `https://www.googleapis.com/upload/youtube/v3/thumbnails/set?videoId=${encodeURIComponent(json.id)}`, {
+        method: "POST",
+        headers: { ...auth, "Content-Type": input.thumbnail.mime },
+        body: img,
+      });
+      // 403 típico: el canal no está verificado para miniaturas personalizadas.
+      if (!th.ok) warnings.push(`thumbnail_${th.status}`);
+    } catch (e) {
+      warnings.push(`thumbnail_${(e as Error).message === "too_big" ? "too_big" : "failed"}`);
+    }
+  }
+  if (o.yt_playlist_id) {
+    const pl = await platformFetch("youtube", "https://www.googleapis.com/youtube/v3/playlistItems?part=snippet", {
+      method: "POST",
+      headers: { ...auth, "Content-Type": "application/json" },
+      body: JSON.stringify({ snippet: { playlistId: o.yt_playlist_id, resourceId: { kind: "youtube#video", videoId: json.id } } }),
+    }).catch(() => null);
+    // 403 típico: la conexión es anterior al permiso de listas → reconectar YouTube.
+    if (!pl?.ok) warnings.push(`playlist_${pl?.status ?? "failed"}`);
+  }
+  return { externalPostId: json.id, url: `https://www.youtube.com/watch?v=${json.id}`, warnings };
+}
+
+/** Listas de reproducción del canal conectado (solo lectura). */
+export async function listYouTubePlaylists(tokens: TokenSet): Promise<{ id: string; title: string }[]> {
+  const res = await platformFetch("youtube", "https://www.googleapis.com/youtube/v3/playlists?part=snippet&mine=true&maxResults=50", {
+    headers: { Authorization: `Bearer ${tokens.accessToken}` },
+  });
+  const json = await jsonOrThrow<{ items?: { id: string; snippet?: { title?: string } }[] }>("youtube", res, "playlists_failed");
+  return (json.items ?? []).map((p) => ({ id: p.id, title: p.snippet?.title ?? p.id }));
 }
 
 export async function publishTo(platform: Platform, tokens: TokenSet, input: PublishInput): Promise<PublishResult> {

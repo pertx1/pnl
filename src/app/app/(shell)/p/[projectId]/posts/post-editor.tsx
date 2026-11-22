@@ -17,11 +17,13 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
-import { duplicateCaptionWarning, TIKTOK_PRIVACY, type PlatformOptions, type RuleViolation } from "@/lib/posts/rules";
+import { duplicateCaptionWarning, TIKTOK_PRIVACY, YT_CATEGORIES, YT_LANGUAGES, ytTagsLength, type PlatformOptions, type RuleViolation } from "@/lib/posts/rules";
 import type { EditorAccount, EditorAsset } from "@/lib/server/posts";
+import { cn } from "@/lib/utils";
 import { createClient } from "@/lib/supabase/client";
 import { addUploadedAsset, approvePost, deletePost, savePost, submitPost, unschedulePost, type PostActionResult } from "./actions";
 import { aiCaptionVariations, aiSuggestCaptions } from "./ai-actions";
+import { getYouTubePlaylists } from "./youtube-actions";
 
 type Target = { socialAccountId: string; captionOverride: string; platformOptions: PlatformOptions };
 type Initial = {
@@ -334,7 +336,15 @@ export function PostEditor({
                             <p className="text-[11px] text-muted-foreground">{t("captionOverrideHint")}</p>
                           </div>
                           {acc.platform === "tiktok" && <TikTokOptions handle={handle} options={target.platformOptions} onChange={(p) => patchOptions(acc.id, p)} />}
-                          {acc.platform === "youtube" && <YouTubeOptions options={target.platformOptions} onChange={(p) => patchOptions(acc.id, p)} />}
+                          {acc.platform === "youtube" && (
+                            <YouTubeOptions
+                              projectId={projectId}
+                              accountId={acc.id}
+                              images={library.filter((a) => a.mime === "image/jpeg" || a.mime === "image/png")}
+                              options={target.platformOptions}
+                              onChange={(p) => patchOptions(acc.id, p)}
+                            />
+                          )}
                           {v && (
                             <ul className="space-y-1 text-xs text-destructive">
                               {v.rules.map((r) => (
@@ -540,30 +550,165 @@ function TikTokOptions({ handle, options, onChange }: { handle: string; options:
   );
 }
 
-function YouTubeOptions({ options, onChange }: { options: PlatformOptions; onChange: (p: Partial<PlatformOptions>) => void }) {
+function YouTubeOptions({
+  projectId,
+  accountId,
+  images,
+  options,
+  onChange,
+}: {
+  projectId: string;
+  accountId: string;
+  images: EditorAsset[];
+  options: PlatformOptions;
+  onChange: (p: Partial<PlatformOptions>) => void;
+}) {
   const t = useTranslations("posts.youtube");
+  const [tagsText, setTagsText] = useState((options.yt_tags ?? []).join(", "));
+  const [playlists, setPlaylists] = useState<{ id: string; title: string }[] | null>(null);
+  const [plError, setPlError] = useState<string>();
+  const [loadingPl, startPl] = useTransition();
+  const tagsLen = ytTagsLength(options.yt_tags);
+  const selectCls = "w-full rounded-md border border-input bg-transparent px-2 py-1.5 text-sm";
+
+  function loadPlaylists() {
+    startPl(async () => {
+      const res = await getYouTubePlaylists(projectId, accountId);
+      if (res.ok) {
+        setPlaylists(res.playlists);
+        setPlError(undefined);
+      } else setPlError(res.error);
+    });
+  }
+
   return (
     <div className="space-y-3 text-sm">
       <div className="space-y-1">
         <Label className="text-xs">{t("title")}</Label>
         <Input value={options.yt_title ?? ""} maxLength={100} onChange={(e) => onChange({ yt_title: e.target.value })} />
       </div>
-      <div className="space-y-1">
-        <Label className="text-xs">{t("privacy")}</Label>
-        <select
-          className="w-full rounded-md border border-input bg-transparent px-2 py-1.5 text-sm"
-          value={options.yt_privacy ?? "private"}
-          onChange={(e) => onChange({ yt_privacy: e.target.value as PlatformOptions["yt_privacy"] })}
-        >
-          <option value="public">{t("public")}</option>
-          <option value="unlisted">{t("unlisted")}</option>
-          <option value="private">{t("private")}</option>
-        </select>
+
+      <div className="grid gap-3 sm:grid-cols-2">
+        <div className="space-y-1">
+          <Label className="text-xs">{t("privacy")}</Label>
+          <select className={selectCls} value={options.yt_privacy ?? "private"} onChange={(e) => onChange({ yt_privacy: e.target.value as PlatformOptions["yt_privacy"] })}>
+            <option value="public">{t("public")}</option>
+            <option value="unlisted">{t("unlisted")}</option>
+            <option value="private">{t("private")}</option>
+          </select>
+        </div>
+        <div className="space-y-1">
+          <Label className="text-xs">{t("category")}</Label>
+          <select className={selectCls} value={options.yt_category_id ?? "22"} onChange={(e) => onChange({ yt_category_id: e.target.value as PlatformOptions["yt_category_id"] })}>
+            {YT_CATEGORIES.map((c) => (
+              <option key={c} value={c}>
+                {t(`categories.${c}`)}
+              </option>
+            ))}
+          </select>
+        </div>
       </div>
+      {options.yt_privacy === "public" && <p className="text-[11px] text-warning">{t("unauditedPrivate")}</p>}
+
+      <div className="space-y-1">
+        <Label className="text-xs">{t("tags")}</Label>
+        <Input
+          value={tagsText}
+          placeholder={t("tagsPlaceholder")}
+          onChange={(e) => {
+            setTagsText(e.target.value);
+            const tags = e.target.value.split(",").map((x) => x.trim()).filter(Boolean).slice(0, 40);
+            onChange({ yt_tags: tags.length ? tags : undefined });
+          }}
+        />
+        <p className={cn("text-[11px]", tagsLen > 500 ? "text-destructive" : "text-muted-foreground")}>{t("tagsHint", { n: tagsLen })}</p>
+      </div>
+
+      <div className="space-y-1">
+        <Label className="text-xs">{t("thumbnail")}</Label>
+        {images.length === 0 ? (
+          <p className="text-[11px] text-muted-foreground">{t("thumbnailEmpty")}</p>
+        ) : (
+          <div className="flex gap-2 overflow-x-auto pb-1">
+            <button
+              type="button"
+              onClick={() => onChange({ yt_thumbnail_asset_id: undefined })}
+              aria-pressed={!options.yt_thumbnail_asset_id}
+              className={cn("grid h-12 w-20 shrink-0 place-items-center rounded-md border text-[11px]", !options.yt_thumbnail_asset_id ? "border-selected" : "text-muted-foreground")}
+            >
+              {t("thumbnailAuto")}
+            </button>
+            {images.slice(0, 24).map((img) => (
+              <button
+                type="button"
+                key={img.id}
+                onClick={() => onChange({ yt_thumbnail_asset_id: img.id })}
+                aria-pressed={options.yt_thumbnail_asset_id === img.id}
+                aria-label={t("thumbnailPick")}
+                className={cn("h-12 w-20 shrink-0 overflow-hidden rounded-md border-2", options.yt_thumbnail_asset_id === img.id ? "border-selected" : "border-transparent opacity-70 hover:opacity-100")}
+              >
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                {img.url && <img src={img.url} alt="" className="size-full object-cover" />}
+              </button>
+            ))}
+          </div>
+        )}
+        <p className="text-[11px] text-muted-foreground">{t("thumbnailHint")}</p>
+      </div>
+
+      <div className="space-y-1">
+        <Label className="text-xs">{t("playlist")}</Label>
+        {playlists === null ? (
+          <Button type="button" size="sm" variant="outline" onClick={loadPlaylists} disabled={loadingPl}>
+            {loadingPl ? t("playlistLoading") : t("playlistLoad")}
+          </Button>
+        ) : (
+          <select className={selectCls} value={options.yt_playlist_id ?? ""} onChange={(e) => onChange({ yt_playlist_id: e.target.value || undefined })}>
+            <option value="">{t("playlistNone")}</option>
+            {playlists.map((p) => (
+              <option key={p.id} value={p.id}>
+                {p.title}
+              </option>
+            ))}
+          </select>
+        )}
+        {plError && <p className="text-[11px] text-destructive">{plError === "reconnect" ? t("playlistReconnect") : t("playlistError")}</p>}
+      </div>
+
+      <div className="grid gap-3 sm:grid-cols-2">
+        <div className="space-y-1">
+          <Label className="text-xs">{t("language")}</Label>
+          <select className={selectCls} value={options.yt_language ?? ""} onChange={(e) => onChange({ yt_language: (e.target.value || undefined) as PlatformOptions["yt_language"] })}>
+            <option value="">{t("languageNone")}</option>
+            {YT_LANGUAGES.map((l) => (
+              <option key={l} value={l}>
+                {t(`languages.${l}`)}
+              </option>
+            ))}
+          </select>
+        </div>
+        <div className="space-y-1">
+          <Label className="text-xs">{t("license")}</Label>
+          <select className={selectCls} value={options.yt_license ?? "youtube"} onChange={(e) => onChange({ yt_license: e.target.value as PlatformOptions["yt_license"] })}>
+            <option value="youtube">{t("licenseYoutube")}</option>
+            <option value="creativeCommon">{t("licenseCc")}</option>
+          </select>
+        </div>
+      </div>
+
       <label className="flex items-center justify-between gap-2">
         <span>{t("madeForKids")}</span>
         <Switch checked={Boolean(options.yt_made_for_kids)} onCheckedChange={(v) => onChange({ yt_made_for_kids: Boolean(v) })} />
       </label>
+      <label className="flex items-center justify-between gap-2">
+        <span>{t("notify")}</span>
+        <Switch checked={options.yt_notify_subscribers !== false} onCheckedChange={(v) => onChange({ yt_notify_subscribers: Boolean(v) })} />
+      </label>
+      <label className="flex items-center justify-between gap-2">
+        <span>{t("embeddable")}</span>
+        <Switch checked={options.yt_embeddable !== false} onCheckedChange={(v) => onChange({ yt_embeddable: Boolean(v) })} />
+      </label>
+      <p className="text-[11px] text-muted-foreground">{t("shortsHint")}</p>
     </div>
   );
 }

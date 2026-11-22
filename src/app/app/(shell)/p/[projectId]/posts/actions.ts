@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
-import { TIKTOK_PRIVACY, validateTarget, type MediaKind, type PlatformOptions, type RuleViolation } from "@/lib/posts/rules";
+import { TIKTOK_PRIVACY, validateTarget, YT_CATEGORIES, YT_LANGUAGES, type MediaKind, type PlatformOptions, type RuleViolation } from "@/lib/posts/rules";
 import { toErrorKey } from "@/lib/server/errors";
 import { createClient } from "@/lib/supabase/server";
 
@@ -21,6 +21,14 @@ const optionsSchema = z
     yt_title: z.string().trim().max(100).optional(),
     yt_privacy: z.enum(["public", "unlisted", "private"]).optional(),
     yt_made_for_kids: z.boolean().optional(),
+    yt_tags: z.array(z.string().trim().min(1).max(100)).max(40).optional(),
+    yt_category_id: z.enum(YT_CATEGORIES).optional(),
+    yt_thumbnail_asset_id: z.uuid().optional(),
+    yt_playlist_id: z.string().regex(/^[A-Za-z0-9_-]{10,64}$/).optional(),
+    yt_notify_subscribers: z.boolean().optional(),
+    yt_embeddable: z.boolean().optional(),
+    yt_license: z.enum(["youtube", "creativeCommon"]).optional(),
+    yt_language: z.enum(YT_LANGUAGES).optional(),
   })
   .strict();
 

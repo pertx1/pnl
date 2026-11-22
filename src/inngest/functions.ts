@@ -142,15 +142,38 @@ export const publishTarget = inngest.createFunction(
         }),
       );
 
+      const options = (target.platform_options ?? {}) as PlatformOptions;
+      // Miniatura de YouTube: solo una imagen JPG/PNG del MISMO proyecto que la publicación.
+      let thumbnail: { url: string; mime: string; bytes: () => Promise<ArrayBuffer> } | undefined;
+      if (platform === "youtube" && options.yt_thumbnail_asset_id) {
+        const { data: th } = await db
+          .from("assets")
+          .select("storage_path, mime_type, project_id")
+          .eq("id", options.yt_thumbnail_asset_id)
+          .maybeSingle();
+        const { data: postProject } = await db.from("posts").select("project_id").eq("id", claimed.postId).single();
+        if (th && postProject && th.project_id === postProject.project_id && /^image\/(jpeg|png)$/.test(th.mime_type)) {
+          const { data: signed } = await db.storage.from("project-media").createSignedUrl(th.storage_path, 60 * 60);
+          if (signed?.signedUrl) {
+            const url = signed.signedUrl;
+            thumbnail = { url, mime: th.mime_type, bytes: async () => (await fetch(url)).arrayBuffer() };
+          }
+        }
+      }
+
       try {
-        return await publishTo(platform, tokens, {
+        const out = await publishTo(platform, tokens, {
           externalId: account.external_id,
           caption: target.caption_override ?? post.caption,
           media,
           aiGenerated: post.ai_generated,
-          options: (target.platform_options ?? {}) as PlatformOptions,
+          options,
           aiDisclosure: AI_DISCLOSURE,
+          thumbnail,
         });
+        // Solo códigos (sin datos personales): pasos opcionales que no se pudieron completar.
+        if (out.warnings?.length) console.warn(`[publish] ${platform} avisos: ${out.warnings.join(",")}`);
+        return { externalPostId: out.externalPostId, url: out.url, warnings: out.warnings ?? [] };
       } catch (e) {
         // Errores de la plataforma que no se arreglan reintentando → no reintentar.
         if (e instanceof PlatformError && !["rate_limited", "unavailable"].includes(e.code)) throw new NonRetriableError(e.code);
@@ -162,7 +185,14 @@ export const publishTarget = inngest.createFunction(
       const db = admin();
       await db
         .from("post_targets")
-        .update({ status: "published", external_post_id: result.externalPostId, external_url: result.url ?? null, published_at: new Date().toISOString(), error_code: null })
+        .update({
+          status: "published",
+          external_post_id: result.externalPostId,
+          external_url: result.url ?? null,
+          published_at: new Date().toISOString(),
+          // Publicado, pero con algún paso opcional pendiente (p. ej. "warn:thumbnail_403").
+          error_code: result.warnings?.length ? `warn:${result.warnings.join(",")}`.slice(0, 120) : null,
+        })
         .eq("id", postTargetId);
       await settlePost(claimed.postId);
     });

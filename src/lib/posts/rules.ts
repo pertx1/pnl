@@ -17,7 +17,21 @@ export type PlatformOptions = {
   yt_title?: string;
   yt_privacy?: "public" | "unlisted" | "private";
   yt_made_for_kids?: boolean;
+  yt_tags?: string[];
+  yt_category_id?: (typeof YT_CATEGORIES)[number];
+  yt_thumbnail_asset_id?: string; // imagen de la biblioteca del proyecto (JPG/PNG, máx. 2 MB)
+  yt_playlist_id?: string;
+  yt_notify_subscribers?: boolean; // por defecto true
+  yt_embeddable?: boolean; // por defecto true
+  yt_license?: "youtube" | "creativeCommon";
+  yt_language?: (typeof YT_LANGUAGES)[number];
 };
+
+/** Categorías de YouTube asignables (ids estables de la Data API). */
+export const YT_CATEGORIES = ["22", "1", "2", "10", "15", "17", "19", "20", "23", "24", "25", "26", "27", "28", "29"] as const;
+export const YT_LANGUAGES = ["es", "en", "ca", "eu", "gl", "pt", "fr", "it", "de"] as const;
+/** YouTube limita las etiquetas a 500 caracteres en total. */
+export const ytTagsLength = (tags: string[] = []) => tags.reduce((n, t) => n + t.length + (t.includes(" ") ? 2 : 0), 0) + Math.max(0, tags.length - 1);
 
 export type MediaKind = "image" | "video";
 export type RuleViolation =
@@ -27,6 +41,7 @@ export type RuleViolation =
   | "instagram_media_required"
   | "youtube_video_required"
   | "youtube_title_required"
+  | "youtube_tags_too_long"
   | "caption_too_long";
 
 const CAPTION_MAX: Record<string, number> = { tiktok: 2200, instagram: 2200, youtube: 5000 };
@@ -49,6 +64,7 @@ export function validateTarget(
   if (platform === "youtube") {
     if (media.filter((m) => m === "video").length !== 1) v.push("youtube_video_required");
     if (!options.yt_title?.trim()) v.push("youtube_title_required");
+    if (ytTagsLength(options.yt_tags) > 500) v.push("youtube_tags_too_long");
   }
   return v;
 }

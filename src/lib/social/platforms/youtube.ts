@@ -10,6 +10,9 @@ import { PlatformError, type PlatformAdapter, type TokenSet } from "../types";
 const SCOPES = [
   "https://www.googleapis.com/auth/youtube.upload",
   "https://www.googleapis.com/auth/youtube.readonly",
+  // Añadir el vídeo a una lista de reproducción (playlistItems.insert) exige youtube.force-ssl:
+  // youtube.upload solo permite subir y poner miniatura.
+  "https://www.googleapis.com/auth/youtube.force-ssl",
   "https://www.googleapis.com/auth/yt-analytics.readonly",
 ];
 
