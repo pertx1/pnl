@@ -7,6 +7,7 @@ import {
   HandCoins,
   Inbox,
   LayoutDashboard,
+  LayoutTemplate,
   Lightbulb,
   Map,
   PackageSearch,
@@ -38,6 +39,7 @@ export const PROJECT_NAV: { label: string; items: { path: string; icon: NavIcon;
     label: "groupPublish",
     items: [
       { path: "calendar", icon: CalendarDays, label: "calendar", also: ["posts"] },
+      { path: "templates", icon: LayoutTemplate, label: "templates" },
       { path: "inbox", icon: Inbox, label: "inbox" },
       { path: "accounts", icon: Plug, label: "accounts" },
     ],
@@ -75,6 +77,7 @@ export const GLOBAL_NAV: { href: string; icon: NavIcon; label: string }[] = [
 export const createHrefs = {
   newPost: (projectId: string) => `/app/p/${projectId}/posts/new`,
   generate: (projectId: string) => `/app/p/${projectId}/studio`,
+  fromTemplate: (projectId: string) => `/app/p/${projectId}/templates`,
   newProject: "/app/projects/new",
 };
 

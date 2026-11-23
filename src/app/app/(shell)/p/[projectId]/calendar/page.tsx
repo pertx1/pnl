@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { getFormatter, getTranslations } from "next-intl/server";
-import { Plus, Sparkles, X } from "lucide-react";
+import { LayoutTemplate, Plus, Sparkles, X } from "lucide-react";
 import { CalendarView } from "@/components/calendar/calendar-view";
 import { StatusBadge } from "@/components/kreo/status-badge";
 import { PlatformIcon } from "@/components/social/platform-icon";
@@ -20,6 +20,7 @@ export default async function ProjectCalendarPage({ params, searchParams }: { pa
   const { view, d, status } = await searchParams;
   const t = await getTranslations("calendar");
   const tp = await getTranslations("posts");
+  const ttpl = await getTranslations("templates");
   const format = await getFormatter();
   const project = await getProject(projectId);
   // ?status=… (enlaces del panel): lista filtrada por estado en lugar del calendario.
@@ -36,11 +37,18 @@ export default async function ProjectCalendarPage({ params, searchParams }: { pa
           <h1 className="text-[28px] leading-tight font-medium">{t("title")}</h1>
         </div>
         {canEdit && (
-          <Button asChild>
-            <Link href={`/app/p/${projectId}/posts/new`}>
-              <Plus /> {tp("new")}
-            </Link>
-          </Button>
+          <div className="flex flex-wrap gap-2">
+            <Button asChild variant="outline">
+              <Link href={`/app/p/${projectId}/templates`}>
+                <LayoutTemplate aria-hidden /> {ttpl("metaTitle")}
+              </Link>
+            </Button>
+            <Button asChild>
+              <Link href={`/app/p/${projectId}/posts/new`}>
+                <Plus /> {tp("new")}
+              </Link>
+            </Button>
+          </div>
         )}
       </div>
       {filter ? (

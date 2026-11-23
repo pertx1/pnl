@@ -97,6 +97,9 @@
     "newPost": "New post",
     "generateAI": "Generate with AI",
     "newProject": "New project",
+    "templates": "Templates",
+    "fromTemplate": "From template",
+    "templatesKeywords": "templates series hashtags saved texts snippets",
     "chooseProject": "Choose a project",
     "noProjectsYet": "Create a project to start posting.",
     "search": "Search",
@@ -522,6 +525,7 @@
       "shortsHint": "Vertical videos up to 3 minutes are published as Shorts automatically."
     },
     "rules": {
+      "too_many_hashtags": "Too many hashtags for this network (Instagram: max 30; YouTube: max 60).",
       "tiktok_privacy_required": "TikTok: choose who can view the post.",
       "tiktok_media_required": "TikTok: add a video or photos.",
       "tiktok_branded_private": "TikTok: branded content can't be private.",

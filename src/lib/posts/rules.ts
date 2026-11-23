@@ -42,9 +42,22 @@ export type RuleViolation =
   | "youtube_video_required"
   | "youtube_title_required"
   | "youtube_tags_too_long"
-  | "caption_too_long";
+  | "caption_too_long"
+  | "too_many_hashtags";
 
-const CAPTION_MAX: Record<string, number> = { tiktok: 2200, instagram: 2200, youtube: 5000 };
+/** Máximo de caracteres del texto por plataforma. */
+export const CAPTION_MAX: Record<string, number> = { tiktok: 2200, instagram: 2200, youtube: 5000 };
+/**
+ * Máximo de hashtags por plataforma (null = sin límite propio; manda el de caracteres).
+ * Instagram rechaza publicaciones con más de 30; YouTube ignora todos los hashtags si hay más de 60.
+ */
+export const HASHTAG_MAX: Record<string, number | null> = { instagram: 30, youtube: 60, tiktok: null };
+
+/** Hashtags de un texto (#palabra, sin contar anclas de URL como "web.com/#a"). */
+export function extractHashtags(text: string): string[] {
+  return [...text.matchAll(/(?:^|[^\p{L}\p{N}_&/#])#([\p{L}\p{N}_]+)/gu)].map((m) => `#${m[1]}`);
+}
+export const countHashtags = (text: string) => extractHashtags(text).length;
 
 export function validateTarget(
   platform: string,
@@ -54,6 +67,8 @@ export function validateTarget(
 ): RuleViolation[] {
   const v: RuleViolation[] = [];
   if (caption.length > (CAPTION_MAX[platform] ?? 2200)) v.push("caption_too_long");
+  const maxTags = HASHTAG_MAX[platform];
+  if (maxTags != null && countHashtags(caption) > maxTags) v.push("too_many_hashtags");
   if (platform === "tiktok") {
     if (!options.privacy_level) v.push("tiktok_privacy_required");
     if (!media.length) v.push("tiktok_media_required");

@@ -4,6 +4,7 @@ import type { McpOAuthFunctions, McpOAuthTables } from "./types/mcp-oauth";
 import type { ResearchFunctions, ResearchTables } from "./types/research";
 import type { StrategyFunctions, StrategyTables } from "./types/strategy";
 import type { TeamFunctions, TeamTables } from "./types/team";
+import type { TemplatesFunctions, TemplatesTables } from "./types/templates";
 
 // Tipos de la base de datos. Regenerar tras cada migración (MCP de Supabase o `supabase gen types`).
 export type Json = string | number | boolean | null | { [key: string]: Json | undefined } | Json[];
@@ -74,8 +75,8 @@ export type Database = {
         Relationships: [];
       };
       posts: {
-        Row: { id: string; workspace_id: string; project_id: string; title: string | null; caption: string; asset_ids: string[]; ai_generated: boolean; status: PostStatus; scheduled_at: string | null; created_by: string | null; approved_by: string | null; approved_at: string | null; created_at: string; updated_at: string };
-        Insert: { workspace_id: string; project_id: string; title?: string | null; caption?: string; asset_ids?: string[]; ai_generated?: boolean; scheduled_at?: string | null; created_by: string };
+        Row: { id: string; workspace_id: string; project_id: string; title: string | null; caption: string; asset_ids: string[]; ai_generated: boolean; status: PostStatus; scheduled_at: string | null; created_by: string | null; approved_by: string | null; approved_at: string | null; created_at: string; updated_at: string; series_id: string | null };
+        Insert: { id?: string; workspace_id: string; project_id: string; title?: string | null; caption?: string; asset_ids?: string[]; ai_generated?: boolean; scheduled_at?: string | null; created_by: string; series_id?: string | null };
         Update: { title?: string | null; caption?: string; asset_ids?: string[]; ai_generated?: boolean; scheduled_at?: string | null; status?: PostStatus };
         Relationships: [
           { foreignKeyName: "posts_project_id_fkey"; columns: ["project_id"]; isOneToOne: false; referencedRelation: "projects"; referencedColumns: ["id"] },
@@ -138,7 +139,7 @@ export type Database = {
           { foreignKeyName: "workspaces_plan_id_fkey"; columns: ["plan_id"]; isOneToOne: false; referencedRelation: "plans"; referencedColumns: ["id"] },
         ];
       };
-    } & ResearchTables & StrategyTables & InboxTables & TeamTables & CommerceTables & McpOAuthTables;
+    } & ResearchTables & StrategyTables & InboxTables & TeamTables & CommerceTables & McpOAuthTables & TemplatesTables;
     Views: { [_ in never]: never };
     Functions: {
       consume_credits: {
@@ -176,7 +177,7 @@ export type Database = {
       waitlist_confirm: { Args: { p_token: string }; Returns: string | null };
       waitlist_unsubscribe: { Args: { p_token: string }; Returns: boolean };
       waitlist_status: { Args: { p_code: string }; Returns: { rank_position: number; total: number; referrals: number }[] };
-    } & ResearchFunctions & StrategyFunctions & InboxFunctions & TeamFunctions & CommerceFunctions & McpOAuthFunctions;
+    } & ResearchFunctions & StrategyFunctions & InboxFunctions & TeamFunctions & CommerceFunctions & McpOAuthFunctions & TemplatesFunctions;
     Enums: { workspace_role: WorkspaceRole; social_platform: SocialPlatform; connection_status: ConnectionStatus; post_status: PostStatus };
     CompositeTypes: { [_ in never]: never };
   };

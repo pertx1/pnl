@@ -47,6 +47,7 @@ export default async function StudioPage({ params }: { params: Promise<{ project
 
       <StudioWorkspace
         audio={{ enabled: audioEnabled, voices }}
+        canPost={canEdit}
         projectId={projectId}
         balance={balance}
         enabled={enabled}
