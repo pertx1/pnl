@@ -6,7 +6,7 @@ import { appUrl } from "@/lib/env";
 import { RATE_LIMIT } from "@/lib/mcp/keys";
 import { requireUser } from "@/lib/server/dal";
 import { createClient } from "@/lib/supabase/server";
-import { CopyField, CreateKeyForm, RevokeAppButton, RevokeKeyButton } from "./api-keys-client";
+import { CopyField, CreateKeyForm, CreditPolicy, RevokeAppButton, RevokeKeyButton } from "./api-keys-client";
 
 export async function generateMetadata() {
   const t = await getTranslations("commerce.apiKeys");
@@ -19,14 +19,16 @@ export default async function ApiKeysPage() {
   const format = await getFormatter();
   await requireUser();
   const supabase = await createClient();
-  const { data: keys } = await supabase.from("mcp_api_keys").select("id, name, prefix, created_at, last_used_at, revoked_at").order("created_at", { ascending: false });
+  const { data: keys } = await supabase.from("mcp_api_keys").select("id, name, prefix, created_at, last_used_at, revoked_at, allow_credit_spend, daily_credit_cap").order("created_at", { ascending: false });
   // Apps conectadas por OAuth (RLS: cada usuario ve solo las suyas).
   const { data: apps } = await supabase
     .from("mcp_oauth_grants")
-    .select("id, client_name, client_host, created_at, last_used_at, workspaces(name)")
+    .select("id, client_name, client_host, created_at, last_used_at, allow_credit_spend, daily_credit_cap, workspaces(name)")
     .is("revoked_at", null)
     .order("created_at", { ascending: false })
     .limit(30);
+  const { data: usage } = await supabase.rpc("my_mcp_credit_usage_today");
+  const used = (kind: "oauth" | "api_key", id: string) => usage?.find((u) => u.source_kind === kind && u.source_id === id)?.credits ?? 0;
   const active = (keys ?? []).filter((k) => !k.revoked_at);
   const revoked = (keys ?? []).filter((k) => k.revoked_at).slice(0, 10);
   const serverUrl = `${appUrl()}/api/mcp`;
@@ -72,6 +74,7 @@ export default async function ApiKeysPage() {
                     </div>
                   </div>
                   <RevokeAppButton id={a.id} name={a.client_name || a.client_host} />
+                  <CreditPolicy kind="oauth" id={a.id} allow={a.allow_credit_spend} cap={a.daily_credit_cap} usedToday={used("oauth", a.id)} />
                 </li>
               ))}
             </ul>
@@ -107,6 +110,7 @@ export default async function ApiKeysPage() {
                     </div>
                   </div>
                   <RevokeKeyButton id={k.id} name={k.name} />
+                  <CreditPolicy kind="api_key" id={k.id} allow={k.allow_credit_spend} cap={k.daily_credit_cap} usedToday={used("api_key", k.id)} />
                 </li>
               ))}
             </ul>

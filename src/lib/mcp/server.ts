@@ -24,6 +24,8 @@ import { modelsCostText, startStudioGeneration } from "./studio";
  *  - create_draft_post crea un BORRADOR o lo envía a aprobación; la aprobación es siempre humana en Kreo.
  *  - draft_reply devuelve un borrador; nunca envía.
  *  - generate_image / generate_video cobran los mismos créditos que el Estudio y devuelven los créditos si fallan.
+ *  - Toda herramienta que gasta créditos exige el interruptor «permitir gastar créditos» de la conexión (apagado por
+ *    defecto) y respeta su tope diario (mcp_credit_reserve, atómico).
  */
 
 type Db = SupabaseClient<Database>;
@@ -43,6 +45,23 @@ const DRAFT_REPLY_CREDITS = 1;
 const TASKS_MILESTONE = "Tareas";
 
 class ToolError extends Error {}
+
+/** Cupo de créditos de esta conexión (interruptor «permitir gastar créditos» + tope diario, en Ajustes › Claves API). */
+function creditBudget(ctx: McpContext) {
+  return {
+    reserve: async (credits: number) => {
+      const { data, error } = await ctx.db.rpc("mcp_credit_reserve", { p_kind: ctx.via, p_id: ctx.keyId, p_amount: credits });
+      if (error || !data) return "disabled" as const; // ante la duda, no se gasta
+      return data;
+    },
+    release: async (credits: number) => {
+      await ctx.db.rpc("mcp_credit_release", { p_kind: ctx.via, p_id: ctx.keyId, p_amount: credits });
+    },
+  };
+}
+const CREDITS_DISABLED_MSG =
+  "Esta conexión no tiene permiso para gastar créditos. El usuario puede activarlo en Kreo › Ajustes › Claves API › «Permitir gastar créditos» (con un tope diario).";
+const CREDIT_CAP_MSG = "Se ha alcanzado el tope diario de créditos de esta conexión. El usuario puede subirlo en Kreo › Ajustes › Claves API, o esperar a mañana (UTC).";
 
 const json = (data: unknown) => ({ content: [{ type: "text" as const, text: JSON.stringify(data, null, 2) }] });
 const fail = (code: string, message: string) => ({ content: [{ type: "text" as const, text: JSON.stringify({ error: code, message }) }], isError: true });
@@ -139,7 +158,7 @@ export function createKreoMcpServer(ctx: McpContext) {
       instructions:
         "Kreo es la herramienta de contenido para redes sociales del usuario (TikTok, Instagram, YouTube). Empieza con get_overview para ver espacios, proyectos y cuentas. " +
         "Usa get_calendar y get_free_slots para planificar; list_tasks/create_task/update_task para las tareas del roadmap; create_draft_post para proponer publicaciones; " +
-        "generate_image/generate_video + get_generation para crear medios con IA (cuestan créditos: indícalo antes). Kreo NUNCA publica ni aprueba desde aquí: " +
+        "generate_image/generate_video + get_generation para crear medios con IA (cuestan créditos: indícalo antes; solo funcionan si el usuario activó «permitir gastar créditos» para esta conexión en Ajustes, con tope diario). Kreo NUNCA publica ni aprueba desde aquí: " +
         "todo queda como borrador o pendiente de aprobación humana en Kreo. Las fechas y horas se expresan en la zona horaria indicada (por defecto Europe/Madrid).",
     },
   );
@@ -740,9 +759,12 @@ export function createKreoMcpServer(ctx: McpContext) {
         sourceAssetId: a.source_asset_id,
         useBrandColors: a.use_brand_colors ?? true,
         idempotencyKey: a.idempotency_key ?? crypto.randomUUID(),
+        budget: creditBudget(ctx),
       });
       if (!r.ok) {
         const msg: Record<string, string> = {
+          credits_disabled: CREDITS_DISABLED_MSG,
+          credit_cap_reached: CREDIT_CAP_MSG,
           not_configured: "La generación con IA aún no está configurada en este servidor de Kreo.",
           invalid_model: `Modelo no válido. Opciones: ${modelsCostText(kind)}.`,
           invalid_duration: "Duración no admitida por ese modelo.",
@@ -999,6 +1021,9 @@ export function createKreoMcpServer(ctx: McpContext) {
     safe(async (a: { project_id: string; message: string; context?: string; tone?: string; language: "es" | "en" }) => {
       const p = await projectFor(ctx, a.project_id, "editor");
       if (!isAgentsConfigured()) throw new ToolError("not_configured");
+      const budget = creditBudget(ctx);
+      const b = await budget.reserve(DRAFT_REPLY_CREDITS);
+      if (b !== "ok") return fail(b === "disabled" ? "credits_disabled" : "credit_cap_reached", b === "disabled" ? CREDITS_DISABLED_MSG : CREDIT_CAP_MSG);
       const { data: genId, error } = await ctx.db.rpc("mcp_start_ai_generation", {
         p_user_id: ctx.userId,
         p_project_id: p.id,
@@ -1011,7 +1036,10 @@ export function createKreoMcpServer(ctx: McpContext) {
         p_license: { name: "Anthropic Commercial Terms", commercialUse: true },
         p_idempotency_key: crypto.randomUUID(),
       });
-      if (error || !genId) throw new ToolError(error?.message.includes("insufficient_credits") ? "insufficient_credits" : "forbidden");
+      if (error || !genId) {
+        await budget.release(DRAFT_REPLY_CREDITS);
+        throw new ToolError(error?.message.includes("insufficient_credits") ? "insufficient_credits" : "forbidden");
+      }
       try {
         const { data: kit } = await ctx.db.from("brand_kits").select("tone_of_voice, target_audience, banned_words, colors").eq("project_id", p.id).maybeSingle();
         const out = await draftReply(

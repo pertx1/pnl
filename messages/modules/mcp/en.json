@@ -19,7 +19,7 @@
       "can": {
         "read": "View projects, the publishing calendar, free slots, tasks, your accounts' metrics, Shopify sales and saved competitors and products.",
         "drafts": "Create post drafts and tasks, and send them for approval (if you are an editor).",
-        "ai": "Generate AI images and videos using the workspace's credits. The app knows each model's cost, but Kreo will not ask you to confirm: review each action before accepting it in the app."
+        "ai": "Generate images, videos and AI replies using workspace credits. It stays off until you turn on «Allow spending credits» in Settings › API keys, with a daily cap."
       },
       "cannotTitle": "It will never be able to",
       "cannot": "Approve, publish or send anything, or change your password, plan or connected accounts.",
@@ -65,6 +65,16 @@
       "cancel": "Cancel",
       "revoked": "Access revoked.",
       "error": "Couldn't revoke. If you use 2FA, verify it again."
+    },
+    "credits": {
+      "label": "Allow spending credits",
+      "help": "When off, this connection can't generate images, videos or AI replies.",
+      "cap": "Daily cap",
+      "capUnit": "credits/day",
+      "usedToday": "Today: {used} of {cap}",
+      "save": "Save",
+      "saved": "Saved.",
+      "error": "Couldn't save. If you use 2FA, verify it again."
     }
   }
 }

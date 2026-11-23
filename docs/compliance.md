@@ -439,3 +439,5 @@ de cada módulo en `docs/compliance/{research,strategy,inbox,commerce,team}.md`)
   3. Definir `MCP_OAUTH_RATE_SALT` en Vercel (secreto propio, no derivado de la clave de Supabase).
   4. Conectar Inngest para que corra `data-retention`.
   5. Abogado: revisar el apartado 6.1 de la política de privacidad y el punto 15 de los términos.
+
+- **2026-11-23 · MCP — gasto de créditos**: resuelto el hallazgo 4 de la revisión del conector. Las herramientas que gastan créditos (generate_image, generate_video, draft_reply) exigen el interruptor «permitir gastar créditos» de cada conexión (apagado por defecto) y un tope diario atómico (`mcp_credit_reserve`, migración `20261123180000_mcp_credit_policy.sql`).

@@ -37,3 +37,16 @@ export async function revokeConnectedApp(id: string): Promise<ApiKeyResult> {
   revalidatePath("/app/settings/api-keys");
   return { ok: true };
 }
+
+/** Interruptor «permitir gastar créditos» y tope diario de una app conectada o API key propia. */
+export async function setCreditPolicy(kind: "oauth" | "api_key", id: string, allow: boolean, cap: number): Promise<ApiKeyResult> {
+  const parsed = z
+    .object({ kind: z.enum(["oauth", "api_key"]), id: z.uuid(), allow: z.boolean(), cap: z.number().int().min(0).max(100000) })
+    .safeParse({ kind, id, allow, cap });
+  if (!parsed.success) return { error: "invalid_input" };
+  const supabase = await createClient();
+  const { error } = await supabase.rpc("set_mcp_credit_policy", { p_kind: parsed.data.kind, p_id: parsed.data.id, p_allow: parsed.data.allow, p_cap: parsed.data.cap });
+  if (error) return { error: "forbidden" };
+  revalidatePath("/app/settings/api-keys");
+  return { ok: true };
+}

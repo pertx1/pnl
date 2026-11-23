@@ -19,7 +19,7 @@
       "can": {
         "read": "Ver proyectos, calendario de publicaciones, huecos libres, tareas, métricas de tus cuentas, ventas de Shopify y competidores y productos guardados.",
         "drafts": "Crear borradores de publicaciones y tareas, y enviarlas a aprobación (si eres editor).",
-        "ai": "Generar imágenes y vídeos con IA gastando créditos del espacio. La app conoce el coste de cada modelo, pero Kreo no te pedirá confirmación: revisa cada acción antes de aceptarla en la app."
+        "ai": "Generar imágenes, vídeos y respuestas con IA gastando créditos del espacio. Está desactivado hasta que lo actives en Ajustes › Claves API › «Permitir gastar créditos», con un tope diario."
       },
       "cannotTitle": "Nunca podrá",
       "cannot": "Aprobar, publicar ni enviar nada, ni cambiar tu contraseña, tu plan o tus cuentas conectadas.",
@@ -65,6 +65,16 @@
       "cancel": "Cancelar",
       "revoked": "Acceso revocado.",
       "error": "No se ha podido revocar. Si tienes 2FA, vuelve a verificarla."
+    },
+    "credits": {
+      "label": "Permitir gastar créditos",
+      "help": "Si está apagado, esta conexión no puede generar imágenes, vídeos ni respuestas con IA.",
+      "cap": "Tope diario",
+      "capUnit": "créditos/día",
+      "usedToday": "Hoy: {used} de {cap}",
+      "save": "Guardar",
+      "saved": "Guardado.",
+      "error": "No se ha podido guardar. Si tienes 2FA, vuelve a verificarla."
     }
   }
 }

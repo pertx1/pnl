@@ -43,7 +43,7 @@ export type CommerceTables = {
     Relationships: [];
   };
   mcp_api_keys: {
-    Row: { id: string; user_id: string; name: string; prefix: string; key_hash: string; last_used_at: string | null; revoked_at: string | null; created_at: string };
+    Row: { id: string; user_id: string; name: string; prefix: string; key_hash: string; last_used_at: string | null; revoked_at: string | null; created_at: string; allow_credit_spend: boolean; daily_credit_cap: number };
     Insert: never;
     Update: { last_used_at?: string | null };
     Relationships: [];

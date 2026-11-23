@@ -61,6 +61,8 @@ export type McpOAuthTables = {
       last_used_at: string | null;
       revoked_at: string | null;
       created_at: string;
+      allow_credit_spend: boolean;
+      daily_credit_cap: number;
     };
     Insert: never;
     Update: never;
@@ -70,6 +72,12 @@ export type McpOAuthTables = {
   };
   mcp_oauth_tokens: {
     Row: { id: string; grant_id: string; kind: "access" | "refresh"; token_hash: string; expires_at: string; used_at: string | null; revoked_at: string | null; created_at: string };
+    Insert: never;
+    Update: never;
+    Relationships: [];
+  };
+  mcp_credit_usage: {
+    Row: { source_kind: "oauth" | "api_key"; source_id: string; day: string; credits: number };
     Insert: never;
     Update: never;
     Relationships: [];
@@ -120,4 +128,9 @@ export type McpOAuthFunctions = {
   mcp_oauth_revoke_token: { Args: { p_hash: string; p_client_id: string | null }; Returns: undefined };
   revoke_mcp_oauth_grant: { Args: { p_id: string }; Returns: undefined };
   mcp_oauth_rate_limit_hit: { Args: { p_subject: string; p_per_minute: number; p_per_day: number }; Returns: boolean };
+  // Migración 20261123180000_mcp_credit_policy.sql
+  mcp_credit_reserve: { Args: { p_kind: "oauth" | "api_key"; p_id: string; p_amount: number }; Returns: "ok" | "disabled" | "cap_reached" };
+  mcp_credit_release: { Args: { p_kind: "oauth" | "api_key"; p_id: string; p_amount: number }; Returns: undefined };
+  set_mcp_credit_policy: { Args: { p_kind: "oauth" | "api_key"; p_id: string; p_allow: boolean; p_cap: number }; Returns: undefined };
+  my_mcp_credit_usage_today: { Args: Record<string, never>; Returns: { source_kind: "oauth" | "api_key"; source_id: string; credits: number }[] };
 };

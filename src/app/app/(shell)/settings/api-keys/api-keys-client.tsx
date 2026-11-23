@@ -7,8 +7,9 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
 import { cn } from "@/lib/utils";
-import { createApiKey, revokeApiKey, revokeConnectedApp } from "./actions";
+import { createApiKey, revokeApiKey, revokeConnectedApp, setCreditPolicy } from "./actions";
 
 export function CopyField({ label, value, mono, multiline }: { label?: string; value: string; mono?: boolean; multiline?: boolean }) {
   const t = useTranslations("commerce.apiKeys");
@@ -158,6 +159,69 @@ export function RevokeAppButton({ id, name }: { id: string; name: string }) {
       <Button variant="ghost" size="sm" onClick={() => setConfirming(false)}>
         {t("cancel")}
       </Button>
+    </div>
+  );
+}
+
+/** Interruptor «permitir gastar créditos» + tope diario de una conexión MCP (app OAuth o API key). */
+export function CreditPolicy({ kind, id, allow, cap, usedToday }: { kind: "oauth" | "api_key"; id: string; allow: boolean; cap: number; usedToday: number }) {
+  const t = useTranslations("mcpOAuth.credits");
+  const [on, setOn] = useState(allow);
+  const [value, setValue] = useState(String(cap));
+  const [pending, start] = useTransition();
+  const switchId = useId();
+  const capId = useId();
+  const helpId = useId();
+  const save = (nextOn: boolean, nextCap: string) =>
+    start(async () => {
+      const n = Math.max(0, Math.min(100000, Math.floor(Number(nextCap) || 0)));
+      const r = await setCreditPolicy(kind, id, nextOn, n);
+      if (r.ok) toast.success(t("saved"));
+      else {
+        toast.error(t("error"));
+        setOn(allow);
+      }
+    });
+  return (
+    <div className="mt-2 flex w-full flex-wrap items-center gap-x-4 gap-y-2 rounded-md border bg-secondary/30 px-3 py-2 text-xs">
+      <div className="flex items-center gap-2">
+        <Switch
+          id={switchId}
+          size="sm"
+          checked={on}
+          disabled={pending}
+          aria-describedby={helpId}
+          onCheckedChange={(v) => {
+            setOn(v);
+            save(v, value);
+          }}
+        />
+        <Label htmlFor={switchId} className="text-xs font-medium">
+          {t("label")}
+        </Label>
+      </div>
+      {on && (
+        <form
+          className="flex items-center gap-2"
+          onSubmit={(e) => {
+            e.preventDefault();
+            save(on, value);
+          }}
+        >
+          <Label htmlFor={capId} className="text-xs font-normal text-muted-foreground">
+            {t("cap")}
+          </Label>
+          <Input id={capId} type="number" inputMode="numeric" min={0} max={100000} step={1} value={value} onChange={(e) => setValue(e.target.value)} className="h-7 w-20 text-xs" />
+          <span className="text-muted-foreground">{t("capUnit")}</span>
+          <Button type="submit" variant="outline" size="sm" disabled={pending || value === String(cap)}>
+            {t("save")}
+          </Button>
+          <span className="text-muted-foreground tabular-nums">{t("usedToday", { used: usedToday, cap })}</span>
+        </form>
+      )}
+      <p id={helpId} className={cn("w-full text-muted-foreground", on && "sr-only")}>
+        {t("help")}
+      </p>
     </div>
   );
 }

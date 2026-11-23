@@ -2,6 +2,7 @@
 
 Lo más reciente arriba. Formato: fecha · decisión · por qué.
 
+- **2026-11-23** · Los asistentes de IA conectados (Claude, etc.) no gastan créditos salvo que Oier lo active por conexión, con tope diario (50 por defecto). Motivo: Kreo no puede garantizar que el asistente pida confirmación.
 - **2026-11-23** · Crear este cerebro en `docs/cerebro/` cargado desde `CLAUDE.md` · que cualquier chat de Claude Code siga el hilo sin explicaciones.
 - **2026-11-22** · No enviar todavía las revisiones de apps · faltan dominio propio, textos legales revisados y (Meta/Microsoft) empresa registrada; enviarlas ahora casi garantiza rechazo.
 - **2026-11-22** · Quitar permisos que el código no usa (YouTube Analytics, TikTok video.list/upload, IG insights) · las plataformas rechazan permisos sin uso.

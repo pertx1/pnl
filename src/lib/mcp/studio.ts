@@ -16,9 +16,14 @@ import type { Database } from "@/lib/supabase/database.types";
  */
 type Db = SupabaseClient<Database>;
 
+export type CreditBudget = {
+  reserve: (credits: number) => Promise<"ok" | "disabled" | "cap_reached">;
+  release: (credits: number) => Promise<void>;
+};
+
 export type StudioStart =
   | { ok: true; generationId: string; credits: number; model: string; alreadyStarted: boolean }
-  | { ok: false; error: "not_configured" | "invalid_model" | "invalid_duration" | "image_required" | "banned_word" | "insufficient_credits" | "forbidden" | "provider_error" | "generic" };
+  | { ok: false; error: "credits_disabled" | "credit_cap_reached" | "not_configured" | "invalid_model" | "invalid_duration" | "image_required" | "banned_word" | "insufficient_credits" | "forbidden" | "provider_error" | "generic" };
 
 /** Texto con los modelos y su coste en créditos, para las descripciones de las herramientas. */
 export function modelsCostText(kind: "image" | "video") {
@@ -44,6 +49,8 @@ export async function startStudioGeneration(
     sourceAssetId?: string;
     useBrandColors: boolean;
     idempotencyKey: string;
+    /** Cupo de créditos de la app conectada / API key: se reserva justo antes de cobrar. */
+    budget?: CreditBudget;
   },
 ): Promise<StudioStart> {
   const model = getModel(a.modelId);
@@ -70,6 +77,10 @@ export async function startStudioGeneration(
 
   const duration = model.kind === "video" ? (a.duration ?? model.durations?.[0]) : undefined;
   const credits = creditsFor(model, duration);
+  if (a.budget) {
+    const b = await a.budget.reserve(credits);
+    if (b !== "ok") return { ok: false, error: b === "disabled" ? "credits_disabled" : "credit_cap_reached" };
+  }
   const baseParams = { aspect: a.aspect, duration: duration ?? null, model_id: model.id, source_asset_id: a.sourceAssetId ?? null, via: "mcp" };
   const { data: generationId, error } = await db.rpc("mcp_start_ai_generation", {
     p_user_id: a.userId,
@@ -83,12 +94,16 @@ export async function startStudioGeneration(
     p_license: { ...LICENSE_NOTE, modelPage: model.modelPage },
     p_idempotency_key: `mcp:${a.userId}:${a.idempotencyKey}`,
   });
-  if (error || !generationId) return { ok: false, error: error?.message.includes("insufficient_credits") ? "insufficient_credits" : "forbidden" };
+  if (error || !generationId) {
+    await a.budget?.release(credits);
+    return { ok: false, error: error?.message.includes("insufficient_credits") ? "insufficient_credits" : "forbidden" };
+  }
 
   const { data: gen } = await db.from("ai_generations").select("id, workspace_id, status, params").eq("id", generationId).single();
   if (!gen) return { ok: false, error: "generic" };
-  // Reintento con la misma clave: no se cobra ni se envía otra vez.
+  // Reintento con la misma clave: no se cobra ni se envía otra vez (y no gasta cupo).
   const already = (gen.params as { status_url?: string } | null)?.status_url;
+  if (gen.status !== "running" || already) await a.budget?.release(credits);
   if (gen.status !== "running" || already) return { ok: true, generationId: gen.id, credits, model: model.label, alreadyStarted: true };
 
   try {

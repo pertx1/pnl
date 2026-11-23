@@ -31,7 +31,7 @@ Por prioridad. Claude: tacha `[x]` al terminar y anota el commit.
   - [x] Migración aplicada en Supabase (2026-11-23).
   - [ ] Probar el flujo real desde claude.ai (Ajustes › Conectores › Añadir conector personalizado).
   - [x] Revisión `seguridad-legal`: aprobado con condiciones (2026-11-23).
-  - [ ] Interruptor «permitir gastar créditos» por app conectada + tope diario de créditos vía MCP (decide Oier).
+  - [x] Interruptor «permitir gastar créditos» (apagado por defecto) + tope diario por app conectada y API key — 2026-11-23.
   - [ ] Declarar en las revisiones de Google y Meta que las métricas pueden llegar al asistente de IA del usuario (`docs/app-review/`).
   - [ ] Variable `MCP_OAUTH_RATE_SALT` propia en Vercel.
   - [x] Limpieza diaria de tokens/códigos caducados en `data-retention` (necesita Inngest).
