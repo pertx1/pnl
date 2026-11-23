@@ -4,6 +4,16 @@ La memoria compartida del proyecto. **Cualquier chat de Claude Code abierto en e
 (se carga desde `CLAUDE.md`) y **la actualiza al terminar**. Así Oier puede abrir un chat nuevo en cualquier momento
 y seguir donde se quedó, sin volver a explicar nada.
 
+## Dos partes, un solo cerebro
+
+- **Notion · «Cerebro de Oier»** (https://app.notion.com/p/421ecd20cb1d818a8eebe6ff7fbaa789): lo personal y del día a día,
+  accesible desde **cualquier chat de Claude** con el conector de Notion: Tareas (con Google Calendar), Vídeos, Ideas,
+  Decisiones y Diario. Las tareas de Oier sobre Kreo están allí con el prefijo «Kreo ·».
+- **Este repositorio · `docs/cerebro/`**: la parte técnica de Kreo (estado del sistema, pendientes de código).
+
+Si un chat de Claude Code tiene el conector de Notion, al terminar una tarea que afecte a Oier actualiza también Notion
+(tarea hecha → estado «Done»; nueva tarea suya → Tareas; decisión → Decisiones; resumen → Diario).
+
 ## Qué hay en cada archivo
 
 | Archivo | Para qué | Quién escribe |
