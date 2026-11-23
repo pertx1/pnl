@@ -4,6 +4,8 @@
       "metaTitle": "Authorize access to Kreo",
       "eyebrow": "Connect app",
       "title": "{client} wants to access your Kreo account",
+      "titleUnverified": "An app calling itself “{client}” wants to access your Kreo account",
+      "unverifiedBadge": "unverified name",
       "signedInAs": "Signed in as {email}",
       "notYou": "Not you? Sign out of Kreo and try again.",
       "verifiedBy": "Client identity verified by its domain: {host}",
@@ -15,12 +17,13 @@
       "role": "your role: {role}",
       "canTitle": "On your behalf it will be able to",
       "can": {
-        "read": "View projects, the publishing calendar, free slots, tasks and metrics.",
+        "read": "View projects, the publishing calendar, free slots, tasks, your accounts' metrics, Shopify sales and saved competitors and products.",
         "drafts": "Create post drafts and tasks, and send them for approval (if you are an editor).",
-        "ai": "Generate AI images and videos using the workspace's credits (it always tells you the cost)."
+        "ai": "Generate AI images and videos using the workspace's credits. The app knows each model's cost, but Kreo will not ask you to confirm: review each action before accepting it in the app."
       },
       "cannotTitle": "It will never be able to",
       "cannot": "Approve, publish or send anything, or change your password, plan or connected accounts.",
+      "dataNotice": "Whatever the app reads from Kreo will be passed to its provider (e.g. Anthropic for Claude) and governed by its terms and privacy policy.",
       "duration": "Access lasts until you revoke it in Settings › API keys & MCP › Connected apps (tokens expire every hour and renew automatically for up to 30 days of use).",
       "allow": "Allow",
       "allowing": "Authorizing…",

@@ -79,6 +79,7 @@ async function fetchCimd(url: string): Promise<ClientMetadata | null> {
   try {
     const res = await fetch(url, { redirect: "error", signal: ctrl.signal, headers: { Accept: "application/json" }, cache: "no-store" });
     if (!res.ok) return null;
+    if (Number(res.headers.get("content-length") ?? 0) > 10_000) return null; // no descargar cuerpos grandes
     const text = await res.text();
     if (text.length > 10_000) return null;
     return parseCimdDocument(JSON.parse(text), url);

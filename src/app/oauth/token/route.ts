@@ -45,7 +45,11 @@ async function readParams(request: NextRequest): Promise<Map<string, string> | n
   const basic = request.headers.get("authorization")?.match(/^Basic\s+([A-Za-z0-9+/=]+)$/i);
   if (basic && !out.has("client_id")) {
     const id = Buffer.from(basic[1], "base64").toString("utf8").split(":")[0];
-    if (id) out.set("client_id", decodeURIComponent(id));
+    try {
+      if (id) out.set("client_id", decodeURIComponent(id));
+    } catch {
+      return null; // %-codificación inválida → invalid_request (no un 500)
+    }
   }
   return out;
 }

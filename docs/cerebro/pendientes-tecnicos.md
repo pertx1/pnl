@@ -30,6 +30,9 @@ Por prioridad. Claude: tacha `[x]` al terminar y anota el commit.
 - [x] OAuth para el servidor MCP (conector de Claude.ai) — 2026-11-23, código hecho (migración `20261123100000_mcp_oauth.sql`).
   - [x] Migración aplicada en Supabase (2026-11-23).
   - [ ] Probar el flujo real desde claude.ai (Ajustes › Conectores › Añadir conector personalizado).
-  - [ ] Revisión `seguridad-legal` del servidor de autorización y de las herramientas nuevas del MCP.
-  - [ ] Tarea programada que borre tokens/códigos caducados de autorizaciones abandonadas (hoy la limpieza es perezosa).
+  - [x] Revisión `seguridad-legal`: aprobado con condiciones (2026-11-23).
+  - [ ] Interruptor «permitir gastar créditos» por app conectada + tope diario de créditos vía MCP (decide Oier).
+  - [ ] Declarar en las revisiones de Google y Meta que las métricas pueden llegar al asistente de IA del usuario (`docs/app-review/`).
+  - [ ] Variable `MCP_OAUTH_RATE_SALT` propia en Vercel.
+  - [x] Limpieza diaria de tokens/códigos caducados en `data-retention` (necesita Inngest).
 - [ ] Gmail en un proyecto de Google Cloud aparte (para no atar la verificación de YouTube a CASA).

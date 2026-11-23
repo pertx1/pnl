@@ -50,6 +50,20 @@ describe("huecos libres", () => {
     expect(days[0].free_windows[0].start).toBe("14:30");
   });
 
+  it("tiene en cuenta el día UTC con el que se comprueba el límite al aprobar", () => {
+    // Nueva York (UTC-5): las 20:00 del 24 son las 01:00 UTC del 25. Ese día UTC ya tiene 2 publicaciones (límite 2)
+    // aunque en el día local 24 no haya ninguna.
+    const ny = { ...acc, preferredHour: 20 };
+    const posts = [
+      { scheduledAt: "2026-11-25T02:00:00Z", status: "scheduled", accountIds: ["a1"] }, // 21:00 del 24 en NY → pero mismo día UTC 25
+      { scheduledAt: "2026-11-25T20:00:00Z", status: "approved", accountIds: ["a1"] }, // 15:00 del 25 en NY
+    ];
+    const [d] = computeFreeSlots({ days: ["2026-11-24"], tz: "America/New_York", now, accounts: [ny], posts, windowEndHour: 24 });
+    expect(d.accounts[0].planned).toBe(1); // solo la de las 21:00 cae en el día local 24
+    // Hora sugerida cercana a las 20:00 locales → día UTC 25, que ya está lleno.
+    expect(d.accounts[0]).toMatchObject({ remaining: 0, suggested_time: null });
+  });
+
   it("sugiere la franja libre más cercana a la hora preferida", () => {
     const posts = [{ scheduledAt: "2026-11-24T18:00:00Z", status: "approved", accountIds: ["other"] }];
     const [d] = computeFreeSlots({ days: ["2026-11-24"], tz: "Europe/Madrid", now, accounts: [{ ...acc, dailyLimit: 3 }], posts });

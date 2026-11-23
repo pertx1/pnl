@@ -122,6 +122,15 @@ If you enable the unified inbox, Kreo shows messages that third parties send you
 - **Retention by providers**: providers may temporarily keep requests for security and abuse prevention for the periods set out in their terms ([PERIODS PER PROVIDER]).
 - **Transparency**: AI-generated content is labelled as such within Kreo and, when published, we enable by default the "AI-generated content" labels offered by the platforms. See the [Terms and Conditions]([DOMINIO]/legal/terminos).
 
+### 6.1 AI assistants you connect to Kreo (MCP server and "connected apps")
+
+You can connect a third-party AI assistant (for example, Claude by Anthropic) to Kreo through our MCP server, with an OAuth authorization you grant on a Kreo consent screen or with a personal API key.
+
+- **What we store**: the name declared by the app, the address it returns to, the workspace you choose, the connection and last-use dates, and the access credentials **only as a cryptographic digest (hash)**, never in clear text. To prevent abuse we rate-limit requests per user or per a truncated digest of the IP address (we do not store the IP), deleted within 2 days at most.
+- **What the app receives**: only what it requests through the MCP tools within the authorized workspace and with your role (projects, calendar, tasks, your accounts' metrics, Shopify sales, saved competitors and products, AI results). From then on, processing by that app's provider is governed by its own terms and privacy policy: the disclosure is made at your request (Art. 6(1)(b) GDPR).
+- **What it cannot do**: approve, publish or send anything; everything stays as a draft or pending your approval in Kreo. It can spend workspace credits on AI generations if you have the editor role.
+- **Revoking**: in Settings > API keys & MCP > Connected apps, with immediate effect. Revoked authorizations are deleted after 30 days and expired ones the day after they expire. Connected apps are included in the data export and deleted with your account.
+
 ## 7. Shopify
 
 If you connect a Shopify store, we obtain products, orders (amount, date, products and discount codes used), discounts and store analytics, and we can create discount codes when you ask us to. We do not request store customers' name, email, phone or address unless a specific feature requires it and you enable it.
@@ -176,6 +185,7 @@ You can request a copy of the applicable safeguards by writing to [EMAIL DPD/PRI
 | AI-generated content saved in your library | Until you delete it or while the account is active |
 | Invoices and billing data | 6 years (Art. 30 Spanish Commercial Code) and the periods set by tax law |
 | Credit transactions | While the account is active and then for the applicable limitation periods, in blocked form |
+| Apps connected to the MCP server (OAuth authorizations) | Until you revoke them or they expire; then 30 days (revoked) or 1 day (expired). Per-IP rate limits (truncated digest): 2 days |
 | Security and access logs | [PERIOD, proposed: 90 days] |
 | Waitlist and marketing communications | Until you unsubscribe; proof of consent is kept blocked for the limitation period of potential infringements |
 | Data subject requests | [PERIOD, proposed: 3 years] to evidence how they were handled |

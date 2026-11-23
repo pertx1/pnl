@@ -381,7 +381,7 @@ de cada módulo en `docs/compliance/{research,strategy,inbox,commerce,team}.md`)
 > afiliados, DPA para clientes) y los avisos con efecto legal de estos módulos (bandeja/Gmail, informes a terceros, afiliados,
 > suscripciones) **antes del lanzamiento público**.
 
-## MCP · OAuth 2.1 para conectores de Claude + herramientas "cerebro" — 2026-11-23 — Estado: ⚠️ pendiente de revisión `seguridad-legal`
+## MCP · OAuth 2.1 para conectores de Claude + herramientas "cerebro" — 2026-11-23 — Estado: ⚠️ aprobado con condiciones
 - APIs usadas: ninguna de plataformas sociales nueva. fal.ai (ya existente) vía generate_image/generate_video. Descarga de
   Client ID Metadata Documents SOLO de hosts permitidos (`MCP_CIMD_ALLOWED_HOSTS`, por defecto claude.ai y claude.com).
 - Especificación: MCP 2026-07-28 (Authorization) y guía de conectores de Claude: OAuth 2.1 + PKCE S256, RFC 9728, RFC 8414,
@@ -395,5 +395,47 @@ de cada módulo en `docs/compliance/{research,strategy,inbox,commerce,team}.md`)
 - Mitigaciones: redirect URI exacta (puerto libre solo en loopback), https o loopback; sin redirección si cliente/URI no
   válidos; consentimiento con host de vuelta y aviso para loopback; anti-clickjacking (`frame-ancestors 'none'`);
   reutilización de código o de refresh rotado → revocación; auditoría en activity_log (`via: mcp_oauth`).
-- Pendiente: revisión `seguridad-legal`; mencionar en la política de privacidad las "apps conectadas" (OAuth) y su revocación;
-  incluir las apps conectadas en la exportación de datos.
+- Revisión `seguridad-legal` (2026-11-23, commit 4e76996). Verificado sin cambios: PKCE S256 obligatorio con comparación en
+  tiempo constante; código de un uso ligado a cliente + redirect_uri + challenge + recurso, y su reutilización revoca la
+  autorización; rotación de refresh con detección de reutilización; audiencia comprobada en cada petición al MCP; membresía
+  revalidada en cada token; sin open redirect (error en página propia si cliente/URI no válidos); parámetros repetidos rechazados;
+  la cookie de la petición pendiente se revalida entera y "Permitir" va ligado a su resumen; consentimiento con sesión + 2FA (aal2,
+  también en la función SQL); `frame-ancestors 'none'`; `safeNext` solo admite `/app…` y `/oauth/consent`; RLS en las 5 tablas
+  (solo el dueño ve sus apps conectadas) y funciones `SECURITY DEFINER` con `search_path` vacío y grants mínimos; SSRF de CIMD
+  acotado por lista cerrada de hosts (https, sin puerto ni credenciales, sin redirecciones, 5 s); loopback con puerto libre conforme
+  a RFC 8252 y aviso en el consentimiento; `create_draft_post` nunca aprueba ni publica (como mucho `pending_approval`, y la
+  aprobación sigue siendo humana vía `approve_post`, rol admin, con límite diario y cuenta activa); `draft_reply` nunca envía;
+  cada herramienta comprueba el rol con `member_role`; `ai_generated` del post se hereda de los medios (etiqueta IA).
+- Hallazgos y arreglos (sin commit):
+  - **[media · arreglado]** Phishing de consentimiento: el nombre de un cliente DCR lo escribe quien lo registra y salía como título
+    («X quiere acceder…»). Ahora, si no viene de un CIMD verificado por dominio, el título dice «Una app que dice llamarse «X»…» con
+    la marca «nombre no verificado» y el aviso en color de advertencia (`src/app/oauth/consent/page.tsx`, `messages/modules/mcp/*.json`).
+  - **[media · arreglado]** Retención: la limpieza perezosa solo borraba filas del mismo sujeto/autorización, así que los límites
+    por IP (hash) de otros sujetos, los tokens caducados de autorizaciones que no refrescan y las autorizaciones revocadas se
+    quedaban para siempre (la documentación prometía 2 días). Nueva limpieza diaria en `data-retention`
+    (`src/lib/mcp/oauth-retention.ts`): límites 10 min / 2 días, códigos y tokens caducados > 1 día, autorizaciones revocadas > 30 días
+    y abandonadas (sin tokens vigentes). **Depende de que Inngest esté conectado** (pendiente de Oier).
+  - **[media · arreglado]** RGPD: la exportación no incluía apps conectadas ni API keys → añadidas (solo metadatos, nunca hashes)
+    en `src/app/app/settings/export/route.ts`. Política de privacidad (es/en): nuevo apartado 6.1 «Asistentes de IA que conectas»
+    y fila en plazos de conservación (borrador, para el abogado).
+  - **[media · arreglado en texto, pendiente de producto]** `generate_image`/`generate_video` gastan créditos sin confirmación dentro
+    de Kreo (solo la del cliente de IA, si el usuario no la ha desactivado). No choca con la regla nº 1 (nada se publica), pero el
+    consentimiento prometía «siempre te dirá el coste», cosa que Kreo no puede garantizar → texto corregido. Recomendado: interruptor
+    por autorización «permitir gastar créditos» (desactivado por defecto) y tope diario de créditos vía MCP.
+  - **[baja · arreglado]** `get_free_slots` calculaba el hueco por día local pero `approve_post` comprueba el límite por día UTC:
+    podía sugerir una hora que luego no se aprueba. Ahora `remaining`/`suggested_time` también respetan el día UTC de la hora
+    sugerida y la consulta se amplía ±1 día (`src/lib/mcp/calendar.ts`, `server.ts`, test nuevo en `tests/unit/mcp-calendar.test.ts`).
+  - **[baja · arreglado]** `/oauth/token`: `client_id` mal %-codificado en `Authorization: Basic` daba 500 → ahora `invalid_request`.
+  - **[baja · arreglado]** CIMD: se descarta la respuesta si `Content-Length` > 10 KB antes de leer el cuerpo.
+  - **[baja · aceptado]** Límites por IP compartida (Claude sale por rangos compartidos): 600/min en token y 60/min en registro son
+    holgados y solo antiabuso; el límite real es por usuario (60/min, 2.000/día). Si la RPC falla el límite no bloquea (fail-open).
+  - **[baja · aceptado]** CIMD acepta cualquier ruta de `claude.ai`/`claude.com`; riesgo bajo porque esos hosts no sirven JSON
+    arbitrario de usuarios. Si Anthropic publica la ruta exacta del documento, fijarla.
+- Pendiente antes del lanzamiento:
+  1. **Datos de plataformas hacia el asistente de IA** (métricas de YouTube/Instagram vía `get_project_stats`): es una
+     transferencia a petición del usuario, pero hay que declararla en las revisiones de Google (Limited Use / YouTube API Services)
+     y Meta, y confirmarla con el abogado. Si Google o Meta la rechazan, excluir sus métricas del MCP.
+  2. Interruptor y tope diario de gasto de créditos por app conectada (ver arriba).
+  3. Definir `MCP_OAUTH_RATE_SALT` en Vercel (secreto propio, no derivado de la clave de Supabase).
+  4. Conectar Inngest para que corra `data-retention`.
+  5. Abogado: revisar el apartado 6.1 de la política de privacidad y el punto 15 de los términos.

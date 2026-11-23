@@ -334,8 +334,9 @@ export function createKreoMcpServer(ctx: McpContext) {
           .select("scheduled_at, status, post_targets(social_account_id)")
           .in("project_id", ids)
           .in("status", ["draft", ...PLANNED_STATUSES])
-          .gte("scheduled_at", r.startUtc)
-          .lt("scheduled_at", r.endUtc)
+          // ±1 día: el límite se comprueba al aprobar por día UTC, que puede salirse del rango local pedido.
+          .gte("scheduled_at", new Date(new Date(r.startUtc).getTime() - 86_400_000).toISOString())
+          .lt("scheduled_at", new Date(new Date(r.endUtc).getTime() + 86_400_000).toISOString())
           .limit(1000),
       ]);
       if (a.account_id && !accounts?.length) return fail("not_found", "Cuenta no encontrada o no activa en tus proyectos.");
@@ -364,7 +365,7 @@ export function createKreoMcpServer(ctx: McpContext) {
         days,
         notes: [
           "planned cuenta publicaciones pendientes de aprobar, aprobadas, programadas o publicadas; los borradores con fecha (drafts) ocupan franja pero no límite.",
-          "Kreo vuelve a comprobar el límite diario al aprobar: si se supera, la publicación no se programa.",
+          "Kreo vuelve a comprobar el límite diario al aprobar (por día UTC): si se supera, la publicación no se programa. remaining y suggested_time ya tienen en cuenta el día UTC de la hora sugerida.",
           (accounts ?? []).length ? "" : "No hay cuentas activas conectadas: conecta una en Kreo › Cuentas.",
         ].filter(Boolean),
       });

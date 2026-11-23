@@ -8,7 +8,7 @@ export async function GET() {
   if (!auth.user) return NextResponse.json({ error: "unauthorized" }, { status: 401 });
   const uid = auth.user.id;
 
-  const [profile, memberships, workspaces, projects, brandKits, ledger, socialAccounts, posts, postTargets, aiGenerations, assets] = await Promise.all([
+  const [profile, memberships, workspaces, projects, brandKits, ledger, socialAccounts, posts, postTargets, aiGenerations, assets, connectedApps, apiKeys] = await Promise.all([
     supabase.from("profiles").select("*").eq("id", uid).maybeSingle(),
     supabase.from("workspace_members").select("workspace_id, role, created_at").eq("user_id", uid),
     supabase.from("workspaces").select("id, name, plan_id, created_at"),
@@ -21,6 +21,9 @@ export async function GET() {
     supabase.from("post_targets").select("id, post_id, social_account_id, caption_override, platform_options, status, external_url, published_at"),
     supabase.from("ai_generations").select("id, project_id, kind, provider, model, prompt, status, credits_cost, license, created_at").eq("created_by", uid),
     supabase.from("assets").select("id, project_id, storage_path, mime_type, size_bytes, source, ai_generated, created_at").eq("created_by", uid),
+    // Apps conectadas por OAuth al MCP (Claude, etc.) y API keys personales: solo metadatos, nunca tokens ni hashes.
+    supabase.from("mcp_oauth_grants").select("id, workspace_id, client_id, client_name, client_host, scope, created_at, last_used_at, revoked_at").eq("user_id", uid),
+    supabase.from("mcp_api_keys").select("id, name, prefix, created_at, last_used_at, revoked_at").eq("user_id", uid),
   ]);
 
   const body = {
@@ -43,6 +46,8 @@ export async function GET() {
     post_targets: postTargets.data ?? [],
     ai_generations: aiGenerations.data ?? [],
     assets: assets.data ?? [],
+    mcp_connected_apps: connectedApps.data ?? [],
+    mcp_api_keys: apiKeys.data ?? [],
   };
 
   return new NextResponse(JSON.stringify(body, null, 2), {

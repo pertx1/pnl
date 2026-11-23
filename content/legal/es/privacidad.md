@@ -124,6 +124,15 @@ Si activas la bandeja unificada, Kreo muestra los mensajes que terceros te enví
 - **Conservación en el proveedor**: los proveedores pueden conservar temporalmente las peticiones para seguridad y prevención de abusos durante los plazos indicados en sus condiciones ([PLAZOS POR PROVEEDOR]).
 - **Transparencia**: el contenido generado con IA se marca como tal dentro de Kreo y, al publicarlo, activamos por defecto las etiquetas de "contenido generado con IA" que ofrecen las plataformas. Ver los [Términos y condiciones]([DOMINIO]/legal/terminos).
 
+### 6.1 Asistentes de IA que conectas a Kreo (servidor MCP y "apps conectadas")
+
+Puedes conectar a Kreo un asistente de IA de un tercero (por ejemplo, Claude, de Anthropic) mediante nuestro servidor MCP, con una autorización OAuth que das tú en una pantalla de consentimiento de Kreo o con una API key personal.
+
+- **Qué guardamos**: el nombre que declara la app, la dirección a la que vuelve, el espacio de trabajo que eliges, las fechas de conexión y de último uso, y las credenciales de acceso **solo como resumen criptográfico (hash)**, nunca en claro. Para frenar abusos limitamos las peticiones por usuario o por un resumen truncado de la dirección IP (no guardamos la IP), que se borra en un máximo de 2 días.
+- **Qué recibe la app**: solo lo que pide mediante las herramientas del MCP dentro del espacio de trabajo autorizado y con tu rol (proyectos, calendario, tareas, métricas de tus cuentas, ventas de Shopify, competidores y productos guardados, resultados de IA). Desde ese momento el tratamiento por parte del proveedor de esa app se rige por sus propias condiciones y su política de privacidad: la comunicación se hace a petición tuya (art. 6.1.b RGPD).
+- **Qué no puede hacer**: aprobar, publicar ni enviar nada; todo queda como borrador o pendiente de tu aprobación en Kreo. Sí puede gastar créditos del espacio de trabajo en generaciones de IA si tienes rol de editor.
+- **Revocar**: en Ajustes > API keys y MCP > Apps conectadas, con efecto inmediato. Las autorizaciones revocadas se borran a los 30 días y las caducadas al día siguiente de caducar. Las apps conectadas se incluyen en la exportación de datos y se borran con tu cuenta.
+
 ## 7. Shopify
 
 Si conectas una tienda Shopify, obtenemos productos, pedidos (importe, fecha, productos y códigos de descuento usados), descuentos y analíticas de la tienda, y podemos crear códigos de descuento cuando tú lo pides. No solicitamos nombre, email, teléfono ni dirección de los clientes de la tienda salvo que una función concreta lo requiera y la actives.
@@ -178,6 +187,7 @@ Puedes pedir una copia de las garantías aplicables escribiendo a [EMAIL DPD/PRI
 | Contenido generado con IA guardado en tu biblioteca | Mientras no lo borres o mientras la cuenta esté activa |
 | Facturas y datos de facturación | 6 años (art. 30 Código de Comercio) y los plazos de la normativa tributaria |
 | Movimientos de créditos | Mientras la cuenta esté activa y después durante los plazos de prescripción aplicables, de forma bloqueada |
+| Apps conectadas al servidor MCP (autorizaciones OAuth) | Hasta que las revoques o caduquen; después, 30 días (revocadas) o 1 día (caducadas). Límites de peticiones por IP (resumen truncado): 2 días |
 | Registros de seguridad y acceso | [PLAZO, propuesta: 90 días] |
 | Lista de espera y comunicaciones comerciales | Hasta que te des de baja; la prueba del consentimiento se conserva bloqueada durante el plazo de prescripción de las posibles infracciones |
 | Solicitudes de ejercicio de derechos | [PLAZO, propuesta: 3 años] para acreditar su atención |

@@ -26,13 +26,16 @@ export default async function ConsentPage() {
   const workspaces = await getWorkspaces();
   const name = pending.client.name || pending.redirectHost;
   // Un cliente registrado dinámicamente que se llama "Claude" pero no vuelve a claude.ai: posible suplantación.
+  const verifiedName = pending.client.kind === "cimd";
   const suspicious = pending.client.kind === "dcr" && /claude|anthropic|kreo/i.test(name) && !pending.loopbackOnly && !/(^|\.)claude\.ai$/i.test(pending.redirectHost);
 
   return (
     <div className="space-y-5">
       <div className="space-y-2">
         <p className="label-mono">{t("eyebrow")}</p>
-        <h1 className="text-[24px] leading-tight font-medium">{t("title", { client: name })}</h1>
+        {/* El nombre de un cliente DCR lo escribe quien lo registra (anti-phishing): se presenta como "dice llamarse". */}
+        <h1 className="text-[24px] leading-tight font-medium">{verifiedName ? t("title", { client: name }) : t("titleUnverified", { client: name })}</h1>
+        {!verifiedName && <p className="text-xs font-medium text-warning">{t("unverifiedBadge")}</p>}
         <p className="text-xs text-muted-foreground">
           {t("signedInAs", { email: user.email ?? "" })} · {t("notYou")}
         </p>
@@ -45,7 +48,10 @@ export default async function ConsentPage() {
             <span>{t("verifiedBy", { host: pending.clientIdHost })}</span>
           </p>
         ) : (
-          <p className="text-xs text-muted-foreground">{t("unverified")}</p>
+          <p className="flex items-start gap-2 text-xs text-warning">
+            <TriangleAlert className="mt-0.5 size-4 shrink-0" aria-hidden />
+            {t("unverified")}
+          </p>
         )}
         <p>
           <span className="text-muted-foreground">{t("redirectTo")} </span>
@@ -80,6 +86,7 @@ export default async function ConsentPage() {
           <Ban className="mt-0.5 size-4 shrink-0 text-muted-foreground" strokeWidth={1.5} aria-hidden />
           {t("cannot")}
         </p>
+        <p className="pt-1 text-xs text-muted-foreground">{t("dataNotice")}</p>
       </div>
 
       {workspaces.length === 0 ? (

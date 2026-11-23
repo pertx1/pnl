@@ -244,7 +244,12 @@ export const dataRetention = inngest.createFunction(
       const { count } = await admin().from("waitlist").delete({ count: "exact" }).is("confirmed_at", null).lt("consent_at", cutoff);
       return count ?? 0;
     });
-    return { waitlistDeleted: waitlist };
+    // Servidor OAuth del MCP: límites por IP/usuario, códigos, tokens caducados y autorizaciones revocadas o abandonadas.
+    const mcpOAuth = await step.run("mcp-oauth", async () => {
+      const { purgeMcpOAuth } = await import("@/lib/mcp/oauth-retention");
+      return purgeMcpOAuth(admin());
+    });
+    return { waitlistDeleted: waitlist, mcpOAuth };
   },
 );
 

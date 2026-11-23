@@ -4,6 +4,8 @@
       "metaTitle": "Autorizar acceso a Kreo",
       "eyebrow": "Conectar app",
       "title": "{client} quiere acceder a tu cuenta de Kreo",
+      "titleUnverified": "Una app que dice llamarse «{client}» quiere acceder a tu cuenta de Kreo",
+      "unverifiedBadge": "nombre no verificado",
       "signedInAs": "Has iniciado sesión como {email}",
       "notYou": "¿No eres tú? Cierra sesión en Kreo y vuelve a intentarlo.",
       "verifiedBy": "Identidad del cliente verificada por su dominio: {host}",
@@ -15,12 +17,13 @@
       "role": "tu rol: {role}",
       "canTitle": "Podrá, en tu nombre",
       "can": {
-        "read": "Ver proyectos, calendario de publicaciones, huecos libres, tareas y métricas.",
+        "read": "Ver proyectos, calendario de publicaciones, huecos libres, tareas, métricas de tus cuentas, ventas de Shopify y competidores y productos guardados.",
         "drafts": "Crear borradores de publicaciones y tareas, y enviarlas a aprobación (si eres editor).",
-        "ai": "Generar imágenes y vídeos con IA gastando créditos del espacio (siempre te dirá el coste)."
+        "ai": "Generar imágenes y vídeos con IA gastando créditos del espacio. La app conoce el coste de cada modelo, pero Kreo no te pedirá confirmación: revisa cada acción antes de aceptarla en la app."
       },
       "cannotTitle": "Nunca podrá",
       "cannot": "Aprobar, publicar ni enviar nada, ni cambiar tu contraseña, tu plan o tus cuentas conectadas.",
+      "dataNotice": "Lo que la app lea de Kreo pasará a su proveedor (por ejemplo, Anthropic en el caso de Claude) y se regirá por sus condiciones y su política de privacidad.",
       "duration": "El acceso dura hasta que lo revoques en Ajustes › API keys y MCP › Apps conectadas (los tokens caducan cada hora y se renuevan solos durante 30 días de uso).",
       "allow": "Permitir",
       "allowing": "Autorizando…",

@@ -126,7 +126,7 @@ export function computeFreeSlots(o: {
       const mine = posts.filter((p) => p.accountIds.includes(a.id));
       const planned = mine.filter((p) => (PLANNED_STATUSES as readonly string[]).includes(p.status)).length;
       const drafts = mine.filter((p) => p.status === "draft").length;
-      const remaining = Math.max(0, a.dailyLimit - planned);
+      let remaining = Math.max(0, a.dailyLimit - planned);
       let suggested: string | null = null;
       if (remaining > 0 && free.length) {
         const pref = a.preferredHour * 60;
@@ -137,6 +137,17 @@ export function computeFreeSlots(o: {
           if (!best || dist < best.dist) best = { at, dist };
         }
         if (best) suggested = hhmm(Math.ceil(best.at / 15) * 15);
+      }
+      // La aprobación (post_limit_violations) cuenta por día UTC, no por día local: si el día UTC de la hora sugerida ya
+      // está lleno (p. ej. por publicaciones de madrugada del día local siguiente), se avisa como sin hueco.
+      if (suggested) {
+        const [hh, mm] = suggested.split(":").map(Number);
+        const utcDay = zonedToUtc(day, hh * 60 + mm, o.tz).toISOString().slice(0, 10);
+        const plannedUtc = o.posts.filter(
+          (p) => p.accountIds.includes(a.id) && (PLANNED_STATUSES as readonly string[]).includes(p.status) && new Date(p.scheduledAt).toISOString().slice(0, 10) === utcDay,
+        ).length;
+        remaining = Math.min(remaining, Math.max(0, a.dailyLimit - plannedUtc));
+        if (remaining === 0) suggested = null;
       }
       return { account_id: a.id, platform: a.platform, handle: a.handle, daily_limit: a.dailyLimit, planned, drafts, remaining, suggested_time: suggested };
     });
