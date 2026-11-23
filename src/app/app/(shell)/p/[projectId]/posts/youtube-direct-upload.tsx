@@ -27,6 +27,7 @@ type Phase = { kind: "idle" } | { kind: "uploading"; sent: number } | { kind: "f
  * aprobar la publicación (approve_post, con sus límites diarios y anti-baneo).
  */
 export function YouTubeDirectUpload({
+  incomingFile,
   accountId,
   postId,
   status,
@@ -44,6 +45,8 @@ export function YouTubeDirectUpload({
   /** Estado de la publicación. */
   status: string;
   options: PlatformOptions;
+  /** Archivo grande elegido en «Medios»: se pasa aquí automáticamente (activa la subida directa). */
+  incomingFile?: File | null;
   /** `yt_direct_upload` tal y como está guardado (lo que se aprobó). */
   savedDirect?: YtDirectUpload;
   /** Hay Instagram o TikTok en la misma publicación. */
@@ -59,10 +62,13 @@ export function YouTubeDirectUpload({
   const fileInput = useRef<HTMLInputElement>(null);
   const abort = useRef<AbortController | null>(null);
   const session = useRef<{ url: string; targetId: string } | null>(null);
-  const [file, setFile] = useState<File | null>(null);
+  const [picked, setFile] = useState<File | null>(null);
   const [phase, setPhase] = useState<Phase>({ kind: "idle" });
   const direct = options.yt_direct_upload;
-  const [on, setOn] = useState(Boolean(direct));
+  const [onState, setOn] = useState(Boolean(direct));
+  // Un vídeo grande elegido en «Medios» llega como `incomingFile` (el editor ya guardó sus metadatos en yt_direct_upload).
+  const file = picked ?? (incomingFile && direct && sameFile(incomingFile, direct) ? incomingFile : null);
+  const on = onState || Boolean(direct);
   const busy = phase.kind === "uploading" || phase.kind === "finishing";
 
   // Aviso del navegador si se intenta cerrar o recargar a mitad de subida.

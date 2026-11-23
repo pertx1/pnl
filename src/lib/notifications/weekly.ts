@@ -4,7 +4,7 @@ import { addDays, DEFAULT_TZ, zonedParts, zonedToUtc } from "@/lib/mcp/calendar"
 import type { Database, Json } from "@/lib/supabase/database.types";
 import { notifyUsers, type Admin } from "./notify";
 import { composeText } from "./text";
-import { buildWeeklySummary, weeklyHasContent, weeklyPeriod, type WeeklySummary } from "./weekly-core";
+import { buildWeeklySummary, stripYouTubeData, weeklyHasContent, weeklyPeriod, type WeeklySummary } from "./weekly-core";
 
 /**
  * Carga los datos de un proyecto y arma su resumen semanal (ver weekly-core.ts).
@@ -64,6 +64,10 @@ export async function loadWeeklySummary(db: Db, project: { id: string; name: str
 export async function sendWeeklySummary(db: Admin, project: { id: string; name: string; workspace_id: string }, now: Date = new Date()) {
   const summary = await loadWeeklySummary(db, project, now);
   if (!weeklyHasContent(summary)) return { sent: 0, skipped: true };
+  // YouTube: el aviso se guarda hasta 1 año y sus datos de la API solo pueden guardarse 30 días y deben borrarse al
+  // revocar (Developer Policies III.E.4.c y III.D.2). Se guarda solo el id de la cuenta; el nombre del canal y los
+  // suscriptores se leen al abrir el aviso (src/app/app/(shell)/notifications/[id]/page.tsx).
+  const stored = stripYouTubeData(summary);
   const { data: members } = await db.from("workspace_members").select("user_id").eq("workspace_id", project.workspace_id);
   let sent = 0;
   for (const m of members ?? []) {
@@ -77,7 +81,7 @@ export async function sendWeeklySummary(db: Admin, project: { id: string; name: 
         projectId: project.id,
         type: "weekly_summary",
         link: `/app/notifications/${id}`,
-        data: summary as unknown as Record<string, Json>,
+        data: stored as unknown as Record<string, Json>,
         dedupeKey: `weekly:${project.id}:${summary.period.from}`,
       },
       (l) =>

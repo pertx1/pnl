@@ -167,11 +167,11 @@ export const publishTarget = inngest.createFunction(
       }
 
       // Subtítulos de YouTube: .srt asociado al vídeo (convención en src/lib/social/captions.ts). Opcional.
-      let captions: { srt: string; language: string } | undefined;
+      let captions: { srt: string; language: string; draft: boolean } | undefined;
       if (platform === "youtube") {
         const video = ordered.find((a) => a.mime_type.startsWith("video/"));
-        const srt = video ? await findSrtForVideo(db, video).catch(() => null) : null;
-        if (srt) captions = { srt, language: captionLanguage(options.yt_language) };
+        const found = video ? await findSrtForVideo(db, video).catch(() => null) : null;
+        if (found) captions = { srt: found.srt, draft: found.draft, language: captionLanguage(options.yt_language) };
       }
 
       try {

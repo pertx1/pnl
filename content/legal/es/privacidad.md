@@ -120,6 +120,7 @@ Si activas la bandeja unificada, Kreo muestra los mensajes que terceros te enví
 
 - **Qué enviamos**: cuando usas una función de IA, enviamos al proveedor correspondiente únicamente lo necesario para esa petición: tu instrucción, el contexto de marca que hayas seleccionado y, en su caso, los archivos o el texto del hilo sobre el que trabajas.
 - **Proveedores**: Anthropic (texto), fal.ai y Replicate (imagen y vídeo) y ElevenLabs (voz y música). Ver el apartado 8.
+- **Clipper**: para transcribir, recortar y subtitular tus vídeos enviamos el vídeo (incluidas la imagen y la voz de quienes aparecen) a fal.ai, que a su vez usa ElevenLabs para la transcripción de los subtítulos. Solo puedes usar vídeos propios o sobre los que tengas derechos. [VALIDAR CON ABOGADO]
 - **Sin entrenamiento**: contratamos los servicios de IA en condiciones comerciales en las que los proveedores no utilizan tus datos para entrenar sus modelos. [VERIFICAR EN EL DPA Y LAS CONDICIONES DE CADA PROVEEDOR; ACTIVAR LAS OPCIONES DE "NO ENTRENAMIENTO" / "ZERO RETENTION" DONDE EXISTAN]. Kreo tampoco usa tus datos para entrenar modelos propios.
 - **Conservación en el proveedor**: los proveedores pueden conservar temporalmente las peticiones para seguridad y prevención de abusos durante los plazos indicados en sus condiciones ([PLAZOS POR PROVEEDOR]).
 - **Transparencia**: el contenido generado con IA se marca como tal dentro de Kreo y, al publicarlo, activamos por defecto las etiquetas de "contenido generado con IA" que ofrecen las plataformas. Ver los [Términos y condiciones]([DOMINIO]/legal/terminos).
@@ -161,7 +162,7 @@ Principales proveedores:
 | Anthropic | Generación de texto con IA | EE. UU. |
 | fal.ai | Generación de imagen y vídeo con IA | EE. UU. |
 | Replicate | Generación de imagen y vídeo con IA | EE. UU. |
-| ElevenLabs | Generación de voz y música con IA | [UBICACIÓN] |
+| ElevenLabs | Generación de voz y música con IA; transcripción de subtítulos del Clipper (a través de fal.ai) | [UBICACIÓN] |
 | [PROVEEDOR DE DATOS PÚBLICOS DE TIKTOK] | Datos públicos estimados de perfiles de TikTok (no recibe datos de tus cuentas) | [UBICACIÓN] |
 
 La lista actualizada de subencargados está disponible en [DOMINIO]/legal/subencargados [URL]. Te avisaremos con antelación de cambios relevantes si eres cliente de pago con acuerdo de encargo.
@@ -188,6 +189,7 @@ Puedes pedir una copia de las garantías aplicables escribiendo a [EMAIL DPD/PRI
 | Facturas y datos de facturación | 6 años (art. 30 Código de Comercio) y los plazos de la normativa tributaria |
 | Movimientos de créditos | Mientras la cuenta esté activa y después durante los plazos de prescripción aplicables, de forma bloqueada |
 | Apps conectadas al servidor MCP (autorizaciones OAuth) | Hasta que las revoques o caduquen; después, 30 días (revocadas) o 1 día (caducadas). Límites de peticiones por IP (resumen truncado): 2 días |
+| Avisos dentro de la app (centro de avisos y resumen semanal) | Los leídos, 90 días; cualquiera, como máximo 1 año. Se borran al salir del espacio de trabajo. El resumen semanal no guarda datos de YouTube |
 | Registros de seguridad y acceso | [PLAZO, propuesta: 90 días] |
 | Lista de espera y comunicaciones comerciales | Hasta que te des de baja; la prueba del consentimiento se conserva bloqueada durante el plazo de prescripción de las posibles infracciones |
 | Solicitudes de ejercicio de derechos | [PLAZO, propuesta: 3 años] para acreditar su atención |

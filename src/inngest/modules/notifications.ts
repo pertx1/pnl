@@ -16,16 +16,20 @@ export const weeklySummary = inngest.createFunction(
     const projects = await step.run("list-projects", async () => {
       const db = createAdminClient();
       if (!db) return [];
-      const { data } = await db.from("projects").select("id, name, workspace_id").is("archived_at", null).order("created_at").limit(2000);
-      return data ?? [];
+      // Solo IDs: lo que devuelve un paso se guarda en Inngest (EE. UU.); el nombre se lee dentro del paso siguiente.
+      const { data } = await db.from("projects").select("id").is("archived_at", null).order("created_at").limit(2000);
+      return (data ?? []).map((p) => p.id);
     });
     let sent = 0;
-    for (const p of projects) {
-      const r = await step.run(`summary-${p.id}`, async () => {
+    for (const projectId of projects) {
+      const r = await step.run(`summary-${projectId}`, async () => {
         const db = createAdminClient();
         if (!db) return { sent: 0 };
         try {
-          return await sendWeeklySummary(db, p);
+          const { data: p } = await db.from("projects").select("id, name, workspace_id").eq("id", projectId).is("archived_at", null).maybeSingle();
+          if (!p) return { sent: 0 };
+          const { sent } = await sendWeeklySummary(db, p);
+          return { sent };
         } catch (e) {
           console.error("[weekly] fallo al armar el resumen", (e as Error).message?.slice(0, 60));
           return { sent: 0 };

@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { TIKTOK_PRIVACY, YT_CATEGORIES, YT_LANGUAGES, type PlatformOptions } from "@/lib/posts/rules";
+import { YT_CATEGORIES, YT_LANGUAGES, type PlatformOptions } from "@/lib/posts/rules";
 
 /**
  * Opciones por red que el MCP acepta al crear o editar un borrador (mismos campos que el editor de Kreo).
@@ -21,9 +21,14 @@ export const youtubeOptionsSchema = z
   })
   .strict();
 
+/**
+ * TikTok: SIN privacidad. Sus Content Sharing Guidelines exigen que la persona elija la privacidad a mano en cada
+ * publicación, sin valor por defecto; si la fijara el asistente, la elección no sería de la persona. Por eso un
+ * borrador con TikTok creado desde el MCP no puede enviarse a aprobación (`tiktok_privacy_required`): se completa
+ * en el editor de Kreo (misma decisión que el Clipper y las plantillas).
+ */
 export const tiktokOptionsSchema = z
   .object({
-    privacy_level: z.enum(TIKTOK_PRIVACY as [string, ...string[]]).optional().describe("Quién puede verlo. Mientras la app no esté auditada, TikTok solo permite SELF_ONLY."),
     allow_comments: z.boolean().optional(),
     allow_duet: z.boolean().optional(),
     allow_stitch: z.boolean().optional(),
@@ -69,7 +74,6 @@ export function toPlatformOptions(
   if (platform === "tiktok") {
     const t = o.tiktok ?? {};
     return defined({
-      privacy_level: t.privacy_level as PlatformOptions["privacy_level"],
       // En Kreo se guardan como "disable_*" (TikTok: ninguna interacción activada por defecto).
       disable_comment: t.allow_comments === undefined ? undefined : !t.allow_comments,
       disable_duet: t.allow_duet === undefined ? undefined : !t.allow_duet,

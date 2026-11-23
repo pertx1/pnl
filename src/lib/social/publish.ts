@@ -20,7 +20,7 @@ export type PublishInput = {
   /** Miniatura personalizada de YouTube (ya validada como imagen del mismo proyecto). */
   thumbnail?: PublishMedia;
   /** Subtítulos .srt para YouTube (captions.insert). Ver la convención en src/lib/social/captions.ts. */
-  captions?: { srt: string; language: string };
+  captions?: { srt: string; language: string; draft?: boolean };
 };
 /** `warnings`: pasos opcionales que fallaron sin impedir la publicación (p. ej. la miniatura). */
 export type PublishResult = { externalPostId: string; url?: string; warnings?: string[] };
@@ -178,7 +178,7 @@ async function publishYouTube(tokens: TokenSet, input: PublishInput): Promise<Pu
 export async function applyYouTubeExtras(
   tokens: TokenSet,
   videoId: string,
-  input: { options: PlatformOptions; thumbnail?: PublishMedia; captions?: { srt: string; language: string } },
+  input: { options: PlatformOptions; thumbnail?: PublishMedia; captions?: { srt: string; language: string; draft?: boolean } },
 ): Promise<string[]> {
   const o = input.options;
   const auth = { Authorization: `Bearer ${tokens.accessToken}` };
@@ -211,9 +211,10 @@ export async function applyYouTubeExtras(
   }
   if (input.captions?.srt) {
     // captions.insert (scope youtube.force-ssl; 400 unidades de cuota). Sin reintentos: un POST repetido duplicaría la pista.
+    // isDraft: transcripciones automáticas que nadie ha revisado quedan como borrador en YouTube Studio (ver captions.ts).
     try {
       const boundary = `kreo${crypto.randomUUID().replace(/-/g, "")}`;
-      const meta = JSON.stringify({ snippet: { videoId: json.id, language: input.captions.language, name: "", isDraft: false } });
+      const meta = JSON.stringify({ snippet: { videoId: json.id, language: input.captions.language, name: "", isDraft: Boolean(input.captions.draft) } });
       const body =
         `--${boundary}\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n${meta}\r\n` +
         `--${boundary}\r\nContent-Type: application/x-subrip; charset=UTF-8\r\n\r\n${input.captions.srt}\r\n--${boundary}--\r\n`;

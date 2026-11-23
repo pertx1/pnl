@@ -2,6 +2,11 @@
 
 Una entrada por sesión, lo más reciente arriba. 3-6 líneas: qué se hizo, qué quedó a medias, qué toca después.
 
+## 2026-11-24
+- Fusionados y en producción: Clipper v2, plantillas/series, avisos/mejores horas/resumen/subtítulos YT, subida directa a YouTube, inicio general y Mi agenda. 5 migraciones aplicadas.
+- Revisión seguridad-legal: sin vetos; arreglos aplicados (TikTok privacidad fuera del MCP, datos de YouTube en avisos, subtítulos en borrador, update_draft_post seguro).
+- Editor: un vídeo > 50 MB en «Medios» pasa solo a la subida directa a YouTube con mensaje claro.
+
 ## 2026-11-24 (rama de trabajo del agente, sin desplegar)
 - **Centro de avisos**: campana con contador (barra lateral y cabecera móvil), panel, página `/app/notifications` y preferencias por tipo en Ajustes. Avisos de publicado/fallido (motivo claro), pendientes de aprobar (admins/owners, trigger en BD), cuenta caducada (redes y bandeja), permiso de YouTube que caduca (7 días «En prueba»), IA/Clipper terminada o fallida. Limpieza: leídos > 90 días. Sin email (falta dominio; punto de extensión en `src/lib/notifications/notify.ts`).
 - **Mejores horas**: `bestTimes()` (patrón orientativo citado + historial propio con umbral de 12), tarjeta en Analíticas, `BestTimeHint` para el editor, MCP `get_best_times`; `get_free_slots` ordena por puntuación si hay historial. YouTube solo orientativo.

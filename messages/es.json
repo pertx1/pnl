@@ -202,7 +202,7 @@
       "failedShort": "Con error",
       "successRate": "Éxito",
       "perWeek": "Por semana",
-      "perfNote": "Cada red cuenta por separado.",
+      "perfNote": "Datos de Kreo (no de las plataformas): cada red cuenta por separado.",
       "perfBars": "Publicadas por semana, de hace 4 semanas a esta: {values}",
       "perfEmpty": "Aún no has publicado con Kreo en los últimos 30 días.",
       "seeAnalytics": "Ver analíticas",
@@ -549,7 +549,9 @@
       "forbidden": "No tienes permisos para esta acción.",
       "invalid_input": "Revisa los campos.",
       "generic": "Algo ha fallado. Inténtalo de nuevo.",
-      "not_found": "No encontrado."
+      "not_found": "No encontrado.",
+      "file_too_large": "El archivo pesa {mb} MB y el máximo es 50 MB. Para YouTube, añade la cuenta de YouTube y súbelo con «Vídeo grande: subir directo a YouTube»; para otras redes, comprímelo (1080p, ~8 Mbps).",
+      "unsupported_file": "Formato no admitido. Usa MP4, MOV, JPG, PNG o WEBP."
     },
     "limitLine": "{handle}: {planned} de {limit} ese día",
     "status": {
@@ -584,7 +586,8 @@
       "graduation": "¿Cuándo pasa a tus seguidores?",
       "graduationManual": "Lo decido yo en la app de Instagram",
       "graduationAuto": "Automáticamente si funciona bien"
-    }
+    },
+    "bigFileToYouTube": "El vídeo pesa {mb} MB (máximo 50 MB en Medios). Lo he pasado a «Vídeo grande: subir directo a YouTube»: revisa la privacidad y pulsa «Aprobar y subir a YouTube»."
   },
   "calendar": {
     "title": "Calendario",

@@ -118,6 +118,7 @@ If you enable the unified inbox, Kreo shows messages that third parties send you
 
 - **What we send**: when you use an AI feature, we send the relevant provider only what is needed for that request: your instruction, the brand context you have selected and, where applicable, the files or thread text you are working on.
 - **Providers**: Anthropic (text), fal.ai and Replicate (image and video) and ElevenLabs (voice and music). See section 8.
+- **Clipper**: to transcribe, cut and subtitle your videos we send the video (including the image and voice of the people in it) to fal.ai, which in turn uses ElevenLabs to transcribe the subtitles. You may only use videos you own or hold the rights to. [VALIDATE WITH LAWYER]
 - **No training**: we use AI services under commercial terms under which providers do not use your data to train their models. [VERIFY IN EACH PROVIDER'S DPA AND TERMS; ENABLE "NO TRAINING" / "ZERO RETENTION" OPTIONS WHERE AVAILABLE]. Kreo does not use your data to train its own models either.
 - **Retention by providers**: providers may temporarily keep requests for security and abuse prevention for the periods set out in their terms ([PERIODS PER PROVIDER]).
 - **Transparency**: AI-generated content is labelled as such within Kreo and, when published, we enable by default the "AI-generated content" labels offered by the platforms. See the [Terms and Conditions]([DOMINIO]/legal/terminos).
@@ -159,7 +160,7 @@ Main providers:
 | Anthropic | AI text generation | US |
 | fal.ai | AI image and video generation | US |
 | Replicate | AI image and video generation | US |
-| ElevenLabs | AI voice and music generation | [LOCATION] |
+| ElevenLabs | AI voice and music generation; Clipper subtitle transcription (through fal.ai) | [LOCATION] |
 | [TIKTOK PUBLIC DATA PROVIDER] | Estimated public data from TikTok profiles (receives no data from your accounts) | [LOCATION] |
 
 The up-to-date list of sub-processors is available at [DOMINIO]/legal/subencargados [URL]. If you are a paying customer with a data processing agreement, we will notify you in advance of relevant changes.
@@ -186,6 +187,7 @@ You can request a copy of the applicable safeguards by writing to [EMAIL DPD/PRI
 | Invoices and billing data | 6 years (Art. 30 Spanish Commercial Code) and the periods set by tax law |
 | Credit transactions | While the account is active and then for the applicable limitation periods, in blocked form |
 | Apps connected to the MCP server (OAuth authorizations) | Until you revoke them or they expire; then 30 days (revoked) or 1 day (expired). Per-IP rate limits (truncated digest): 2 days |
+| In-app notifications (notification centre and weekly summary) | Read ones, 90 days; any, at most 1 year. Deleted when you leave the workspace. The weekly summary does not store YouTube data |
 | Security and access logs | [PERIOD, proposed: 90 days] |
 | Waitlist and marketing communications | Until you unsubscribe; proof of consent is kept blocked for the limitation period of potential infringements |
 | Data subject requests | [PERIOD, proposed: 3 years] to evidence how they were handled |

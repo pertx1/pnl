@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { composeText, failureReason, fill, kindLabel, postLabel, warningsText } from "@/lib/notifications/text";
 import { isNotificationType, NOTIFICATION_TYPES, safeAppLink } from "@/lib/notifications/types";
-import { buildWeeklySummary, weeklyHasContent, weeklyPeriod, type WeeklyInput } from "@/lib/notifications/weekly-core";
+import { buildWeeklySummary, hydrateYouTube, stripYouTubeData, weeklyHasContent, weeklyPeriod, type WeeklyInput } from "@/lib/notifications/weekly-core";
 import { consentDedupeKey, googleOAuthInTesting, lastConsentAt, youtubeConsentStatus } from "@/lib/notifications/youtube-consent";
 
 describe("caducidad del permiso de YouTube («En prueba»)", () => {
@@ -146,6 +146,16 @@ describe("resumen semanal", () => {
     expect(s.upcoming.items.map((u) => u.id)).toEqual(["u1", "u2"]);
     expect(s.overdueTasks).toEqual({ count: 2, items: [{ id: "t1", title: "Guion", due: "2026-11-20" }, { id: "t2", title: "Grabar", due: "2026-11-28" }] });
     expect(weeklyHasContent(s)).toBe(true);
+  });
+
+  it("el aviso guardado no lleva datos de la API de YouTube; se rellenan en vivo y las cuentas desconectadas desaparecen", () => {
+    const stored = stripYouTubeData(buildWeeklySummary(base));
+    expect(stored.youtube).toEqual([{ id: "yt", label: "", subscribers: null, status: "active" }]);
+    expect(JSON.stringify(stored)).not.toContain("@canal");
+    expect(stored.accounts).toHaveLength(2); // lo demás no cambia
+    const live = hydrateYouTube(stored, [{ id: "yt", platform: "youtube", handle: "canal", display_name: null, status: "active" }], new Map([["yt", 330]]));
+    expect(live.youtube).toEqual([{ id: "yt", label: "@canal", subscribers: 330, status: "active" }]);
+    expect(hydrateYouTube(stored, [], new Map()).youtube).toEqual([]);
   });
 
   it("un proyecto vacío no genera aviso", () => {

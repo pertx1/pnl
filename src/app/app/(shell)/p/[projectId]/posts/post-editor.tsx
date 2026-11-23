@@ -127,6 +127,7 @@ export function PostEditor({
   const locked = ["publishing", "published", "scheduled_on_platform"].includes(status);
   // Subida directa a YouTube: la aprobación se hace con «Aprobar y subir a YouTube» (dentro del destino).
   const hasDirect = targets.some((x) => x.platformOptions.yt_direct_upload);
+  const [bigFile, setBigFile] = useState<File | null>(null);
   const readOnly = !canEdit || locked;
 
   const duplicate = useMemo(
@@ -205,8 +206,24 @@ export function PostEditor({
   async function upload(file: File | undefined) {
     if (!file) return;
     const ext = MEDIA_TYPES[file.type];
-    if (!ext || file.size > 50 * 1024 * 1024) {
-      toast.error(t("errorsX.invalid_input"));
+    if (!ext) {
+      toast.error(t("errorsX.unsupported_file"));
+      return;
+    }
+    if (file.size > 50 * 1024 * 1024) {
+      const mb = Math.round(file.size / 1024 / 1024);
+      const hasYouTube = targets.some((x) => accounts.find((a) => a.id === x.socialAccountId)?.platform === "youtube");
+      if (file.type.startsWith("video/") && hasYouTube) {
+        // Vídeo grande + destino YouTube: se pasa a la subida directa (sin límite de peso).
+        setBigFile(file);
+        for (const x of targets) {
+          if (accounts.find((a) => a.id === x.socialAccountId)?.platform === "youtube")
+            patchOptions(x.socialAccountId, { yt_direct_upload: { file_name: file.name.slice(0, 255), size_bytes: file.size, mime: file.type } });
+        }
+        toast.info(t("bigFileToYouTube", { mb }));
+      } else {
+        toast.error(t("errorsX.file_too_large", { mb }));
+      }
       return;
     }
     setUploading(true);
@@ -454,6 +471,7 @@ export function PostEditor({
                           )}
                           {acc.platform === "youtube" && (
                             <YouTubeDirectUpload
+                              incomingFile={bigFile}
                               accountId={acc.id}
                               postId={postId}
                               status={status}

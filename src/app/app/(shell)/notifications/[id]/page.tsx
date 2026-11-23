@@ -6,8 +6,9 @@ import { MarkReadOnView } from "@/components/notifications/mark-read-on-view";
 import { WeeklySummaryView } from "@/components/notifications/weekly-summary-view";
 import { Button } from "@/components/ui/button";
 import { getMyNotification } from "@/lib/notifications/queries";
-import type { WeeklySummary } from "@/lib/notifications/weekly-core";
+import { hydrateYouTube, type WeeklySummary } from "@/lib/notifications/weekly-core";
 import { requireUser } from "@/lib/server/dal";
+import { createClient } from "@/lib/supabase/server";
 
 export async function generateMetadata() {
   const t = await getTranslations("notifications");
@@ -22,6 +23,23 @@ function asWeekly(data: unknown): WeeklySummary | null {
   return s as WeeklySummary;
 }
 
+/**
+ * YouTube no se guarda en el aviso (plazos de sus Developer Policies): nombre del canal y suscriptores se leen ahora,
+ * con RLS, de la cuenta conectada y de su última cifra guardada.
+ */
+async function withLiveYouTube(s: WeeklySummary): Promise<WeeklySummary> {
+  const ids = s.youtube.map((y) => y.id).filter((id) => UUID.test(id)).slice(0, 20);
+  if (!ids.length) return { ...s, youtube: [] };
+  const supabase = await createClient();
+  const [{ data: accounts }, { data: rows }] = await Promise.all([
+    supabase.from("social_accounts").select("id, platform, handle, display_name, status").in("id", ids),
+    supabase.from("account_metrics_daily").select("social_account_id, day, followers").in("social_account_id", ids).order("day", { ascending: false }).limit(200),
+  ]);
+  const latest = new Map<string, number | null>();
+  for (const r of rows ?? []) if (!latest.has(r.social_account_id) && r.followers !== null) latest.set(r.social_account_id, Number(r.followers));
+  return hydrateYouTube(s, accounts ?? [], latest);
+}
+
 export default async function NotificationPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   if (!UUID.test(id)) notFound();
@@ -30,7 +48,8 @@ export default async function NotificationPage({ params }: { params: Promise<{ i
   if (!n) notFound();
   const t = await getTranslations("notifications");
   const format = await getFormatter();
-  const weekly = n.type === "weekly_summary" ? asWeekly(n.data) : null;
+  const stored = n.type === "weekly_summary" ? asWeekly(n.data) : null;
+  const weekly = stored ? await withLiveYouTube(stored) : null;
 
   return (
     <div className="mx-auto w-full max-w-[1360px] space-y-6 [&>*]:max-w-3xl">

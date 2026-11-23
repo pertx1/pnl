@@ -442,7 +442,7 @@ de cada módulo en `docs/compliance/{research,strategy,inbox,commerce,team}.md`)
 
 - **2026-11-23 · MCP — gasto de créditos**: resuelto el hallazgo 4 de la revisión del conector. Las herramientas que gastan créditos (generate_image, generate_video, draft_reply) exigen el interruptor «permitir gastar créditos» de cada conexión (apagado por defecto) y un tope diario atómico (`mcp_credit_reserve`, migración `20261123180000_mcp_credit_policy.sql`).
 
-## Centro de avisos, mejores horas, resumen semanal y subtítulos de YouTube — 2026-11-24 — Estado: ⏳ pendiente de revisión `seguridad-legal`
+## Centro de avisos, mejores horas, resumen semanal y subtítulos de YouTube — 2026-11-24 — Estado: ⚠️ revisado (ver «Revisión del 2026-11-24» abajo)
 - APIs usadas: YouTube Data API `captions.insert` (scope `youtube.force-ssl`, ya pedido; 400 unidades de cuota por subida). Nada nuevo en Meta/TikTok.
 - Datos guardados: `notifications` (por usuario: tipo, título y cuerpo cortos con el título propio de la publicación y el @ de la
   cuenta propia, enlace interno, IDs; el resumen semanal guarda contadores, @ propios, títulos de publicaciones y tareas del proyecto).
@@ -455,7 +455,7 @@ de cada módulo en `docs/compliance/{research,strategy,inbox,commerce,team}.md`)
 - Email: no se envía nada (falta dominio y proveedor UE con DPA).
 - Para revisar: base legal del resumen semanal a todos los miembros del workspace (incluidos lectores); texto de la política de
   privacidad (avisos dentro de la app y plazos 90 días / 1 año).
-## Clipper v2 (viralidad, formatos, plantillas de subtítulos, editar y «Programar clips») — 2026-11-24 — Estado: ⏳ pendiente de revisión `seguridad-legal`
+## Clipper v2 (viralidad, formatos, plantillas de subtítulos, editar y «Programar clips») — 2026-11-24 — Estado: ⚠️ revisado (ver «Revisión del 2026-11-24» abajo)
 - Modelos (todos `license_type = "commercial"` en la API de modelos de fal.ai, comprobado el 2026-11-23; registrados en
   `CLIPPER_LICENSE` de `src/lib/clipper/pipeline.ts` y en cada `ai_generations.license`):
   `fal-ai/whisper`, `fal-ai/workflow-utilities/trim-video`, `fal-ai/workflow-utilities/scale-video`,
@@ -480,9 +480,9 @@ de cada módulo en `docs/compliance/{research,strategy,inbox,commerce,team}.md`)
     fuerza si algún medio es IA).
   - Puntuación de viralidad: se presenta como potencial relativo dentro del vídeo, nunca como predicción («no prometer resultados»).
   - `.srt` del clip en `clip_segments.srt` (RLS existente + `mfa_required`).
-- Migración `20261124100000_clipper_v2.sql` (sin tablas nuevas; columnas en `clip_segments` y guard actualizado). **No aplicada.**
+- Migración `20261124100000_clipper_v2.sql` (sin tablas nuevas; columnas en `clip_segments` y guard actualizado). Aplicada.
 - Pendiente: revisión `seguridad-legal`; declarar ElevenLabs (vía fal) como subencargado del audio de los clips; DPA con fal.
-## YouTube · subida directa navegador → YouTube (vídeos grandes) — 2026-11-23 — Estado: ⚠️ pendiente de revisión `seguridad-legal`
+## YouTube · subida directa navegador → YouTube (vídeos grandes) — 2026-11-23 — Estado: ⚠️ revisado (ver «Revisión del 2026-11-24» abajo)
 - APIs usadas: YouTube Data API v3 oficial. `videos.insert` con el protocolo de subida reanudable (sesión abierta por el
   servidor, bytes enviados por el navegador), `videos.list` (comprobar que el vídeo existe y es del canal), y los pasos
   opcionales que ya hacía el worker (`thumbnails.set`, `playlistItems.insert`). Programación nativa con `status.publishAt`.
@@ -509,3 +509,131 @@ de cada módulo en `docs/compliance/{research,strategy,inbox,commerce,team}.md`)
 - Estado nuevo `scheduled_on_platform` («Programado en YouTube»): bloquea la edición en Kreo (se gestiona en YouTube Studio),
   cuenta para el límite diario y el worker lo pasa a `published` al llegar la hora. Migración `20261124140000_youtube_direct.sql`
   (sin aplicar).
+
+---
+
+# Revisión del 2026-11-24 — lo fusionado en `main` (`01ad539..9d2d7ec`)
+
+Revisión del subagente `seguridad-legal` sobre el código (migraciones `20261124*` ya aplicadas en producción). Arreglos sin
+commit; una migración nueva **sin aplicar**: `20261124150000_security_fixes.sql` (solo limpia datos, sin cambios de esquema).
+Comprobado con `npx tsc --noEmit`, `npx eslint` sobre lo tocado y `npx vitest run` (290 tests en verde).
+
+> ⚖️ Recordatorio: un abogado debe revisar los textos legales (privacidad, términos, cookies, aviso legal, afiliados) antes
+> del lanzamiento público. En esta revisión se han tocado los borradores de privacidad (es/en) y `docs/subprocessors.md`.
+
+## Clipper v2 — 2026-11-24 — Estado: ⚠️ aprobado con condiciones
+- APIs usadas: fal.ai (`fal-ai/whisper`, `workflow-utilities/trim-video`, `scale-video`, `auto-subtitle`); Anthropic para los textos por red.
+- Permisos: rol editor (RLS + `has_workspace_role`); 2FA por la política `mfa_required` de `clip_segments`.
+- Datos guardados: columnas nuevas en `clip_segments` (desglose de puntuación, opciones de render, `.srt` ≤ 200 KB); RLS existente.
+- Verificado: licencias comerciales registradas en cada `ai_generations.license`; sin marca de agua (lista cerrada de 4 endpoints,
+  con test); solo vídeo propio con casilla de derechos; reclamo atómico del segmento ANTES del cobro (sin doble cobro) y reembolso
+  en todos los caminos de fallo (`failSegment`, tiempo máximo por paso, barrido de Inngest cada 2 min); los textos de «Programar
+  clips» se cobran con clave de idempotencia y se reembolsan si fallan. «Programar clips» crea BORRADORES con RLS del usuario y
+  como mucho llama a `submit_post` (pendiente de aprobación) si cumple `validateTarget`; con TikTok siempre queda en borrador.
+  Nunca aprueba ni publica. Límite diario por cuenta y día UTC vía `computeFreeSlots`. La guarda SQL impide que un editor toque
+  estado, `.srt`, puntuación u opciones desde el navegador.
+- Hallazgos:
+  - **[media · arreglado en texto]** ElevenLabs trata el audio de los clips como subencargado ulterior de fal (`auto-subtitle`):
+    añadido en `docs/subprocessors.md` y en la política de privacidad (es/en, apartados 6 y 8). Falta el DPA de fal y su lista
+    de subencargados.
+  - **[baja · pendiente]** Carrera de milisegundos entre el reclamo y la escritura de `generation_id`: si el barrido de Inngest
+    entra justo ahí y luego el cobro falla, se lanza un recorte en fal sin cobro (coste para Kreo, no para el usuario).
+    Propuesta: marcar `render_step = 'charging'` en el reclamo y que `advanceSegment` lo ignore.
+  - **[info]** Los textos por red los escribe Claude; el post se marca IA solo si los medios lo son (mismo criterio que el resto
+    de la app y que las plataformas, que etiquetan medios sintéticos, no texto).
+
+## Plantillas, series y textos guardados — 2026-11-24 — Estado: ✅ aprobado
+- APIs usadas: ninguna externa.
+- Datos guardados: `post_templates`, `post_snippets`, `post_series` (RLS lectura viewer / escritura editor + `mfa_required`);
+  `posts.series_id`. Se borran con el proyecto/workspace.
+- Verificado: TikTok — las plantillas no guardan NADA de TikTok (código + `check (not (platform_options ? 'tiktok'))`), así que
+  privacidad, interacciones y divulgación comercial se eligen en cada publicación (Content Sharing Guidelines). Las series solo
+  crean borradores o, si cumplen las reglas, pendientes vía `submit_posts` → `submit_post` (editor, estado borrador); nunca
+  aprueban. Como las series no llevan medios, Instagram/TikTok/YouTube quedan siempre en borrador. Fechas calculadas en servidor,
+  límite diario por día local y UTC, mismo texto en ≥ 3 cuentas → borrador (anti-duplicado). Triggers de coherencia
+  proyecto/cuentas/serie.
+
+## Avisos, mejores horas, resumen semanal y subtítulos de YouTube — 2026-11-24 — Estado: ⚠️ aprobado con condiciones
+- APIs usadas: YouTube Data API `captions.insert` (scope `youtube.force-ssl`, ya concedido).
+- Datos guardados: `notifications` y `notification_preferences` (RLS por usuario + miembro del workspace + `mfa_required`;
+  sin política de INSERT/UPDATE para el navegador; borrado diario: leídos > 90 días, cualquiera > 1 año; purga al salir del
+  workspace; en la exportación RGPD).
+- Verificado: mejores horas no usa datos de YouTube (solo patrón orientativo con fuentes citadas); TikTok/Instagram con datos
+  de las cuentas propias. Enlaces de avisos solo internos (`check` en BD). Email: no se envía nada.
+- Hallazgos:
+  - **[media · arreglado]** El aviso `weekly_summary` guardaba nombre del canal y suscriptores de YouTube hasta 1 año, y no se
+    borraban al desconectar: choca con YouTube Developer Policies III.E.4.c (refrescar o borrar en 30 días) y III.D.2 (borrar en
+    7 días tras revocar). Ahora se guarda solo el id de la cuenta y la página del aviso lee canal y cifra en vivo con RLS; si la
+    cuenta ya no existe, YouTube desaparece del resumen (`stripYouTubeData` / `hydrateYouTube` en
+    `src/lib/notifications/weekly-core.ts`, `weekly.ts`, `src/app/app/(shell)/notifications/[id]/page.tsx`, tests nuevos).
+    Migración `20261124150000_security_fixes.sql` limpia los avisos ya creados. **Aplicar.**
+  - **[media · arreglado]** Subtítulos: se subían públicos sin que nadie los viera (transcripción automática del vídeo fuente) y
+    el `.srt` editado/incrustado del clip se ignoraba. Ahora: `.srt` subido por la persona o el del clip con subtítulos
+    incrustados (lo que ya se ve en el vídeo aprobado) → públicos; transcripciones sin revisar → `isDraft: true` (borrador en
+    YouTube Studio; regla nº 1). Archivos: `src/lib/social/captions.ts`, `publish.ts`, `src/inngest/functions.ts`.
+  - **[baja · arreglado]** El paso `list-projects` del cron semanal devolvía nombres de proyecto (se guardan en Inngest, EE. UU.):
+    ahora solo IDs (`src/inngest/modules/notifications.ts`).
+  - **[decisión · aceptado]** Resumen semanal a lectores: es la misma información que ya pueden ver en la app con su rol (RLS
+    viewer), solo dentro de la app, desactivable por tipo en Ajustes y borrada al salir del workspace. Base legal: ejecución del
+    contrato (6.1.b) con el titular del workspace / interés legítimo (6.1.f) para los miembros. Correcto mientras sea in-app;
+    **si se envía por email**, hará falta preferencia de email aparte (desactivada por defecto para lectores), baja en un clic y
+    proveedor UE con DPA.
+  - **[baja · pendiente]** Los avisos `post_published`/`post_failed`/`youtube_consent_expiring` de YouTube llevan el @ del canal
+    en el texto (hasta 1 año). Es el nombre propio del canal del usuario, pero para cumplir III.D.2 al pie de la letra conviene
+    borrar los avisos que referencian una cuenta al desconectarla.
+  - **[pendiente · producto]** Mostrar en el editor (YouTube) que se subirán subtítulos y de dónde salen, con opción de no subirlos.
+  - Plazos de avisos (90 días / 1 año) añadidos a la tabla de conservación de la política de privacidad (es/en).
+
+## YouTube · subida directa navegador → YouTube — 2026-11-24 — Estado: ⚠️ aprobado con condiciones
+- APIs usadas: YouTube Data API v3 oficial (`videos.insert` reanudable, `videos.list`, `thumbnails.set`, `playlistItems.insert`).
+- Permisos: sin scopes nuevos.
+- Verificado: el access token nunca sale del servidor; la sesión solo se abre para admin/owner, con post aprobado
+  (`approved_by` + estado), destino YouTube activo y archivo idéntico (nombre/tamaño/tipo) al aprobado; cambiar el archivo
+  dispara reaprobación (`guard_target_status`). Metadatos (incl. `containsSyntheticMedia`) fijados por el servidor. La URL de
+  sesión se valida (`https`, `*.googleapis.com`, `/upload/`), no se guarda ni se registra. `complete` comprueba con `videos.list`
+  que el vídeo es del canal conectado. El worker nunca reclama estos destinos. Nuevo estado `scheduled_on_platform` bloqueado y
+  contado en el límite diario.
+- Riesgos aceptados: URL de sesión en el navegador del admin (solo sube ESE vídeo; tratar como secreto); CORS no documentado por
+  YouTube (verificar en la prueba real); posible vídeo duplicado si dos admins suben a la vez.
+- Pendiente (baja): un post con YouTube directo + otras redes queda «publicando» si nadie sube el vídeo; un admin puede asociar
+  cualquier vídeo existente de SU canal con `complete` (impacto bajo). Explicar en la UI que con privacidad no pública o fecha
+  inminente el vídeo se sube ya.
+
+## Conector MCP · update_draft_post, subidas, mejores horas y resumen — 2026-11-24 — Estado: ⚠️ aprobado con condiciones
+- APIs usadas: Supabase Storage (`createSignedUploadUrl`, 2 h) — ninguna de plataformas.
+- Verificado: ninguna herramienta aprueba ni publica (como mucho `pending_approval` con `validateTarget`); rol editor y
+  workspace autorizado comprobados con `projectFor`; `finish_media_upload` solo acepta rutas `{workspace}/{proyecto}/{uuid}.{ext}`
+  del proyecto autorizado (no se puede registrar un archivo de otro workspace); la URL firmada no sobrescribe (sin upsert) y el
+  bucket limita tamaño y tipos; miniatura de YouTube validada en el mismo proyecto; `get_best_times` sin datos de YouTube.
+- Hallazgos:
+  - **[media · arreglado]** TikTok: el asistente podía fijar `privacy_level` y enviar a aprobación, saltándose que la privacidad
+    la elija la persona sin valor por defecto (Content Sharing Guidelines) y contradiciendo al Clipper y a las plantillas. Se
+    quita `privacy_level` del esquema MCP: con TikTok el borrador queda en borrador hasta que una persona elige la privacidad en
+    el editor (`src/lib/mcp/post-options.ts`, descripciones en `server.ts`, test en `tests/unit/mcp-post-options.test.ts`).
+  - **[media · arreglado]** `update_draft_post` usa el cliente de servicio (salta `guard_post_status`): si un admin aprobaba entre
+    la lectura y la escritura, el MCP devolvía a borrador un post aprobado dejando `approved_by`. Ahora la escritura exige
+    estado `draft`/`pending_approval` y, si no, devuelve `not_editable`.
+  - **[baja · arreglado]** `finish_media_upload` aceptaba cualquier contenido con la extensión del `upload_id` (p. ej. un `.srt`
+    o HTML subido con nombre `.mp4`). Ahora exige que el `Content-Type` subido coincida y que no pase de 50 MB; si no, borra el
+    archivo y falla.
+  - **[pendiente · ya registrado]** `get_weekly_summary` y `get_project_stats` entregan métricas de YouTube/Instagram al
+    asistente de IA: declararlo en las revisiones de Google y Meta (punto 1 de la revisión MCP del 2026-11-23).
+  - **[baja · pendiente]** En `update_draft_post` las cuentas se validan después de actualizar el post: si son inválidas, el texto
+    ya se ha guardado (sin riesgo de publicación; solo coherencia).
+
+## Instagram · reel de prueba (`trial_params`) — 2026-11-24 — Estado: ✅ aprobado
+- API oficial de publicación de contenido (`trial_params.graduation_strategy` = `MANUAL` | `SS_PERFORMANCE`), solo con un único
+  vídeo (regla `instagram_trial_requires_single_video`). Desactivado por defecto; lo elige la persona y la aprobación sigue
+  siendo humana. La divulgación IA del caption no cambia. Sin datos nuevos.
+
+## Panel del proyecto rediseñado — 2026-11-24 — Estado: ✅ aprobado (con un arreglo)
+- Lee con RLS. Verificado: el total combinado excluye YouTube (`combinedTotals`) y YouTube no muestra variaciones.
+- **[baja · arreglado]** La tarjeta de YouTube mostraba una línea de evolución de suscriptores (una variación visual, métrica
+  derivada): quitada. «Publicación · 30 días» mezcla destinos de todas las redes, que son datos de Kreo: la nota lo dice ahora
+  («Datos de Kreo (no de las plataformas)»), como pide la revisión de Analíticas.
+
+## Pendientes para Oier (de esta revisión)
+1. Aplicar `supabase/migrations/20261124150000_security_fixes.sql` en producción.
+2. Firmar/aceptar el DPA de fal.ai y pedir su lista de subencargados (ElevenLabs para `auto-subtitle`).
+3. Abogado: revisar los cambios en la política de privacidad (Clipper, ElevenLabs vía fal, plazos de avisos).
+4. Prueba real de la subida directa a YouTube (CORS) y de un subtítulo en borrador.

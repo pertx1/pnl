@@ -202,7 +202,7 @@
       "failedShort": "Failed",
       "successRate": "Success",
       "perWeek": "Per week",
-      "perfNote": "Each network counts separately.",
+      "perfNote": "Kreo data (not from the platforms): each network counts separately.",
       "perfBars": "Published per week, from 4 weeks ago to this week: {values}",
       "perfEmpty": "You haven't published with Kreo in the last 30 days.",
       "seeAnalytics": "See analytics",
@@ -549,7 +549,9 @@
       "forbidden": "You don't have permission for this action.",
       "invalid_input": "Check the fields.",
       "generic": "Something went wrong. Please try again.",
-      "not_found": "Not found."
+      "not_found": "Not found.",
+      "file_too_large": "The file is {mb} MB and the limit is 50 MB. For YouTube, add the YouTube account and use «Large video: upload straight to YouTube»; for other networks, compress it (1080p, ~8 Mbps).",
+      "unsupported_file": "Unsupported format. Use MP4, MOV, JPG, PNG or WEBP."
     },
     "limitLine": "{handle}: {planned} of {limit} that day",
     "status": {
@@ -584,7 +586,8 @@
       "graduation": "When does it reach your followers?",
       "graduationManual": "I decide in the Instagram app",
       "graduationAuto": "Automatically if it performs well"
-    }
+    },
+    "bigFileToYouTube": "The video is {mb} MB (Media allows up to 50 MB). It's been moved to «Large video: upload straight to YouTube»: check the privacy and press «Approve and upload to YouTube»."
   },
   "calendar": {
     "title": "Calendar",

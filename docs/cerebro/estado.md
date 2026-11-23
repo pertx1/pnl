@@ -33,13 +33,15 @@ Variables de entorno: lista completa en `.env.example`; estado de cada una en Ve
 - Diseño v2, móvil con barra inferior, ordenador con ancho unificado, accesibilidad (HIG).
 
 ## Hecho pero SIN comprobar en real
-- **Inicio general** (`/app`) y **Mi agenda** (`/app/agenda`, + herramientas MCP de agenda): migración `20261124130000_agenda.sql` pendiente de aplicar.
-- **Conector de Claude (MCP + OAuth)**: `https://kreo-nine.vercel.app/api/mcp`; pendiente de que Oier lo añada en claude.ai.
-- **Publicación programada**: Inngest ya llama a la app (cada minuto) desde el 2026-11-23; falta la primera publicación real.
-- **Centro de avisos, mejores horas, resumen semanal y subtítulos de YouTube** (2026-11-24, rama del agente): migración
-  `20261124120000_notifications.sql` pendiente de aplicar.
-- Bandeja (DMs de Instagram, Gmail, Outlook), audio (ElevenLabs), Clipper, informes PDF, Shopify, MCP, equipo, planes, afiliados.
-- **Clipper v2** (rama `worktree-agent-a9f67ec6c10e52a72`): viralidad 0-100 con desglose, formatos 9:16/1:1/16:9 con recorte centrado o «encajar», 5 plantillas de subtítulos, editar y volver a renderizar, ZIP sin marca de agua y «Programar clips» (borradores en huecos libres con textos por red). **Necesita la migración `20261124100000_clipper_v2.sql` aplicada ANTES de desplegar** (si no, la página del Clipper falla).
+(Todas las migraciones hasta `20261124150000_security_fixes.sql` están aplicadas en producción.)
+- **Inicio general** (`/app`) y **Mi agenda** (`/app/agenda`, + herramientas MCP de agenda).
+- **Conector de Claude (MCP + OAuth)**: conectado por Oier; herramientas nuevas (opciones por red, `update_draft_post`, subir archivos ≤ 50 MB) solo en conversaciones nuevas.
+- **Publicación programada**: Inngest llama a la app cada minuto; falta la primera publicación real.
+- **Subida directa a YouTube** (vídeos grandes, programación nativa con `publishAt`): CORS sin probar en real.
+- **Centro de avisos, mejores horas, resumen semanal y subtítulos de YouTube**.
+- **Clipper v2** (viralidad, formatos, 5 plantillas de subtítulos, editar, ZIP sin marca de agua, «Programar clips»).
+- **Plantillas, series y textos guardados**; **reel de prueba** de Instagram.
+- Bandeja (DMs de Instagram, Gmail, Outlook), audio (ElevenLabs), informes PDF, Shopify, equipo, planes, afiliados.
 
 ## Límites actuales
 - TikTok publica en **privado** hasta pasar su auditoría.

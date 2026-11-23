@@ -134,6 +134,33 @@ export function buildWeeklySummary(i: WeeklyInput): WeeklySummary {
   };
 }
 
+/**
+ * Copia para GUARDAR como aviso: sin datos de la API de YouTube (nombre del canal ni suscriptores), solo el id de la
+ * cuenta. Se rellenan en vivo al mostrar el aviso con `hydrateYouTube`.
+ */
+export function stripYouTubeData(s: WeeklySummary): WeeklySummary {
+  return { ...s, youtube: s.youtube.map((y) => ({ id: y.id, label: "", subscribers: null, status: y.status })) };
+}
+
+/**
+ * Rellena el bloque de YouTube con los datos actuales (cuentas y última cifra guardada, ambos sujetos a los plazos de
+ * YouTube). Las cuentas que ya no existen (desconectadas o borradas) desaparecen del resumen.
+ */
+export function hydrateYouTube(
+  s: WeeklySummary,
+  accounts: { id: string; platform: string; handle: string | null; display_name: string | null; status: string }[],
+  latest: Map<string, number | null>,
+): WeeklySummary {
+  const byId = new Map(accounts.filter((a) => a.platform === "youtube").map((a) => [a.id, a]));
+  return {
+    ...s,
+    youtube: s.youtube.flatMap((y) => {
+      const a = byId.get(y.id);
+      return a ? [{ id: a.id, label: label(a), subscribers: latest.get(a.id) ?? null, status: a.status }] : [];
+    }),
+  };
+}
+
 /** ¿Merece la pena enviarlo? (sin cuentas, publicaciones ni tareas no se manda nada). */
 export function weeklyHasContent(s: WeeklySummary) {
   return s.accounts.length + s.youtube.length + s.posts.published + s.posts.failed + s.upcoming.count + s.overdueTasks.count > 0;

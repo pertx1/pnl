@@ -4,7 +4,7 @@ Lo que solo puedes hacer tú (consolas, pagos, decisiones). En orden. Tacha con 
 (o dile a Claude «hecho lo de X» y lo tacha él).
 
 ## Ahora (para usar la app al 100 %)
-- [ ] **Añadir Kreo como conector en Claude**: claude.ai → Ajustes → Conectores → «Añadir conector personalizado» →
+- [x] **Añadir Kreo como conector en Claude**: claude.ai → Ajustes → Conectores → «Añadir conector personalizado» →
   URL `https://kreo-nine.vercel.app/api/mcp` → Conectar → iniciar sesión en Kreo → elegir workspace → Permitir.
 - [x] ~~Conectar Inngest~~ — hecho por Claude el 2026-11-23 (sincronizado con un PUT a `/api/inngest`).
 - [ ] **Reconectar YouTube** (Cuentas → desconectar y conectar) para dar el permiso de listas de reproducción.
@@ -20,11 +20,15 @@ Lo que solo puedes hacer tú (consolas, pagos, decisiones). En orden. Tacha con 
 - [ ] Supabase: aceptar la confirmación cuando Claude borre la cuenta de prueba `qa@kreo-qa.invalid`.
 
 ## Clipper v2
-- [ ] **Aplicar la migración** `supabase/migrations/20261124100000_clipper_v2.sql` en Supabase **antes** de fusionar la rama a `main`.
+- [x] Migración del Clipper v2 aplicada (2026-11-24).
 - [ ] Decidir el **reencuadre que sigue a la persona**: fal no tiene recorte con desplazamiento. Opciones: FFmpeg propio en un worker
   (coste de CPU en Vercel/otro servidor), una app propia en fal (pago por segundo) o Replicate. Hasta entonces: recorte centrado o «encajar».
 - [ ] Decidir el **título-gancho** sobreimpreso: solo es posible con `veed/subtitles` (VEED vía fal, ~0,10 $/min, mínimo 1 min por clip ≈ 10 créditos);
   hay que probar antes que no añade marca de agua y declarar a VEED como subencargado.
+
+## Pruebas reales que faltan
+- [ ] **Subir un vídeo grande con «Vídeo grande: subir directo a YouTube»** (primera prueba real; si falla, captura a Claude).
+- [ ] Firmar el DPA de fal.ai y pedir su lista de subencargados (incluye ElevenLabs vía auto-subtitle).
 
 ## Decisiones (cuestan dinero o son legales)
 - [ ] **Dominio propio** (~10-15 €/año): necesario para la verificación de Google y para enviar emails; recomendado para TikTok y Meta.

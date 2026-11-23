@@ -388,7 +388,8 @@ export default async function ProjectPage({ params }: PageProps<"/app/p/[project
                                 <p className="label-mono">{followersLabel}</p>
                                 <p className="font-mono text-3xl font-semibold tabular-nums">{n(s.followers)}</p>
                               </div>
-                              {s.series.length >= 2 && (
+                              {/* YouTube sin línea de evolución: sería una variación (métrica derivada) de sus datos. */}
+                              {!isYouTube && s.series.length >= 2 && (
                                 <Sparkline values={s.series.map((p) => p.value)} label={sparkText(followersLabel, s)} className="max-w-32 text-muted-foreground" />
                               )}
                             </div>
