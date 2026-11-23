@@ -4,7 +4,9 @@ Una entrada por sesión, lo más reciente arriba. 3-6 líneas: qué se hizo, qu�
 
 ## 2026-11-23
 - Creado este cerebro (`docs/cerebro/`), cargado desde `CLAUDE.md`, con comandos `/cerebro`, `/estado` y `/pendientes`.
-- En curso: app más intuitiva (menú «Crear», buscador Ctrl+K, mensajes sin nombres técnicos).
+- App más intuitiva: menú «Crear» en la barra lateral, buscador Ctrl+K (todas las secciones y acciones), textos sin
+  nombres técnicos, botones y estados vacíos más claros (panel, calendario, editor, cuentas, bandeja).
+- Arreglado: el buscador perdía el foco si se abría justo al cerrar el menú «Crear».
 
 ## 2026-11-22
 - TikTok conectado (el fallo era el Client secret del sandbox). YouTube conectado (faltaba la cuenta como usuario de prueba).

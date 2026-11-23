@@ -9,11 +9,11 @@
       "outlook": "Outlook",
       "tiktok": "TikTok"
     },
-    "notConfigured": "Pendiente de configurar",
+    "notConfigured": "Aún no disponible",
     "notConfiguredHint": {
-      "instagram": "Se activará cuando añadamos las claves de Meta (META_APP_ID, META_APP_SECRET y META_WEBHOOK_VERIFY_TOKEN).",
-      "gmail": "Se activará cuando añadamos las claves de Google (GOOGLE_CLIENT_ID y GOOGLE_CLIENT_SECRET).",
-      "outlook": "Se activará cuando añadamos las claves de Microsoft (MICROSOFT_CLIENT_ID y MICROSOFT_CLIENT_SECRET)."
+      "instagram": "Los mensajes de Instagram aún no están activados.",
+      "gmail": "La conexión con Gmail aún no está activada.",
+      "outlook": "La conexión con Outlook aún no está activada."
     },
     "igNeedsAccount": "Primero conecta tu cuenta de Instagram profesional en Cuentas.",
     "goAccounts": "Ir a Cuentas",
@@ -39,7 +39,7 @@
     "connectedOk": "{channel} conectado. Estamos trayendo tus conversaciones recientes.",
     "emptyNoConnections": {
       "title": "Conecta tu primer canal",
-      "body": "Activa los DMs de Instagram o conecta Gmail u Outlook. Solo leemos conversaciones recientes y solo respondes a hilos que ya existen."
+      "body": "En «Canales», arriba, activa los DMs de Instagram o conecta Gmail u Outlook. Solo leemos conversaciones recientes y solo respondes a hilos que ya existen."
     },
     "listLabel": "Conversaciones",
     "filtersLabel": "Filtrar por estado",
@@ -83,7 +83,7 @@
     "aiAssisted": "borrador con IA",
     "window": {
       "open": "Ventana de 24 h abierta: puedes responder hasta {time}.",
-      "humanAgent": "Han pasado más de 24 h. Respondes como agente humano (etiqueta HUMAN_AGENT de Meta) hasta {time}. Solo respuestas escritas o revisadas por una persona.",
+      "humanAgent": "Han pasado más de 24 h. Respondes como agente humano (excepción de Meta para respuestas de personas) hasta {time}. Solo respuestas escritas o revisadas por una persona.",
       "closed": "Han pasado más de 24 h desde su último mensaje. Instagram no permite responder desde apps fuera de esa ventana: contesta desde la app de Instagram o espera a que vuelva a escribirte.",
       "closedHumanAgent": "Han pasado más de 7 días desde su último mensaje. Instagram no permite responder desde apps: contesta desde la app de Instagram o espera a que vuelva a escribirte."
     },
@@ -98,7 +98,7 @@
       "needsHuman": "Requiere tu criterio:",
       "instructions": "Indicaciones para la IA (opcional)",
       "instructionsPlaceholder": "p. ej. ofrece un 10 % de descuento y pide el número de pedido",
-      "aiNotConfigured": "Las sugerencias de IA se activarán cuando añadamos la clave de Anthropic.",
+      "aiNotConfigured": "Las sugerencias de IA aún no están activadas. Puedes escribir la respuesta tú.",
       "suggest": "Sugerir respuesta",
       "suggesting": "Pensando…",
       "sendNote": "Respondes en el mismo hilo, al remitente original. Nada de envíos masivos.",
@@ -108,7 +108,7 @@
     },
     "buyCredits": "Comprar créditos",
     "errors": {
-      "not_configured": "Este canal está pendiente de configurar.",
+      "not_configured": "Este canal aún no está activado.",
       "denied": "Has cancelado la conexión.",
       "invalid_state": "La conexión ha caducado o no es válida. Vuelve a intentarlo.",
       "forbidden": "No tienes permiso para hacer esto en este proyecto.",
@@ -142,7 +142,7 @@
   },
   "studioAudio": {
     "tab": "Audio",
-    "notConfigured": "La voz y la música se activarán cuando añadamos la clave de ElevenLabs (ELEVENLABS_API_KEY).",
+    "notConfigured": "La voz y la música aún no están activadas.",
     "modeLabel": "Tipo de audio",
     "voiceTab": "Voz",
     "musicTab": "Música",
@@ -167,7 +167,7 @@
     "termsLink": "Términos de ElevenLabs",
     "musicTermsLink": "Términos de Eleven Music",
     "errors": {
-      "not_configured": "La generación de audio está pendiente de configurar.",
+      "not_configured": "La generación de audio aún no está activada.",
       "invalid_input": "Revisa el texto y las opciones.",
       "invalid_voice": "Esa voz ya no está disponible. Elige otra.",
       "banned_word": "El texto incluye una palabra prohibida en tu brand kit.",
@@ -189,7 +189,7 @@
   "clipper": {
     "title": "Clipper",
     "subtitle": "Sube un vídeo largo tuyo y saca shorts verticales con subtítulos. La IA propone los momentos; tú eliges.",
-    "notConfigured": "El Clipper se activará cuando añadamos las claves de fal.ai (FAL_KEY) y Anthropic (ANTHROPIC_API_KEY).",
+    "notConfigured": "El Clipper aún no está activado.",
     "soon": "Próximamente",
     "youtube": {
       "title": "Desde un enlace de YouTube",
@@ -266,7 +266,7 @@
       "no_duration": "No pudimos leer la duración del vídeo. Prueba a exportarlo de nuevo como MP4.",
       "upload_failed": "No se pudo subir el vídeo. Revisa tu conexión.",
       "insufficient_credits": "No tienes créditos suficientes.",
-      "not_configured": "El Clipper está pendiente de configurar.",
+      "not_configured": "El Clipper aún no está activado.",
       "forbidden": "No tienes permiso para hacer esto en este proyecto.",
       "invalid_input": "Revisa los datos.",
       "provider_error": "El servicio de vídeo no está disponible. Te hemos devuelto los créditos.",

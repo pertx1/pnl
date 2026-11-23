@@ -82,24 +82,26 @@ export default async function AccountsPage({ params, searchParams }: PageProps<"
                 <CardDescription>{t(`platformHints.${p}`)}</CardDescription>
               </CardHeader>
               <CardContent className="space-y-2">
+                {/* Tres redes = tres botones iguales: contorno (la lima queda para una sola acción principal). */}
                 {configured && canConnect ? (
-                  <Button asChild className="w-full">
-                    <a href={`/api/oauth/${p}/start?project=${projectId}`}>{t("connect")}</a>
+                  <Button asChild variant="outline" className="w-full">
+                    <a href={`/api/oauth/${p}/start?project=${projectId}`}>{t("connectTo", { platform: t(`platformNames.${p}`) })}</a>
                   </Button>
                 ) : (
-                  <Button className="w-full" disabled>
-                    {t("connect")}
+                  <Button variant="outline" className="w-full" disabled>
+                    {t("connectTo", { platform: t(`platformNames.${p}`) })}
                   </Button>
                 )}
                 {!configured && <p className="text-xs text-muted-foreground">{t("notConfigured")}</p>}
+                {configured && !canConnect && <p className="text-xs text-muted-foreground">{t("viewerCannotConnect")}</p>}
                 {p === "youtube" && (
                   <p className="text-xs text-muted-foreground">
                     {t("youtubeNote")}{" "}
-                    <a className="underline" href="https://www.youtube.com/t/terms" target="_blank" rel="noreferrer">
+                    <a className="link" href="https://www.youtube.com/t/terms" target="_blank" rel="noreferrer">
                       {t("ytTerms")}
                     </a>{" "}
                     ·{" "}
-                    <a className="underline" href="https://policies.google.com/privacy" target="_blank" rel="noreferrer">
+                    <a className="link" href="https://policies.google.com/privacy" target="_blank" rel="noreferrer">
                       {t("googlePrivacy")}
                     </a>
                   </p>

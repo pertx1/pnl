@@ -228,6 +228,7 @@ export function PostEditor({
                   </div>
                   <p className="font-mono text-xs text-muted-foreground">{t("chars", { count: caption.length })}</p>
                 </div>
+                {!readOnly && caption.trim().length < 3 && <p className="text-xs text-muted-foreground">{t("suggestHint")}</p>}
                 {aiError && <p className="text-xs text-destructive">{t.has(`aiErrors.${aiError}`) ? t(`aiErrors.${aiError}`) : t("errorsX.generic")}</p>}
                 {suggestions.length > 0 && (
                   <div className="space-y-2 rounded-md border border-brand-amber/40 p-3">
@@ -260,8 +261,8 @@ export function PostEditor({
                       <img src={a.url} alt="" className="size-full object-cover" />
                     ))}
                     {a.ai && <span className="absolute bottom-1 left-1 rounded-sm bg-brand-amber px-1 font-mono text-[9px] font-bold text-brand-amber-foreground">IA</span>}
-                    <button type="button" aria-label="Quitar" onClick={() => setAssetIds((p) => p.filter((x) => x !== a.id))} className="absolute top-1 right-1 rounded-sm bg-background/80 p-0.5">
-                      <X className="size-3" />
+                    <button type="button" aria-label={t("removeMedia")} onClick={() => setAssetIds((p) => p.filter((x) => x !== a.id))} className="absolute top-1 right-1 rounded-sm bg-background/80 p-0.5">
+                      <X className="size-3" aria-hidden />
                     </button>
                   </div>
                 ))}
@@ -279,7 +280,7 @@ export function PostEditor({
                       .filter((a) => !assetIds.includes(a.id))
                       .slice(0, 12)
                       .map((a) => (
-                        <button key={a.id} type="button" onClick={() => setAssetIds((p) => [...p, a.id])} className="size-14 overflow-hidden rounded-md border opacity-70 hover:opacity-100">
+                        <button key={a.id} type="button" aria-label={t("addFromLibrary")} onClick={() => setAssetIds((p) => [...p, a.id])} className="size-14 overflow-hidden rounded-md border opacity-70 hover:opacity-100">
                           {a.url && !a.mime.startsWith("video/") ? (
                             // eslint-disable-next-line @next/next/no-img-element
                             <img src={a.url} alt="" className="size-full object-cover" />
@@ -476,6 +477,7 @@ export function PostEditor({
                       disabled={pending}
                       onClick={() =>
                         run(async () => {
+                          if (!window.confirm(t("deleteConfirm"))) return;
                           if (handleResult(await deletePost(projectId, postId), t("deleted"))) router.push(`/app/p/${projectId}/calendar`);
                         })
                       }

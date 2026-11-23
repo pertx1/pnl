@@ -5,29 +5,19 @@ import { usePathname } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { useState, useTransition } from "react";
 import {
-  BarChart3,
-  FileBarChart,
-  Flame,
-  HandCoins,
-  Inbox,
-  Lightbulb,
-  Map,
-  PackageSearch,
-  Scissors,
-  ShoppingBag,
-  Swords,
-  Users,
   CalendarDays,
   Coins,
   FolderKanban,
+  HandCoins,
+  Inbox,
   LayoutDashboard,
   LogOut,
   MoreHorizontal,
-  Palette,
-  Plug,
   Plus,
+  Search,
   Settings,
   Sparkles,
+  Users,
   X,
 } from "lucide-react";
 import { KreoLogo } from "@/components/brand/logo";
@@ -37,44 +27,9 @@ import { Button } from "@/components/ui/button";
 import { switchWorkspace } from "@/app/app/actions";
 import type { WorkspaceSummary } from "@/lib/server/dal";
 import { cn } from "@/lib/utils";
-
-/** Navegación del proyecto agrupada por intención. Cada ruta la implementa su módulo. */
-const PROJECT_NAV: { label: string; items: { path: string; icon: typeof LayoutDashboard; label: string; also?: string[] }[] }[] = [
-  {
-    label: "groupCreate",
-    items: [
-      { path: "studio", icon: Sparkles, label: "studio" },
-      { path: "clipper", icon: Scissors, label: "clipper" },
-      { path: "inspiration", icon: Lightbulb, label: "inspiration" },
-      { path: "brand-kit", icon: Palette, label: "brandKit" },
-    ],
-  },
-  {
-    label: "groupPublish",
-    items: [
-      { path: "calendar", icon: CalendarDays, label: "calendar", also: ["posts"] },
-      { path: "inbox", icon: Inbox, label: "inbox" },
-      { path: "accounts", icon: Plug, label: "accounts" },
-    ],
-  },
-  {
-    label: "groupGrow",
-    items: [
-      { path: "analytics", icon: BarChart3, label: "analytics" },
-      { path: "competitors", icon: Swords, label: "competitors" },
-      { path: "products", icon: PackageSearch, label: "products" },
-      { path: "strategy", icon: Map, label: "strategy" },
-      { path: "warmup", icon: Flame, label: "warmup" },
-    ],
-  },
-  {
-    label: "groupBusiness",
-    items: [
-      { path: "shopify", icon: ShoppingBag, label: "shopify" },
-      { path: "reports", icon: FileBarChart, label: "reports" },
-    ],
-  },
-];
+import { CommandPalette, useShortcutLabel } from "./command-palette";
+import { CreateMenu } from "./create-menu";
+import { PROJECT_NAV } from "./nav-config";
 
 type Props = {
   workspace: WorkspaceSummary;
@@ -128,7 +83,9 @@ export function AppSidebar({ workspace, workspaces, projects, credits, monthlyCr
   const ta = useTranslations("auth");
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
+  const [paletteOpen, setPaletteOpen] = useState(false);
   const [pending, start] = useTransition();
+  const shortcut = useShortcutLabel();
 
   const match = pathname.match(/^\/app\/p\/([0-9a-f-]{36})/i);
   const currentProjectId = match?.[1];
@@ -183,6 +140,25 @@ export function AppSidebar({ workspace, workspaces, projects, credits, monthlyCr
           ))}
         </select>
       </label>
+
+      {/* Acciones globales: crear y buscar (Ctrl/Cmd + K) */}
+      <div className="space-y-1">
+        <CreateMenu projects={projects} currentProject={currentProject} />
+        <button
+          type="button"
+          onClick={() => {
+            setOpen(false);
+            setPaletteOpen(true);
+          }}
+          aria-haspopup="dialog"
+          aria-keyshortcuts="Control+K Meta+K"
+          className="flex w-full items-center gap-2.5 rounded-md px-2.5 py-2 text-sm text-muted-foreground outline-none hover:bg-sidebar-accent/60 hover:text-foreground focus-visible:ring-3 focus-visible:ring-ring/50"
+        >
+          <Search className="size-4" strokeWidth={1.5} aria-hidden />
+          <span className="flex-1 text-left">{t("search")}</span>
+          <kbd className="hidden rounded-sm border border-border px-1.5 py-0.5 font-mono text-[10px] md:inline">{shortcut}</kbd>
+        </button>
+      </div>
 
       <nav className="space-y-0.5" aria-label={t("projects")}>
         <NavItem href="/app" icon={FolderKanban} label={t("projects")} active={pathname === "/app"} />
@@ -306,6 +282,7 @@ export function AppSidebar({ workspace, workspaces, projects, credits, monthlyCr
         </ul>
       </nav>
       {open && <div className="fixed inset-0 z-40 bg-black/60 md:hidden" onClick={() => setOpen(false)} />}
+      <CommandPalette open={paletteOpen} onOpenChange={setPaletteOpen} projects={projects} currentProject={currentProject} />
       <aside
         onClick={(e) => {
           if ((e.target as HTMLElement).closest("a")) setOpen(false);

@@ -298,7 +298,7 @@
       "invalid_code": "The code isn't valid.",
       "not_applied": "Couldn't apply it: you already have a referrer, the period has passed or the code doesn't exist.",
       "forbidden": "You don't have permission to do this.",
-      "not_configured": "Pending server configuration.",
+      "not_configured": "This feature isn't turned on yet.",
       "generic": "Something went wrong. Please try again."
     }
   },

@@ -19,6 +19,13 @@ Por prioridad. Claude: tacha `[x]` al terminar y anota el commit.
 - [ ] TikTok: leer `creator_info` y ofrecer solo las privacidades permitidas.
 - [ ] Probar en real: Bandeja, audio, Clipper, informes PDF.
 
+## Usabilidad (sugerencias de la revisión del 2026-11-23)
+- [ ] Barra lateral móvil cerrada: añadir `inert` para que no se pueda llegar con Tab.
+- [ ] Calendario: pestañas Mes/Semana/Lista como botones con `aria-pressed`; revisar el aviso de reprogramar (mismo texto en las dos ramas).
+- [ ] Panel: que las cifras sean enlaces (p. ej. «Por aprobar» → lista filtrada).
+- [ ] Estudio: botón «Usar en una publicación» en cada pieza generada.
+- [ ] Traducir el «Workspace» del selector y el «Close» del diálogo de shadcn.
+
 ## Baja
 - [ ] OAuth para el servidor MCP (conector de Claude.ai).
 - [ ] Gmail en un proyecto de Google Cloud aparte (para no atar la verificación de YouTube a CASA).

@@ -6,7 +6,7 @@
       "invalid_url": "Enter a valid link starting with https://.",
       "not_found": "Not found.",
       "forbidden": "You don't have permission to do this (editor role required).",
-      "not_configured": "Not configured yet. The API key is missing on the server.",
+      "not_configured": "This feature isn't turned on yet.",
       "coming_soon": "Coming soon.",
       "limit_reached": "You've reached the maximum of 50 competitors in this project.",
       "needs_connected_account": "Connect an Instagram business or creator account in this project to use Business Discovery.",
@@ -53,7 +53,7 @@
       "instagram": "Looked up with Business Discovery using your connected account {account}."
     },
     "free": "Free",
-    "youtubeNotConfigured": "YouTube not configured yet: GOOGLE_API_KEY is missing on the server.",
+    "youtubeNotConfigured": "YouTube data isn't turned on yet.",
     "instagramNeedsAccount": "To look up Instagram accounts you need to connect a business or creator account in this project (that's how Business Discovery works).",
     "connectInstagram": "Connect in Accounts",
     "viewerHint": "You have the viewer role: you can see the data but not follow profiles.",
@@ -83,7 +83,7 @@
       "not_found_or_personal": "The account is no longer business/creator or isn't public.",
       "quota_or_forbidden": "API quota exhausted.",
       "data_expired": "YouTube data deleted because it was older than 30 days. Refresh to see it again.",
-      "not_configured": "API not configured yet."
+      "not_configured": "This data source isn't turned on yet."
     },
     "untitled": "(untitled)",
     "refresh": "Refresh",
@@ -118,9 +118,9 @@
       "run": "Analyze with AI",
       "rerun": "Analyze again",
       "noCredits": "Not enough credits",
-      "notConfigured": "AI not configured yet: ANTHROPIC_API_KEY is missing.",
+      "notConfigured": "AI analysis isn't turned on yet.",
       "empty": "Run the analysis to see conclusions based on their public data.",
-      "disabled": "You need the editor role, AI configured and saved posts.",
+      "disabled": "To analyze you need the editor role, AI turned on and saved posts.",
       "themes": "Topics",
       "hooks": "Hooks",
       "formats": "Formats",
@@ -133,8 +133,8 @@
     "title": "Winning products",
     "subtitle": "Spot products whose ads have been running for a while. Transparency data from the Meta Ad Library.",
     "notConfigured": {
-      "title": "Ad Library not configured yet",
-      "body": "META_AD_LIBRARY_TOKEN is missing. Oier must complete Meta's identity verification (ID document + location confirmation at facebook.com/ID), accept the terms at facebook.com/ads/library/api and generate a token for the Kreo app."
+      "title": "Ad search not available yet",
+      "body": "Searching Meta's ad library isn't turned on yet. Meanwhile, you can add products manually."
     },
     "search": {
       "title": "Search the Meta Ad Library",
@@ -190,7 +190,7 @@
       "deleteConfirm": "Delete the list \"{name}\"? Products are kept without a list."
     },
     "manual": { "label": "Add product manually", "placeholder": "Product name (no ad)", "add": "Add" },
-    "aiNotConfigured": "AI not configured yet: the Product Hunter will be available once ANTHROPIC_API_KEY is set.",
+    "aiNotConfigured": "The Product Hunter uses AI and isn't turned on yet.",
     "empty": {
       "title": "No saved products yet",
       "body": "Search the Ad Library and save promising ads, or add a product manually to use the margin calculator."
@@ -222,7 +222,7 @@
       "delete": "Delete",
       "deleteConfirm": "Delete this product and its analysis?",
       "analyze": "Analyze with AI",
-      "aiNotConfigured": "AI not configured yet"
+      "aiNotConfigured": "AI isn't turned on yet"
     },
     "analysis": {
       "verdict": { "test": "Worth a test", "maybe": "Needs more info", "skip": "Skip" },
@@ -289,7 +289,7 @@
       },
       "generate": "Generate 10 hooks",
       "generated": "{count} hooks added to your library.",
-      "aiNotConfigured": "AI not configured yet",
+      "aiNotConfigured": "AI isn't turned on yet",
       "own": "Your hook",
       "ownPlaceholder": "Write a hook you want to save",
       "save": "Save",

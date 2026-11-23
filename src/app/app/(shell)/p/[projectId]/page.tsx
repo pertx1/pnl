@@ -71,7 +71,8 @@ export default async function ProjectPage({ params }: PageProps<"/app/p/[project
   const steps = [
     { icon: Palette, title: t("stepBrandKit"), body: t("stepBrandKitBody"), href: `${base}/brand-kit`, done: kitDone },
     { icon: Plug, title: t("stepAccounts"), body: t("stepAccountsBody"), href: `${base}/accounts`, done: (accountsCount ?? 0) > 0 },
-    { icon: CalendarDays, title: t("stepCalendar"), body: t("stepCalendarBody"), href: `${base}/calendar`, done: (postsCount ?? 0) > 0 },
+    // Sin publicaciones, el paso lleva directo a crear la primera (no al calendario vacío).
+    { icon: CalendarDays, title: t("stepCalendar"), body: t("stepCalendarBody"), href: (postsCount ?? 0) > 0 ? `${base}/calendar` : `${base}/posts/new`, done: (postsCount ?? 0) > 0 },
   ];
   const tools = [
     { href: `${base}/studio`, icon: Sparkles, label: tn("studio"), body: t("toolStudio") },

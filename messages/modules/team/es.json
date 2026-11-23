@@ -298,7 +298,7 @@
       "invalid_code": "El código no es válido.",
       "not_applied": "No se ha podido aplicar: ya tienes un referido, el plazo ha pasado o el código no existe.",
       "forbidden": "No tienes permisos para hacer esto.",
-      "not_configured": "Pendiente de configurar en el servidor.",
+      "not_configured": "Esta función aún no está activada.",
       "generic": "Algo ha fallado. Inténtalo de nuevo."
     }
   },

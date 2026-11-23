@@ -134,7 +134,7 @@ export function CalendarView({
     >
       <div className="flex items-center gap-1">
         {p.scheduledAt && <span className="font-mono text-[10px] text-muted-foreground">{format.dateTime(new Date(p.scheduledAt), { hour: "2-digit", minute: "2-digit" })}</span>}
-        {p.aiGenerated && <Sparkles className="size-3 text-brand-amber-ink" aria-label="IA" />}
+        {p.aiGenerated && <Sparkles className="size-3 text-brand-amber-ink" aria-label={t("aiLabel")} />}
       </div>
       <div className="truncate font-medium">{p.title || p.caption.slice(0, 40) || "—"}</div>
       {!compact && (
@@ -165,8 +165,12 @@ export function CalendarView({
         <div className="flex items-center justify-between">
           <span className={cn("font-mono text-xs", isToday ? "rounded-sm bg-primary px-1 text-primary-foreground" : "text-muted-foreground")}>{d.getDate()}</span>
           {newPostBase && (
-            <Link href={`${newPostBase}?date=${k}`} className="opacity-0 transition-opacity group-hover:opacity-100 focus-visible:opacity-100" aria-label={`+ ${k}`}>
-              <Plus className="size-3.5 text-muted-foreground" />
+            <Link
+              href={`${newPostBase}?date=${k}`}
+              className="rounded-sm opacity-0 transition-opacity group-hover:opacity-100 focus-visible:opacity-100 pointer-coarse:opacity-100"
+              aria-label={t("newOnDay", { date: format.dateTime(d, { day: "numeric", month: "long" }) })}
+            >
+              <Plus className="size-3.5 text-muted-foreground" aria-hidden />
             </Link>
           )}
         </div>
@@ -222,7 +226,7 @@ export function CalendarView({
               </span>
               <span className="min-w-0 flex-1 truncate text-sm font-medium">{p.title || p.caption.slice(0, 80) || "—"}</span>
               {showProject && <span className="text-xs text-muted-foreground">{p.projectName}</span>}
-              {p.aiGenerated && <Sparkles className="size-3.5 text-brand-amber-ink" aria-label="IA" />}
+              {p.aiGenerated && <Sparkles className="size-3.5 text-brand-amber-ink" aria-label={t("aiLabel")} />}
               <span className="text-xs font-semibold" style={{ color: STATUS_COLOR[p.status] }}>
                 {tp(p.status)}
               </span>
@@ -231,7 +235,10 @@ export function CalendarView({
         ))}
       </ul>
     ) : (
-      <p className="rounded-lg border px-3 py-8 text-center text-sm text-muted-foreground">{t("empty")}</p>
+      <div className="rounded-lg border px-3 py-8 text-center text-sm text-muted-foreground">
+        <p>{t("empty")}</p>
+        {newPostBase && <p className="mt-1 text-xs">{t("emptyCreateHint")}</p>}
+      </div>
     );
   } else {
     const first = new Date(anchor.getFullYear(), anchor.getMonth(), 1);
@@ -284,7 +291,11 @@ export function CalendarView({
           ))}
         </div>
       </div>
-      {view !== "list" && <p className="text-xs text-muted-foreground">{t("dragHint")}</p>}
+      {view !== "list" && (
+        <p className="text-xs text-muted-foreground">
+          {posts.some((p) => p.scheduledAt) ? t("dragHint") : newPostBase ? t("emptyCalendarHint") : t("empty")}
+        </p>
+      )}
       {body}
       {unscheduled.length > 0 && (
         <div className="space-y-2">

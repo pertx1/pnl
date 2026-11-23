@@ -9,11 +9,11 @@
       "outlook": "Outlook",
       "tiktok": "TikTok"
     },
-    "notConfigured": "Setup pending",
+    "notConfigured": "Not available yet",
     "notConfiguredHint": {
-      "instagram": "Turns on once we add the Meta keys (META_APP_ID, META_APP_SECRET and META_WEBHOOK_VERIFY_TOKEN).",
-      "gmail": "Turns on once we add the Google keys (GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET).",
-      "outlook": "Turns on once we add the Microsoft keys (MICROSOFT_CLIENT_ID and MICROSOFT_CLIENT_SECRET)."
+      "instagram": "Instagram messages aren't turned on yet.",
+      "gmail": "The Gmail connection isn't turned on yet.",
+      "outlook": "The Outlook connection isn't turned on yet."
     },
     "igNeedsAccount": "First connect your Instagram professional account in Accounts.",
     "goAccounts": "Go to Accounts",
@@ -39,7 +39,7 @@
     "connectedOk": "{channel} connected. We're pulling in your recent conversations.",
     "emptyNoConnections": {
       "title": "Connect your first channel",
-      "body": "Turn on Instagram DMs or connect Gmail or Outlook. We only read recent conversations and you only reply to existing threads."
+      "body": "Under “Channels” above, turn on Instagram DMs or connect Gmail or Outlook. We only read recent conversations and you only reply to existing threads."
     },
     "listLabel": "Conversations",
     "filtersLabel": "Filter by status",
@@ -83,7 +83,7 @@
     "aiAssisted": "AI draft",
     "window": {
       "open": "24-hour window open: you can reply until {time}.",
-      "humanAgent": "More than 24 h have passed. You're replying as a human agent (Meta's HUMAN_AGENT tag) until {time}. Only replies written or reviewed by a person.",
+      "humanAgent": "More than 24 h have passed. You're replying as a human agent (Meta's exception for replies from people) until {time}. Only replies written or reviewed by a person.",
       "closed": "More than 24 h have passed since their last message. Instagram doesn't let apps reply outside that window: reply from the Instagram app or wait until they message you again.",
       "closedHumanAgent": "More than 7 days have passed since their last message. Instagram doesn't let apps reply: reply from the Instagram app or wait until they message you again."
     },
@@ -98,7 +98,7 @@
       "needsHuman": "Needs your judgement:",
       "instructions": "Instructions for the AI (optional)",
       "instructionsPlaceholder": "e.g. offer 10% off and ask for the order number",
-      "aiNotConfigured": "AI suggestions turn on once we add the Anthropic key.",
+      "aiNotConfigured": "AI suggestions aren't turned on yet. You can write the reply yourself.",
       "suggest": "Suggest reply",
       "suggesting": "Thinking…",
       "sendNote": "You reply in the same thread, to the original sender. No bulk sending.",
@@ -108,7 +108,7 @@
     },
     "buyCredits": "Buy credits",
     "errors": {
-      "not_configured": "This channel is pending setup.",
+      "not_configured": "This channel isn't turned on yet.",
       "denied": "You cancelled the connection.",
       "invalid_state": "The connection expired or is invalid. Try again.",
       "forbidden": "You don't have permission to do this in this project.",
@@ -142,7 +142,7 @@
   },
   "studioAudio": {
     "tab": "Audio",
-    "notConfigured": "Voice and music turn on once we add the ElevenLabs key (ELEVENLABS_API_KEY).",
+    "notConfigured": "Voice and music aren't turned on yet.",
     "modeLabel": "Audio type",
     "voiceTab": "Voice",
     "musicTab": "Music",
@@ -167,7 +167,7 @@
     "termsLink": "ElevenLabs terms",
     "musicTermsLink": "Eleven Music terms",
     "errors": {
-      "not_configured": "Audio generation is pending setup.",
+      "not_configured": "Audio generation isn't turned on yet.",
       "invalid_input": "Check the text and options.",
       "invalid_voice": "That voice is no longer available. Pick another.",
       "banned_word": "The text includes a word banned in your brand kit.",
@@ -189,7 +189,7 @@
   "clipper": {
     "title": "Clipper",
     "subtitle": "Upload one of your long videos and get vertical shorts with captions. AI proposes the moments; you choose.",
-    "notConfigured": "Clipper turns on once we add the fal.ai (FAL_KEY) and Anthropic (ANTHROPIC_API_KEY) keys.",
+    "notConfigured": "Clipper isn't turned on yet.",
     "soon": "Coming soon",
     "youtube": {
       "title": "From a YouTube link",
@@ -266,7 +266,7 @@
       "no_duration": "We couldn't read the video's length. Try exporting it again as MP4.",
       "upload_failed": "The video couldn't be uploaded. Check your connection.",
       "insufficient_credits": "You don't have enough credits.",
-      "not_configured": "Clipper is pending setup.",
+      "not_configured": "Clipper isn't turned on yet.",
       "forbidden": "You don't have permission to do this in this project.",
       "invalid_input": "Check the details.",
       "provider_error": "The video service isn't available. Your credits were refunded.",

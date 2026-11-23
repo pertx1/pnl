@@ -6,7 +6,7 @@
       "invalid_url": "Introduce un enlace válido que empiece por https://.",
       "not_found": "No encontrado.",
       "forbidden": "No tienes permisos para hacer esto (necesitas rol editor).",
-      "not_configured": "Pendiente de configurar. Falta la clave de la API en el servidor.",
+      "not_configured": "Esta función aún no está activada.",
       "coming_soon": "Próximamente.",
       "limit_reached": "Has llegado al máximo de 50 competidores en este proyecto.",
       "needs_connected_account": "Conecta una cuenta de Instagram business o creator en este proyecto para usar Business Discovery.",
@@ -53,7 +53,7 @@
       "instagram": "Se consulta con Business Discovery usando tu cuenta conectada {account}."
     },
     "free": "Gratis",
-    "youtubeNotConfigured": "YouTube pendiente de configurar: falta GOOGLE_API_KEY en el servidor.",
+    "youtubeNotConfigured": "Los datos de YouTube aún no están activados.",
     "instagramNeedsAccount": "Para ver cuentas de Instagram necesitas conectar una cuenta business o creator en este proyecto (Business Discovery solo funciona así).",
     "connectInstagram": "Conectar en Cuentas",
     "viewerHint": "Tienes rol de lector: puedes ver los datos, pero no seguir perfiles.",
@@ -83,7 +83,7 @@
       "not_found_or_personal": "La cuenta ya no es business/creator o no es pública.",
       "quota_or_forbidden": "Cuota de la API agotada.",
       "data_expired": "Datos de YouTube borrados por antigüedad (más de 30 días). Actualiza para volver a verlos.",
-      "not_configured": "API pendiente de configurar."
+      "not_configured": "Esta fuente de datos aún no está activada."
     },
     "untitled": "(sin título)",
     "refresh": "Actualizar",
@@ -118,9 +118,9 @@
       "run": "Analizar con IA",
       "rerun": "Volver a analizar",
       "noCredits": "Créditos insuficientes",
-      "notConfigured": "IA pendiente de configurar: falta ANTHROPIC_API_KEY.",
+      "notConfigured": "El análisis con IA aún no está activado.",
       "empty": "Lanza el análisis para ver conclusiones basadas en sus datos públicos.",
-      "disabled": "Necesitas rol editor, IA configurada y publicaciones guardadas.",
+      "disabled": "Para analizar necesitas rol de editor, la IA activada y publicaciones guardadas.",
       "themes": "Temas",
       "hooks": "Hooks",
       "formats": "Formatos",
@@ -133,8 +133,8 @@
     "title": "Productos ganadores",
     "subtitle": "Detecta productos con anuncios que llevan tiempo activos. Datos de transparencia de la Meta Ad Library.",
     "notConfigured": {
-      "title": "Ad Library pendiente de configurar",
-      "body": "Falta META_AD_LIBRARY_TOKEN. Oier debe completar la verificación de identidad de Meta (documento + confirmación de ubicación en facebook.com/ID), aceptar las condiciones en facebook.com/ads/library/api y generar un token para la app de Kreo."
+      "title": "Búsqueda de anuncios aún no disponible",
+      "body": "La búsqueda en la biblioteca de anuncios de Meta aún no está activada. Mientras tanto, puedes añadir productos a mano."
     },
     "search": {
       "title": "Buscar en la Meta Ad Library",
@@ -190,7 +190,7 @@
       "deleteConfirm": "¿Borrar la lista \"{name}\"? Los productos se conservan sin lista."
     },
     "manual": { "label": "Añadir producto manualmente", "placeholder": "Nombre del producto (sin anuncio)", "add": "Añadir" },
-    "aiNotConfigured": "IA pendiente de configurar: el Cazador de productos estará disponible cuando haya ANTHROPIC_API_KEY.",
+    "aiNotConfigured": "El Cazador de productos usa IA y aún no está activado.",
     "empty": {
       "title": "Aún no hay productos guardados",
       "body": "Busca en la Ad Library y guarda los anuncios prometedores, o añade un producto a mano para usar la calculadora de margen."
@@ -222,7 +222,7 @@
       "delete": "Borrar",
       "deleteConfirm": "¿Borrar este producto y su análisis?",
       "analyze": "Analizar con IA",
-      "aiNotConfigured": "IA pendiente de configurar"
+      "aiNotConfigured": "La IA aún no está activada"
     },
     "analysis": {
       "verdict": { "test": "Merece una prueba", "maybe": "Falta información", "skip": "Descartar" },
@@ -289,7 +289,7 @@
       },
       "generate": "Generar 10 hooks",
       "generated": "{count} hooks añadidos a tu biblioteca.",
-      "aiNotConfigured": "IA pendiente de configurar",
+      "aiNotConfigured": "La IA aún no está activada",
       "own": "Tu hook",
       "ownPlaceholder": "Escribe un hook que quieras guardar",
       "save": "Guardar",
