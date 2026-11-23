@@ -3,7 +3,7 @@
 Por prioridad. Claude: tacha `[x]` al terminar y anota el commit.
 
 ## Alta
-- [ ] Comprobar que Inngest ejecuta `dispatch-due-posts` cuando Oier lo sincronice (registros de Vercel de `/api/inngest`).
+- [x] Comprobar que Inngest ejecuta `dispatch-due-posts` (2026-11-23: sincronizado con PUT; si se desincroniza tras un despliegue, repetir `curl -X PUT https://kreo-nine.vercel.app/api/inngest`) cuando Oier lo sincronice (registros de Vercel de `/api/inngest`).
 - [ ] Prueba de extremo a extremo de una publicación programada en Instagram, TikTok (privado) y YouTube.
 - [ ] Preparar revisiones de apps (detalle en `docs/app-review/README.md`):
   - [ ] Meta: endpoints de «desautorizar» y «eliminar datos».

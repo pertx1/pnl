@@ -34,7 +34,7 @@ Variables de entorno: lista completa en `.env.example`; estado de cada una en Ve
 
 ## Hecho pero SIN comprobar en real
 - **Conector de Claude (MCP + OAuth)**: `https://kreo-nine.vercel.app/api/mcp`; pendiente de que Oier lo añada en claude.ai.
-- **Publicación programada** → depende de Inngest, que aún **no llama a la app** (ver pendientes de Oier).
+- **Publicación programada**: Inngest ya llama a la app (cada minuto) desde el 2026-11-23; falta la primera publicación real.
 - Bandeja (DMs de Instagram, Gmail, Outlook), audio (ElevenLabs), Clipper, informes PDF, Shopify, MCP, equipo, planes, afiliados.
 
 ## Límites actuales

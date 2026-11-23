@@ -6,10 +6,7 @@ Lo que solo puedes hacer tú (consolas, pagos, decisiones). En orden. Tacha con 
 ## Ahora (para usar la app al 100 %)
 - [ ] **Añadir Kreo como conector en Claude**: claude.ai → Ajustes → Conectores → «Añadir conector personalizado» →
   URL `https://kreo-nine.vercel.app/api/mcp` → Conectar → iniciar sesión en Kreo → elegir workspace → Permitir.
-- [ ] **Conectar Inngest con el dominio público** (sin esto no se publica nada programado ni se actualizan estadísticas).
-  1. https://app.inngest.com/settings/integrations/vercel → proyecto kreo → «Custom Production Domain» = `kreo-nine.vercel.app`
-  2. https://app.inngest.com/env/production/apps → «Resync» (o «Sync new app» con `https://kreo-nine.vercel.app/api/inngest`)
-  3. Decirle a Claude «hecho lo de Inngest» para que lo compruebe.
+- [x] ~~Conectar Inngest~~ — hecho por Claude el 2026-11-23 (sincronizado con un PUT a `/api/inngest`).
 - [ ] **Reconectar YouTube** (Cuentas → desconectar y conectar) para dar el permiso de listas de reproducción.
 - [ ] **Probar una publicación real**: programar una en Instagram para dentro de 5 min y avisar a Claude.
 - [ ] **Conectar Gmail u Outlook** en la Bandeja (opcional).
