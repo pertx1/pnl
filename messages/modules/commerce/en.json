@@ -249,6 +249,8 @@
         "get_overview": "Overview: projects, accounts, upcoming posts, pending items, tasks and credits.",
         "get_calendar": "Publishing calendar by day, with network, account, status and time.",
         "get_free_slots": "Free slots per day and account, respecting the anti-ban daily limit.",
+        "get_best_times": "Best days and times to post per network (indicative + your history).",
+        "get_weekly_summary": "Weekly summary: followers, posts, what is scheduled and overdue tasks.",
         "list_tasks": "Pending roadmap and warm-up tasks.",
         "create_task": "Creates a task in the project roadmap.",
         "update_task": "Changes a task's status, date or text.",

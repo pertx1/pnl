@@ -10,7 +10,10 @@ import { aggregateMetrics, lastDays } from "@/lib/reports/core";
 import { salesSummary, type LineItem } from "@/lib/shopify/core";
 import { defaultFrequency } from "@/lib/strategy/templates";
 import type { Database, WorkspaceRoleT } from "@/lib/supabase/database.types";
-import { addDays, computeFreeSlots, daysBetween, DEFAULT_TZ, isIsoDay, isValidTimeZone, PLANNED_STATUSES, zonedParts, zonedToUtc } from "./calendar";
+import { isBestTimePlatform, type BestTimePlatform, type BestTimesResult } from "@/lib/analytics/best-time";
+import { loadProjectBestTimes } from "@/lib/analytics/best-time-data";
+import { loadWeeklySummary } from "@/lib/notifications/weekly";
+import { addDays, computeFreeSlots, daysBetween, DEFAULT_TZ, hhmm, isIsoDay, isValidTimeZone, PLANNED_STATUSES, zonedParts, zonedToUtc } from "./calendar";
 import { draftReply, DRAFT_REPLY_VERSION } from "./reply-agent";
 import { modelsCostText, startStudioGeneration } from "./studio";
 
@@ -157,7 +160,7 @@ export function createKreoMcpServer(ctx: McpContext) {
     {
       instructions:
         "Kreo es la herramienta de contenido para redes sociales del usuario (TikTok, Instagram, YouTube). Empieza con get_overview para ver espacios, proyectos y cuentas. " +
-        "Usa get_calendar y get_free_slots para planificar; list_tasks/create_task/update_task para las tareas del roadmap; create_draft_post para proponer publicaciones; " +
+        "Usa get_calendar, get_free_slots y get_best_times para planificar; get_weekly_summary para el resumen de la semana; list_tasks/create_task/update_task para las tareas del roadmap; create_draft_post para proponer publicaciones; " +
         "generate_image/generate_video + get_generation para crear medios con IA (cuestan créditos: indícalo antes; solo funcionan si el usuario activó «permitir gastar créditos» para esta conexión en Ajustes, con tope diario). Kreo NUNCA publica ni aprueba desde aquí: " +
         "todo queda como borrador o pendiente de aprobación humana en Kreo. Las fechas y horas se expresan en la zona horaria indicada (por defecto Europe/Madrid).",
     },
@@ -370,13 +373,26 @@ export function createKreoMcpServer(ctx: McpContext) {
           (["tiktok", "instagram", "youtube"].includes(platform) ? defaultFrequency(platform as "tiktok").hour : 13)
         );
       };
+      // Mejores horas con historial propio (no el patrón orientativo; YouTube nunca): ordenan las horas sugeridas.
+      const best = await loadProjectBestTimes(ctx.db, [...new Set((accounts ?? []).map((x) => x.project_id))], { timezone: r.tz }).catch(() => null);
+      const scoresFor = (projectId: string, platform: string) => {
+        const res = isBestTimePlatform(platform) ? best?.get(projectId)?.get(platform) : undefined;
+        return res && res.source !== "default" ? res.grid : undefined;
+      };
       const days = computeFreeSlots({
         days: daysBetween(r.from, r.to),
         tz: r.tz,
         now: new Date(),
         windowStartHour: a.window_start_hour,
         windowEndHour: a.window_end_hour,
-        accounts: (accounts ?? []).map((x) => ({ id: x.id, platform: x.platform, handle: handleOf(x.handle), dailyLimit: x.daily_post_limit, preferredHour: prefHour(x.project_id, x.id, x.platform) })),
+        accounts: (accounts ?? []).map((x) => ({
+          id: x.id,
+          platform: x.platform,
+          handle: handleOf(x.handle),
+          dailyLimit: x.daily_post_limit,
+          preferredHour: prefHour(x.project_id, x.id, x.platform),
+          hourScores: scoresFor(x.project_id, x.platform),
+        })),
         posts: (posts ?? []).filter((p) => p.scheduled_at).map((p) => ({ scheduledAt: p.scheduled_at!, status: p.status, accountIds: (p.post_targets ?? []).map((t) => t.social_account_id) })),
       });
       return json({
@@ -385,8 +401,82 @@ export function createKreoMcpServer(ctx: McpContext) {
         notes: [
           "planned cuenta publicaciones pendientes de aprobar, aprobadas, programadas o publicadas; los borradores con fecha (drafts) ocupan franja pero no límite.",
           "Kreo vuelve a comprobar el límite diario al aprobar (por día UTC): si se supera, la publicación no se programa. remaining y suggested_time ya tienen en cuenta el día UTC de la hora sugerida.",
+          "Si una cuenta tiene ranked_times, la hora sugerida sale de su historial propio de rendimiento (get_best_times); si no, de la estrategia o la hora habitual de la red.",
           (accounts ?? []).length ? "" : "No hay cuentas activas conectadas: conecta una en Kreo › Cuentas.",
         ].filter(Boolean),
+      });
+    }),
+  );
+
+  // ---------------------------------------------------------------------------------------------
+  server.registerTool(
+    "get_best_times",
+    {
+      title: "Mejores horas para publicar",
+      description:
+        "Mejores días y horas para publicar por red (TikTok, Instagram, YouTube) en un proyecto. Combina un patrón ORIENTATIVO por red (basado en estudios públicos del sector) con el historial propio de publicaciones hechas con Kreo y su rendimiento, que pesa más cuantas más muestras hay (mínimo 12). YouTube: solo el patrón orientativo (sus normas prohíben métricas derivadas). Úsala junto a get_free_slots antes de proponer horas.",
+      inputSchema: z.object({
+        project_id: z.uuid().optional().describe("Proyecto. Sin él: todos los proyectos accesibles."),
+        platform: z.enum(["tiktok", "instagram", "youtube"]).optional().describe("Solo esta red. Sin ella: las redes con cuentas conectadas."),
+        timezone: tzField,
+        top: z.number().int().min(1).max(10).default(5),
+      }),
+      annotations: { readOnlyHint: true, openWorldHint: false },
+    },
+    safe(async (a: { project_id?: string; platform?: BestTimePlatform; timezone?: string; top: number }) => {
+      const tz = a.timezone ?? DEFAULT_TZ;
+      if (!isValidTimeZone(tz)) throw new ToolError("invalid_timezone");
+      const projects = await scopeProjects(ctx, a.project_id);
+      if (!projects.length) return json({ projects: [], notice: "No hay proyectos." });
+      const best = await loadProjectBestTimes(ctx.db, projects.map((p) => p.id), { timezone: tz, platforms: a.platform ? [a.platform] : undefined });
+      const dayNames = ["lunes", "martes", "miércoles", "jueves", "viernes", "sábado", "domingo"];
+      return json({
+        timezone: tz,
+        projects: projects.map((p) => ({
+          project_id: p.id,
+          project: p.name,
+          platforms: [...(best.get(p.id) ?? new Map<BestTimePlatform, BestTimesResult>()).entries()].map(([platform, r]) => ({
+            platform,
+            source: r.source,
+            samples_with_metrics: r.samples,
+            min_samples: r.minSamples,
+            history_weight: r.historyWeight,
+            best: r.top.slice(0, a.top).map((s) => ({ weekday: dayNames[s.weekday], time: hhmm(s.hour * 60), score: s.score })),
+          })),
+        })),
+        notes: [
+          "source = default: solo el patrón orientativo; blended: patrón + historial propio; history: domina el historial propio.",
+          "El patrón por defecto es orientativo (Sprout Social, Hootsuite y Buffer, sobre todo audiencias de EE. UU./globales); varía por país y audiencia.",
+          "YouTube usa siempre solo el patrón orientativo: sus Developer Policies no permiten combinar sus datos para crear métricas.",
+          "Las puntuaciones (0–100) son relativas: 100 = la mejor franja de esa red.",
+        ],
+      });
+    }),
+  );
+
+  // ---------------------------------------------------------------------------------------------
+  server.registerTool(
+    "get_weekly_summary",
+    {
+      title: "Resumen semanal",
+      description:
+        "Resumen de los últimos 7 días de un proyecto (o de todos): seguidores y variación por cuenta (YouTube aparte, solo suscriptores actuales, sin sumar ni comparar), publicaciones publicadas y fallidas, lo programado para los próximos 7 días y las tareas vencidas del roadmap. Es el mismo resumen que Kreo guarda cada lunes a las 8:00 como aviso.",
+      inputSchema: z.object({
+        project_id: z.uuid().optional().describe("Proyecto. Sin él: todos los proyectos accesibles (máx. 10)."),
+      }),
+      annotations: { readOnlyHint: true, openWorldHint: false },
+    },
+    safe(async (a: { project_id?: string }) => {
+      const projects = (await scopeProjects(ctx, a.project_id)).slice(0, 10);
+      if (!projects.length) return json({ projects: [], notice: "No hay proyectos." });
+      const summaries = [];
+      for (const p of projects) summaries.push(await loadWeeklySummary(ctx.db, { id: p.id, name: p.name }));
+      return json({
+        summaries,
+        notes: [
+          "period = los 7 días anteriores a hoy; next = hoy y los 6 días siguientes (zona Europe/Madrid).",
+          "accounts.change = variación de seguidores en el periodo (null si no hay datos suficientes). YouTube va en `youtube` sin variación.",
+        ],
       });
     }),
   );

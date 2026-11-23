@@ -5,6 +5,8 @@ import { publishTo } from "@/lib/social/publish";
 import { loadTokens, saveTokens } from "@/lib/social/token-store";
 import { PlatformError, type Platform, type TokenSet } from "@/lib/social/types";
 import { refundGeneration, settleStudioGeneration, STUDIO_TIMEOUT_MS } from "@/lib/ai/settle";
+import { notifyAccountIssue, notifyPostTarget } from "@/lib/notifications/notify";
+import { captionLanguage, findSrtForVideo } from "@/lib/social/captions";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { inngest } from "./client";
 
@@ -28,7 +30,9 @@ async function freshTokens(accountId: string, platform: Platform): Promise<Token
     await saveTokens(accountId, { ...refreshed, refreshToken: refreshed.refreshToken ?? tokens.refreshToken });
     return refreshed;
   } catch {
-    await admin().from("social_accounts").update({ status: "expired" }).eq("id", accountId);
+    const { data: changed } = await admin().from("social_accounts").update({ status: "expired" }).eq("id", accountId).neq("status", "expired").select("id");
+    // Aviso solo al pasar a caducada (nunca rompe el flujo: notifyAccountIssue captura sus errores).
+    if (changed?.length) await notifyAccountIssue(admin(), accountId);
     throw new NonRetriableError("token_expired");
   }
 }
@@ -89,7 +93,10 @@ export const publishTarget = inngest.createFunction(
         .eq("id", id)
         .eq("status", "publishing")
         .select("post_id");
-      if (data?.[0]) await settlePost(data[0].post_id);
+      if (data?.[0]) {
+        await settlePost(data[0].post_id);
+        await notifyPostTarget(db, id, "failed");
+      }
     },
   },
   async ({ event, step }) => {
@@ -133,7 +140,7 @@ export const publishTarget = inngest.createFunction(
       const { data: assets } = post.asset_ids.length
         ? await db.from("assets").select("id, storage_path, mime_type").in("id", post.asset_ids)
         : { data: [] };
-      const ordered = post.asset_ids.map((id: string) => assets!.find((a) => a.id === id)).filter(Boolean) as { storage_path: string; mime_type: string }[];
+      const ordered = post.asset_ids.map((id: string) => assets!.find((a) => a.id === id)).filter(Boolean) as { id: string; storage_path: string; mime_type: string }[];
       const media = await Promise.all(
         ordered.map(async (a) => {
           const { data } = await db.storage.from("project-media").createSignedUrl(a.storage_path, 60 * 60);
@@ -161,6 +168,14 @@ export const publishTarget = inngest.createFunction(
         }
       }
 
+      // Subtítulos de YouTube: .srt asociado al vídeo (convención en src/lib/social/captions.ts). Opcional.
+      let captions: { srt: string; language: string } | undefined;
+      if (platform === "youtube") {
+        const video = ordered.find((a) => a.mime_type.startsWith("video/"));
+        const srt = video ? await findSrtForVideo(db, video).catch(() => null) : null;
+        if (srt) captions = { srt, language: captionLanguage(options.yt_language) };
+      }
+
       try {
         const out = await publishTo(platform, tokens, {
           externalId: account.external_id,
@@ -170,6 +185,7 @@ export const publishTarget = inngest.createFunction(
           options,
           aiDisclosure: AI_DISCLOSURE,
           thumbnail,
+          captions,
         });
         // Solo códigos (sin datos personales): pasos opcionales que no se pudieron completar.
         if (out.warnings?.length) console.warn(`[publish] ${platform} avisos: ${out.warnings.join(",")}`);
@@ -196,6 +212,8 @@ export const publishTarget = inngest.createFunction(
         .eq("id", postTargetId);
       await settlePost(claimed.postId);
     });
+    // Paso aparte: si avisar falla, la publicación ya está guardada (notifyPostTarget nunca lanza).
+    await step.run("notify", () => notifyPostTarget(admin(), postTargetId, "published"));
     return { published: result.externalPostId };
   },
 );
@@ -260,7 +278,16 @@ export const dataRetention = inngest.createFunction(
       const { purgeMcpOAuth } = await import("@/lib/mcp/oauth-retention");
       return purgeMcpOAuth(admin());
     });
-    return { waitlistDeleted: waitlist, mcpOAuth };
+    // Avisos: los leídos de más de 90 días (y cualquiera de más de un año, aunque no se haya leído).
+    const notifications = await step.run("notifications", async () => {
+      const db = admin();
+      const [read, old] = await Promise.all([
+        db.from("notifications").delete({ count: "exact" }).lt("read_at", new Date(Date.now() - 90 * 86400000).toISOString()),
+        db.from("notifications").delete({ count: "exact" }).lt("created_at", new Date(Date.now() - 365 * 86400000).toISOString()),
+      ]);
+      return (read.count ?? 0) + (old.count ?? 0);
+    });
+    return { waitlistDeleted: waitlist, mcpOAuth, notificationsDeleted: notifications };
   },
 );
 
@@ -310,6 +337,7 @@ export const settleStaleGenerations = inngest.createFunction(
 
 import { commerceFunctions } from "./modules/commerce";
 import { inboxFunctions } from "./modules/inbox";
+import { notificationFunctions } from "./modules/notifications";
 import { researchFunctions } from "./modules/research";
 import { strategyFunctions } from "./modules/strategy";
 import { teamFunctions } from "./modules/team";
@@ -325,4 +353,5 @@ export const functions = [
   ...inboxFunctions,
   ...teamFunctions,
   ...commerceFunctions,
+  ...notificationFunctions,
 ];

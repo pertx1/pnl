@@ -15,7 +15,13 @@ Por prioridad. Claude: tacha `[x]` al terminar y anota el commit.
 
 ## Media
 - [ ] Pedir `youtube.force-ssl` solo cuando el usuario use listas (permiso incremental).
-- [ ] Subtítulos de YouTube (captions.insert) reutilizando los `.srt` del Clipper.
+- [x] Subtítulos de YouTube (captions.insert) reutilizando los `.srt` del Clipper — 2026-11-24 (convención en `src/lib/social/captions.ts`; probar en real).
+- [ ] Centro de avisos / mejores horas / resumen semanal (2026-11-24): aplicar la migración `20261124120000_notifications.sql`,
+  pasar `seguridad-legal` y `qa-tester`, y comprobar en real (aviso de publicación, campana, resumen del lunes).
+- [ ] Rellenar `post_metrics` (métricas por publicación de Instagram/TikTok) para que «Mejores horas» use rendimiento real
+  en vez de la aproximación por seguidores. YouTube nunca (normas de su API).
+- [ ] Integrar `BestTimeHint` (`src/components/analytics/best-time-hint.tsx`) en el editor de publicaciones.
+- [ ] Email de avisos cuando haya dominio (punto de extensión `deliverExternal` en `src/lib/notifications/notify.ts`).
 - [ ] TikTok: leer `creator_info` y ofrecer solo las privacidades permitidas.
 - [ ] Probar en real: Bandeja, audio, Clipper, informes PDF.
 

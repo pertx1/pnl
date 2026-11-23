@@ -8,6 +8,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { getProject } from "@/lib/server/dal";
 import { createClient } from "@/lib/supabase/server";
 import { requestMetricsIfStale } from "@/lib/analytics/refresh";
+import { loadProjectBestTimes, type ProjectBestTimes } from "@/lib/analytics/best-time-data";
+import { BestTimesCard } from "@/components/analytics/best-times-card";
 
 export async function generateMetadata() {
   const t = await getTranslations("analytics");
@@ -55,7 +57,11 @@ export default async function AnalyticsPage({ params }: { params: Promise<{ proj
   ]);
 
   // Cuentas sin estadísticas o con más de 6 h: se piden al momento.
-  await requestMetricsIfStale(projectId, accounts ?? []);
+  // Mejores horas: patrón orientativo + historial propio (YouTube solo orientativo). Si falla, la tarjeta queda vacía.
+  const [, bestTimes] = await Promise.all([
+    requestMetricsIfStale(projectId, accounts ?? []),
+    loadProjectBestTimes(supabase, [projectId]).catch(() => new Map() as ProjectBestTimes),
+  ]);
 
   // Sumas por día de las cuentas del proyecto. YouTube queda FUERA de totales y comparativas: sus Developer
   // Policies (III.E.2 y III.E.4.h) prohíben combinar sus datos con otros y crear métricas derivadas.
@@ -160,6 +166,8 @@ export default async function AnalyticsPage({ params }: { params: Promise<{ proj
           </table>
         </CardContent>
       </Card>
+
+      <BestTimesCard results={bestTimes.get(projectId)} />
 
       <Card>
         <CardHeader>

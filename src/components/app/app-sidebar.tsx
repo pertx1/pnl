@@ -22,6 +22,7 @@ import {
 } from "lucide-react";
 import { KreoLogo } from "@/components/brand/logo";
 import { LocaleSwitcher } from "@/components/locale-switcher";
+import { NotificationBell } from "@/components/notifications/notification-bell";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { Button } from "@/components/ui/button";
 import { switchWorkspace } from "@/app/app/actions";
@@ -38,6 +39,7 @@ type Props = {
   credits: number;
   monthlyCredits: number;
   email: string;
+  unreadNotifications?: number;
 };
 
 function NavItem({
@@ -76,7 +78,7 @@ function NavItem({
   );
 }
 
-export function AppSidebar({ workspace, workspaces, projects, credits, monthlyCredits, email }: Props) {
+export function AppSidebar({ workspace, workspaces, projects, credits, monthlyCredits, email, unreadNotifications = 0 }: Props) {
   const t = useTranslations("nav");
   const tp = useTranslations("projects");
   const tcr = useTranslations("credits");
@@ -116,6 +118,9 @@ export function AppSidebar({ workspace, workspaces, projects, credits, monthlyCr
         <Link href="/app" aria-label="Kreo">
           <KreoLogo className="h-6" />
         </Link>
+        <div className="hidden md:block">
+          <NotificationBell initialUnread={unreadNotifications} />
+        </div>
         <Button variant="ghost" size="icon-sm" className="md:hidden" onClick={() => setOpen(false)} aria-label={t("closeMenu")}>
           <X />
         </Button>
@@ -240,6 +245,7 @@ export function AppSidebar({ workspace, workspaces, projects, credits, monthlyCr
         <Link href="/app" aria-label="Kreo">
           <KreoLogo className="h-5" />
         </Link>
+        <NotificationBell initialUnread={unreadNotifications} align="end" />
       </div>
 
       {/* Barra de pestañas inferior en móvil (HIG: la navegación principal en móvil va en una barra de pestañas).

@@ -1,5 +1,6 @@
 import "server-only";
 import { decryptToken, encryptToken } from "@/lib/crypto/tokens";
+import { notifyInboxIssue } from "@/lib/notifications/notify";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { InboxError } from "./config";
 import { gmailRefresh } from "./providers/gmail";
@@ -61,5 +62,7 @@ export async function freshAccessToken(conn: { id: string; channel: string }): P
 }
 
 export async function markExpired(connectionId: string) {
-  await admin().from("inbox_connections").update({ status: "expired" }).eq("id", connectionId);
+  const { data: changed } = await admin().from("inbox_connections").update({ status: "expired" }).eq("id", connectionId).neq("status", "expired").select("id");
+  // Aviso solo al pasar a caducada; notifyInboxIssue nunca lanza.
+  if (changed?.length) await notifyInboxIssue(admin(), connectionId);
 }
