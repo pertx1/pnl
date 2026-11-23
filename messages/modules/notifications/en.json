@@ -28,7 +28,8 @@
         "youtube_consent_expiring": "YouTube permission expiring soon",
         "ai_done": "AI generation or Clipper finished",
         "ai_failed": "AI generation or Clipper failed",
-        "weekly_summary": "Weekly summary (Mondays at 8:00)"
+        "weekly_summary": "Weekly summary (Mondays at 8:00)",
+        "post_action_needed": "Posts you need to finish in TikTok"
       }
     },
     "tpl": {
@@ -67,6 +68,14 @@
       "weekly_summary": {
         "title": "Weekly summary · {project}",
         "body": "{published} published · {failed} failed · {scheduled} scheduled this week · {overdue} overdue tasks"
+      },
+      "tiktok_inbox": {
+        "title": "Finish your post on {platform}",
+        "body": "{post} · {account}. The video is in your TikTok drafts: open TikTok, tap the inbox notification, paste the caption and post it. Caption and steps in Kreo."
+      },
+      "tiktok_manual": {
+        "title": "Ready to upload to {platform} manually",
+        "body": "{post} · {account}. Kreo couldn't send it to TikTok ({reason}). Download the video and copy the caption from Kreo, upload it in TikTok and click \"I've posted it\"."
       }
     },
     "kinds": {
@@ -122,6 +131,17 @@
       "due": "Due {date}",
       "untitled": "Untitled",
       "openProject": "Open the project"
+    },
+    "tiktokAi": " Turn on the \"AI-generated content\" label when posting.",
+    "tiktokReasons": {
+      "scope_missing": "the drafts permission is missing: reconnect TikTok",
+      "too_many_pending": "you have 5 pending TikTok uploads in the last 24 h",
+      "spam_risk": "TikTok has limited uploads for now",
+      "reconnect": "the TikTok connection has expired",
+      "video_required": "the post has no video",
+      "video_too_large": "the video is too large",
+      "inbox_unavailable": "TikTok didn't accept the upload to drafts",
+      "inbox_failed": "TikTok couldn't process the draft"
     }
   },
   "bestTimes": {

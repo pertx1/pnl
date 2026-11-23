@@ -44,7 +44,7 @@ Variables de entorno: lista completa en `.env.example`; estado de cada una en Ve
 - Bandeja (DMs de Instagram, Gmail, Outlook), audio (ElevenLabs), informes PDF, Shopify, equipo, planes, afiliados.
 
 ## Límites actuales
-- TikTok sin auditar: solo publica si la **cuenta de TikTok es privada** (error `unaudited_client_can_only_post_to_private_accounts`, comprobado el 2026-11-23); no basta con el vídeo en «Solo yo».
+- TikTok sin auditar: Direct Post solo publica si la **cuenta de TikTok es privada** (error `unaudited_client_can_only_post_to_private_accounts`, comprobado el 2026-11-23). En la rama del agente (sin desplegar): por defecto **se envía a los borradores de TikTok** y Oier lo publica desde la app de TikTok (o «subir a mano» si no se puede); necesita `video.upload` en la consola y reconectar.
 - YouTube ya publica en **público** (cambio de YouTube del 2026-11-02); el token caduca cada 7 días mientras Google esté «En prueba».
 - Instagram/Meta en modo desarrollo: funciona para las cuentas con rol en la app (la de Oier).
 - Revisiones de apps bloqueadas por: dominio propio, textos legales sin rellenar ni revisar, y (Meta/Microsoft) empresa registrada. Detalle en `docs/app-review/README.md`.

@@ -632,6 +632,24 @@ Comprobado con `npx tsc --noEmit`, `npx eslint` sobre lo tocado y `npx vitest ru
   derivada): quitada. «Publicación · 30 días» mezcla destinos de todas las redes, que son datos de Kreo: la nota lo dice ahora
   («Datos de Kreo (no de las plataformas)»), como pide la revisión de Analíticas.
 
+## TikTok · borradores (inbox), «subir a mano» y Content Sharing Guidelines — 2026-11-25 — Estado: ⏳ pendiente de `seguridad-legal`
+- APIs usadas (oficiales, OAuth oficial): Content Posting API · Upload `POST /v2/post/publish/inbox/video/init/` (scope
+  `video.upload`, nuevo), `POST /v2/post/publish/status/fetch/` y `POST /v2/post/publish/creator_info/query/` (`video.publish`).
+  Nada de navegador automatizado, cookies de sesión ni librerías no oficiales.
+- Sin auditoría de Direct Post el modo por defecto es «Enviar a mis borradores de TikTok»: el creador termina y publica en la
+  app de TikTok (elige privacidad, texto, etiquetas). Si la API no se puede usar, Kreo solo prepara el vídeo (URL firmada de
+  1 h, solo miembros del proyecto) y el texto: la subida la hace la persona a mano. Ninguna acción de engagement.
+- Consentimiento expreso por cuenta (`tiktok_consent`, validado en servidor) + aprobación humana. El MCP no puede marcarlo y
+  lo borra al modificar un borrador.
+- **Etiqueta IA**: la API de inbox no acepta `is_aigc` ni título → recordatorio obligatorio (editor, aviso y página de pasos)
+  para activar «Contenido generado por IA» en TikTok. En Direct Post sigue siendo automática y no desactivable. Revisar si
+  basta o si conviene bloquear borradores con IA hasta la auditoría.
+- Datos nuevos: `creator_info` (nickname, @, avatar, privacidades, ajustes de interacción, duración máxima) se lee al abrir
+  el editor y **no se guarda**; el avatar se carga desde el CDN de TikTok (igual que en Cuentas). El `publish_id` de TikTok se
+  guarda en `post_targets.external_post_id`. Aviso nuevo `post_action_needed` (borrado con los demás a los 90 días).
+- Retención del sondeo: `status/fetch` solo durante 7 días desde el envío.
+- Pendiente: textos de privacidad (scope `video.upload`), revisión `seguridad-legal`, `qa-tester`.
+
 ## Pendientes para Oier (de esta revisión)
 1. Aplicar `supabase/migrations/20261124150000_security_fixes.sql` en producción.
 2. Firmar/aceptar el DPA de fal.ai y pedir su lista de subencargados (ElevenLabs para `auto-subtitle`).

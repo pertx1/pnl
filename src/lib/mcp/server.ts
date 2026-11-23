@@ -1028,7 +1028,9 @@ export function createKreoMcpServer(ctx: McpContext) {
         const finalOptions = new Map<string, PlatformOptions>();
         for (const acc of accounts ?? []) {
           const ex = (current ?? []).find((t) => t.social_account_id === acc.id);
-          const merged = { ...((ex?.platform_options ?? {}) as PlatformOptions), ...toPlatformOptions(acc.platform, a, a.title) };
+          const merged: PlatformOptions = { ...((ex?.platform_options ?? {}) as PlatformOptions), ...toPlatformOptions(acc.platform, a, a.title) };
+          // TikTok: el consentimiento expreso lo da una persona en el editor y caduca con cualquier cambio del asistente.
+          delete merged.tiktok_consent;
           finalOptions.set(acc.id, merged);
           if (ex) await ctx.db.from("post_targets").update({ platform_options: merged as never, status: "draft" }).eq("id", ex.id);
           else await ctx.db.from("post_targets").insert({ post_id: post.id, workspace_id: p.workspace_id, social_account_id: acc.id, platform_options: merged as never });

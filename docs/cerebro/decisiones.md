@@ -20,3 +20,4 @@ Lo más reciente arriba. Formato: fecha · decisión · por qué.
 - **2026-11-18** · Stack: Next.js 16 + Supabase (UE) + Inngest + Vercel + fal.ai + Anthropic + ElevenLabs.
 - **2026-11-24** · `/app` es el inicio general (todos los proyectos + agenda); la lista de proyectos se mueve a `/app/projects` · al entrar se ve todo de un vistazo.
 - **2026-11-24** · La agenda es del usuario (privada, RLS solo propio) y guarda horas locales + zona horaria · «L-V 9-17» no se descuadra con el cambio de hora.
+- **2026-11-25** · TikTok sin auditar: por defecto «Enviar a mis borradores de TikTok» (API oficial de inbox, `video.upload`) y, si no se puede, «Listo para subir a mano» · la documentación oficial solo limita Direct Post a cuentas privadas; nada de automatizar el navegador ni librerías no oficiales. Vuelve `video.upload` (revierte en parte la decisión del 2026-11-22).

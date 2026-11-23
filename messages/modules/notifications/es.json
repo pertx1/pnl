@@ -28,7 +28,8 @@
         "youtube_consent_expiring": "El permiso de YouTube caduca pronto",
         "ai_done": "Generación de IA o Clipper terminada",
         "ai_failed": "Generación de IA o Clipper fallida",
-        "weekly_summary": "Resumen semanal (lunes a las 8:00)"
+        "weekly_summary": "Resumen semanal (lunes a las 8:00)",
+        "post_action_needed": "Publicación que tienes que terminar en TikTok"
       }
     },
     "tpl": {
@@ -67,6 +68,14 @@
       "weekly_summary": {
         "title": "Resumen semanal · {project}",
         "body": "{published} publicadas · {failed} fallidas · {scheduled} programadas para esta semana · {overdue} tareas vencidas"
+      },
+      "tiktok_inbox": {
+        "title": "Termina tu publicación en {platform}",
+        "body": "{post} · {account}. El vídeo está en tus borradores de TikTok: abre TikTok, toca la notificación de la bandeja, pega el texto y publícalo. Texto y pasos en Kreo."
+      },
+      "tiktok_manual": {
+        "title": "Listo para subir a {platform} a mano",
+        "body": "{post} · {account}. Kreo no ha podido enviarlo a TikTok ({reason}). Descarga el vídeo y copia el texto desde Kreo, súbelo en TikTok y marca «Ya lo he publicado»."
       }
     },
     "kinds": {
@@ -122,6 +131,17 @@
       "due": "Vencía el {date}",
       "untitled": "Sin título",
       "openProject": "Abrir el proyecto"
+    },
+    "tiktokAi": " Activa la etiqueta «Contenido generado por IA» al publicar.",
+    "tiktokReasons": {
+      "scope_missing": "falta el permiso de borradores: reconecta TikTok",
+      "too_many_pending": "tienes 5 envíos pendientes en TikTok en las últimas 24 h",
+      "spam_risk": "TikTok ha limitado los envíos por ahora",
+      "reconnect": "la conexión con TikTok ha caducado",
+      "video_required": "la publicación no tiene vídeo",
+      "video_too_large": "el vídeo es demasiado grande",
+      "inbox_unavailable": "TikTok no aceptó el envío a borradores",
+      "inbox_failed": "TikTok no pudo procesar el borrador"
     }
   },
   "bestTimes": {

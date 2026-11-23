@@ -7,7 +7,9 @@ Por prioridad. Claude: tacha `[x]` al terminar y anota el commit.
 - [ ] Prueba de extremo a extremo de una publicación programada en Instagram, TikTok (privado) y YouTube.
 - [ ] Preparar revisiones de apps (detalle en `docs/app-review/README.md`):
   - [ ] Meta: endpoints de «desautorizar» y «eliminar datos».
-  - [ ] TikTok: completar las Content Sharing Guidelines en el editor (creator_info al abrir, duración máxima, divulgación comercial, aviso de procesando).
+  - [x] TikTok: completar las Content Sharing Guidelines en el editor (creator_info al abrir, duración máxima, divulgación comercial, aviso de procesando) — 2026-11-25, rama del agente.
+  - [ ] TikTok borradores (2026-11-25): aplicar `20261125100000_tiktok_inbox.sql`, pasar `seguridad-legal` y `qa-tester`, probar en real (envío a borradores, aviso, `PUBLISH_COMPLETE`, «subir a mano», «Ya lo he publicado»).
+  - [ ] TikTok (recomendado por las guías): que la casilla de consentimiento / la aprobación la haga quien conectó la cuenta de TikTok.
   - [ ] Landing: quitar «lista de espera» / «próximamente» de funciones que ya existen.
   - [ ] Cuenta de prueba para revisores.
   - [ ] Separar la configuración de login de Meta en dos (publicar / bandeja).
@@ -25,7 +27,7 @@ Por prioridad. Claude: tacha `[x]` al terminar y anota el commit.
 - [ ] Subtítulos de YouTube (captions.insert) reutilizando los `.srt` del Clipper: ya están en `clip_segments.srt` (por `asset_id`); helper `getClipSrtForAsset()` en `src/lib/clipper/pipeline.ts`.
 - [ ] Clipper v2: revisión `seguridad-legal` + `qa-tester` (Playwright) y prueba real de un render en 1:1/16:9 y de cada plantilla (sobre todo «Mayúsculas» con Bebas Neue).
 - [ ] Refactor: `get_free_slots` del MCP y `planForAccounts` del Clipper cargan los datos igual; extraer un cargador común.
-- [ ] TikTok: leer `creator_info` y ofrecer solo las privacidades permitidas.
+- [x] TikTok: leer `creator_info` y ofrecer solo las privacidades permitidas — 2026-11-25.
 - [ ] Probar en real: Bandeja, audio, Clipper, informes PDF.
 
 ## Usabilidad (sugerencias de la revisión del 2026-11-23)

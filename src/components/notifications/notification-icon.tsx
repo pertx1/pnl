@@ -1,4 +1,4 @@
-import { AlertTriangle, CalendarClock, CheckCircle2, ClipboardCheck, KeyRound, LineChart, Sparkles, XCircle } from "lucide-react";
+import { AlertTriangle, CalendarClock, CheckCircle2, ClipboardCheck, Hand, KeyRound, LineChart, Sparkles, XCircle } from "lucide-react";
 import type { NotificationType } from "@/lib/notifications/types";
 import { cn } from "@/lib/utils";
 
@@ -11,6 +11,7 @@ const ICONS: Record<NotificationType, { icon: typeof Sparkles; cls: string }> = 
   ai_done: { icon: Sparkles, cls: "text-primary-ink" },
   ai_failed: { icon: XCircle, cls: "text-destructive" },
   weekly_summary: { icon: LineChart, cls: "text-foreground" },
+  post_action_needed: { icon: Hand, cls: "text-brand-amber-ink" },
 };
 
 export function NotificationIcon({ type, className }: { type: NotificationType; className?: string }) {

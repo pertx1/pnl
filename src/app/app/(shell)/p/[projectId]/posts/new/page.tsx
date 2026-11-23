@@ -3,6 +3,7 @@ import { appendHashtags, optionsForPlatform } from "@/lib/posts/templates";
 import { getProject, roleAtLeast } from "@/lib/server/dal";
 import { getEditorData } from "@/lib/server/posts";
 import { getTemplatesData } from "@/lib/server/templates";
+import { tiktokDirectPostAudited } from "@/lib/social/tiktok-core";
 import { PostEditor } from "../post-editor";
 
 export async function generateMetadata() {
@@ -48,6 +49,7 @@ export default async function NewPostPage({
       library={assets}
       canEdit={roleAtLeast(project.workspace.role, "editor")}
       canApprove={roleAtLeast(project.workspace.role, "admin")}
+      tiktokAudited={tiktokDirectPostAudited(process.env.TIKTOK_DIRECT_POST_AUDITED)}
       templates={tpl.templates}
       snippets={tpl.snippets}
       templatesAvailable={tpl.available}

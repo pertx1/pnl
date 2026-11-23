@@ -46,9 +46,9 @@
 | `user.info.basic` | Identificar la cuenta conectada (avatar, nombre) | 1 |
 | `user.info.profile` | Datos de perfil (bio, verificado, enlace) | 1 |
 | `user.info.stats` | Seguidores, likes totales, nº de vídeos | 1 |
-| `video.list` | Listar vídeos propios y sus métricas | 1 |
-| `video.publish` | Direct Post (publicar a la hora programada) | 1 |
-| `video.upload` | Alternativa: subir como borrador al inbox de TikTok para que el usuario publique | 1 |
+| `video.list` | ~~Listar vídeos propios~~ **No se pide** (no se usa; quitarlo de la consola) | — |
+| `video.publish` | Direct Post (publicar a la hora programada) y `creator_info/query` al abrir el editor | 1 |
+| `video.upload` | **Enviar a mis borradores de TikTok** (`inbox/video/init`): modo por defecto mientras no haya auditoría; el creador termina y publica en la app de TikTok. También `status/fetch` para saber si ya lo publicó | 1 |
 
 - [ ] **Auditoría de Content Posting API (Direct Post)**: hasta aprobarla, todo lo publicado es **privado**
   (solo visible para el creador). Exigen cumplir sus *UX guidelines*: mostrar el nombre de la cuenta, elegir
@@ -139,3 +139,12 @@ Sustituye `<dominio>` por tu dominio (o `kreo-nine.vercel.app` para pruebas):
 - YouTube: desde el 2026-11-02 los vídeos subidos desde proyectos sin auditar YA NO quedan en privado
   (https://developers.google.com/youtube/v3/revision_history). La auditoría solo hace falta para ampliar cuota.
 - Dosieres de revisión de las apps: `docs/app-review/`.
+
+## Actualización 2026-11-25 (TikTok sin auditar: borradores)
+- Vuelve `video.upload` (TikTok): el código lo pide de nuevo para «Enviar a mis borradores de TikTok»
+  (Content Posting API · Upload, `POST /v2/post/publish/inbox/video/init/`). Justificación: sin la auditoría de Direct Post,
+  TikTok solo deja publicar en cuentas privadas; la subida a borradores no tiene esa restricción documentada y la
+  publicación la hace el creador en la app de TikTok. Límite oficial: 5 envíos pendientes cada 24 h.
+- Hay que **marcar `video.upload` en la consola de TikTok** (Kreo Sandbox → Scopes) y **reconectar** cada cuenta de TikTok.
+  Hasta reconectar, Kreo deja el destino «listo para subir a mano» (nunca «fallido»).
+- Variable nueva `TIKTOK_DIRECT_POST_AUDITED` (solo `true` cuando TikTok apruebe la auditoría).

@@ -2,12 +2,13 @@ import { NonRetriableError } from "inngest";
 import type { PlatformOptions } from "@/lib/posts/rules";
 import { getAdapter } from "@/lib/social";
 import { getFreshTokens, TokenUnavailableError } from "@/lib/social/fresh-tokens";
-import { publishTo } from "@/lib/social/publish";
+import { deliverTikTok, publishTo } from "@/lib/social/publish";
+import { AWAITING_USER_PUBLISH, handoffCode, resolveTikTokMode, tiktokDirectPostAudited } from "@/lib/social/tiktok-core";
 import { loadYouTubeThumbnail } from "@/lib/social/youtube-direct";
 import { PlatformError, type Platform, type TokenSet } from "@/lib/social/types";
 import { settledPostStatus } from "@/lib/posts/settle";
 import { refundGeneration, settleStudioGeneration, STUDIO_TIMEOUT_MS } from "@/lib/ai/settle";
-import { notifyPostTarget } from "@/lib/notifications/notify";
+import { notifyPostTarget, notifyTikTokHandoff } from "@/lib/notifications/notify";
 import { captionLanguage, findSrtForVideo } from "@/lib/social/captions";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { inngest } from "./client";
@@ -179,17 +180,25 @@ export const publishTarget = inngest.createFunction(
         if (found) captions = { srt: found.srt, draft: found.draft, language: captionLanguage(options.yt_language) };
       }
 
+      const input = {
+        externalId: account.external_id,
+        caption: target.caption_override ?? post.caption,
+        media,
+        aiGenerated: post.ai_generated,
+        options,
+        aiDisclosure: AI_DISCLOSURE,
+        thumbnail,
+        captions,
+      };
       try {
-        const out = await publishTo(platform, tokens, {
-          externalId: account.external_id,
-          caption: target.caption_override ?? post.caption,
-          media,
-          aiGenerated: post.ai_generated,
-          options,
-          aiDisclosure: AI_DISCLOSURE,
-          thumbnail,
-          captions,
-        });
+        if (platform === "tiktok") {
+          // Sin auditoría de Direct Post: a los borradores de TikTok (o, si no se puede, «subir a mano»). Nunca «fallido» por eso.
+          const mode = resolveTikTokMode(options.tiktok_mode, tiktokDirectPostAudited(process.env.TIKTOK_DIRECT_POST_AUDITED));
+          const out = await deliverTikTok(tokens, input, mode);
+          if (out.kind === "handoff") return { handoff: out.handoff, publishId: out.publishId };
+          return { externalPostId: out.result.externalPostId, url: out.result.url, warnings: out.result.warnings ?? [] };
+        }
+        const out = await publishTo(platform, tokens, input);
         // Solo códigos (sin datos personales): pasos opcionales que no se pudieron completar.
         if (out.warnings?.length) console.warn(`[publish] ${platform} avisos: ${out.warnings.join(",")}`);
         return { externalPostId: out.externalPostId, url: out.url, warnings: out.warnings ?? [] };
@@ -199,6 +208,21 @@ export const publishTarget = inngest.createFunction(
         throw e;
       }
     });
+
+    if ("handoff" in result) {
+      // TikTok: el vídeo está en los borradores del creador (o listo para subir a mano). Kreo no lo publica: avisa.
+      await step.run("save-handoff", async () => {
+        const db = admin();
+        await db
+          .from("post_targets")
+          .update({ status: AWAITING_USER_PUBLISH, external_post_id: result.publishId, external_url: null, published_at: null, error_code: handoffCode(result.handoff) })
+          .eq("id", postTargetId)
+          .eq("status", "publishing");
+        await settlePost(claimed.postId);
+      });
+      await step.run("notify", () => notifyTikTokHandoff(admin(), postTargetId));
+      return { handoff: result.handoff.mode };
+    }
 
     await step.run("save-result", async () => {
       const db = admin();
@@ -344,6 +368,7 @@ import { notificationFunctions } from "./modules/notifications";
 import { researchFunctions } from "./modules/research";
 import { strategyFunctions } from "./modules/strategy";
 import { teamFunctions } from "./modules/team";
+import { tiktokFunctions } from "./modules/tiktok";
 
 export const functions = [
   dispatchDuePosts,
@@ -357,4 +382,5 @@ export const functions = [
   ...teamFunctions,
   ...commerceFunctions,
   ...notificationFunctions,
+  ...tiktokFunctions,
 ];

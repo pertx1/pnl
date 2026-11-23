@@ -530,14 +530,16 @@
     "rules": {
       "too_many_hashtags": "Demasiados hashtags para esta red (Instagram: máx. 30; YouTube: máx. 60).",
       "tiktok_privacy_required": "TikTok: elige quién puede ver la publicación.",
-      "tiktok_media_required": "TikTok: añade un vídeo o fotos.",
-      "tiktok_branded_private": "TikTok: el contenido de marca no puede ser privado.",
+      "tiktok_media_required": "TikTok: añade un vídeo (Kreo no envía fotos a TikTok).",
+      "tiktok_branded_private": "TikTok: el contenido de marca solo puede ser público o para amigos.",
       "instagram_media_required": "Instagram: añade al menos una imagen o vídeo.",
       "youtube_video_required": "YouTube: añade exactamente un vídeo o elige «Vídeo grande: subir directo a YouTube».",
       "youtube_title_required": "YouTube: escribe un título.",
       "caption_too_long": "El texto supera el máximo de la plataforma.",
       "youtube_tags_too_long": "Las etiquetas de YouTube superan los 500 caracteres.",
-      "instagram_trial_requires_single_video": "Instagram: el reel de prueba necesita exactamente un vídeo."
+      "instagram_trial_requires_single_video": "Instagram: el reel de prueba necesita exactamente un vídeo.",
+      "tiktok_disclosure_incomplete": "TikTok: tienes que indicar si tu contenido te promociona a ti, a un tercero o a ambos.",
+      "tiktok_consent_required": "TikTok: marca la casilla de consentimiento para enviar el vídeo a tu cuenta de TikTok."
     },
     "errorsX": {
       "daily_limit_exceeded": "Se superaría el límite diario de publicaciones de alguna cuenta.",
@@ -560,6 +562,7 @@
       "approved": "Aprobada",
       "scheduled": "Programada",
       "scheduled_on_platform": "Programada en YouTube",
+      "awaiting_user_publish": "Termínala en TikTok",
       "publishing": "Publicando",
       "published": "Publicada",
       "failed": "Error",

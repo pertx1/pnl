@@ -11,6 +11,7 @@ export const NOTIFICATION_TYPES = [
   "ai_done",
   "ai_failed",
   "weekly_summary",
+  "post_action_needed",
 ] as const;
 export type NotificationType = (typeof NOTIFICATION_TYPES)[number];
 

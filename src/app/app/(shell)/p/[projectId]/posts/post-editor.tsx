@@ -17,7 +17,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
-import { duplicateCaptionWarning, TIKTOK_PRIVACY, YT_CATEGORIES, YT_LANGUAGES, ytTagsLength, type PlatformOptions, type RuleViolation } from "@/lib/posts/rules";
+import { duplicateCaptionWarning, YT_CATEGORIES, YT_LANGUAGES, ytTagsLength, type PlatformOptions, type RuleViolation } from "@/lib/posts/rules";
 import type { EditorAccount, EditorAsset } from "@/lib/server/posts";
 import { appendHashtags, extractPlaceholders, fillPlaceholders, insertSnippet, nextLocalSlot, optionsForPlatform } from "@/lib/posts/templates";
 import type { SnippetDTO, TemplateDTO } from "@/lib/server/templates";
@@ -26,6 +26,8 @@ import { createClient } from "@/lib/supabase/client";
 import { addUploadedAsset, approvePost, deletePost, savePost, submitPost, unschedulePost, type PostActionResult } from "./actions";
 import { aiCaptionVariations, aiSuggestCaptions } from "./ai-actions";
 import { CaptionCounters, PlaceholderPanel, SnippetChips, TemplateBar } from "./template-tools";
+import { getTikTokCreatorInfo, type CreatorInfoResult } from "./tiktok-actions";
+import { TikTokOptions, tiktokApproveBlock, TikTokDeclaration } from "./tiktok-options";
 import { getYouTubePlaylists } from "./youtube-actions";
 import { YouTubeDirectUpload } from "./youtube-direct-upload";
 
@@ -64,6 +66,7 @@ export function PostEditor({
   snippets = [],
   templatesAvailable = false,
   preferredTime = null,
+  tiktokAudited = false,
 }: {
   projectId: string;
   workspaceId: string;
@@ -79,8 +82,11 @@ export function PostEditor({
   templatesAvailable?: boolean;
   /** Hora preferida de la plantilla con la que se abrió el editor (se propone la próxima vez que llegue). */
   preferredTime?: string | null;
+  /** `TIKTOK_DIRECT_POST_AUDITED=true`: TikTok aprobó la auditoría de Direct Post (si no, por defecto a borradores). */
+  tiktokAudited?: boolean;
 }) {
   const t = useTranslations("posts");
+  const tTikTok = useTranslations("tiktok.editor");
   const tt = useTranslations("templates.editor");
   const captionRef = useRef<HTMLTextAreaElement>(null);
   // Cambia al aplicar una plantilla para reiniciar los subformularios con estado propio (p. ej. etiquetas de YouTube).
@@ -105,6 +111,9 @@ export function PostEditor({
   const [aiPending, startAi] = useTransition();
   const [suggestions, setSuggestions] = useState<{ caption: string; hook: string }[]>([]);
   const [aiError, setAiError] = useState<string>();
+  // TikTok: creator_info por cuenta (se consulta al abrir el bloque) y duración de los vídeos (medida en el navegador).
+  const [creator, setCreator] = useState<Record<string, CreatorInfoResult>>({});
+  const [durations, setDurations] = useState<Record<string, number>>({});
 
   // La fecha guardada se muestra en la hora local del navegador (solo en cliente para evitar desajustes de zona).
   useEffect(() => {
@@ -124,11 +133,45 @@ export function PostEditor({
 
   const selectedAssets = assetIds.map((id) => library.find((a) => a.id === id)).filter(Boolean) as EditorAsset[];
   const aiForced = selectedAssets.some((a) => a.ai);
-  const locked = ["publishing", "published", "scheduled_on_platform"].includes(status);
+  const locked = ["publishing", "published", "scheduled_on_platform", "awaiting_user_publish"].includes(status);
   // Subida directa a YouTube: la aprobación se hace con «Aprobar y subir a YouTube» (dentro del destino).
   const hasDirect = targets.some((x) => x.platformOptions.yt_direct_upload);
   const [bigFile, setBigFile] = useState<File | null>(null);
   const readOnly = !canEdit || locked;
+  const tiktokVideo = selectedAssets.find((a) => a.mime.startsWith("video/")) ?? null;
+  const tiktokTargets = targets.filter((x) => accounts.find((a) => a.id === x.socialAccountId)?.platform === "tiktok");
+  // Content Sharing Guidelines: con TikTok, el botón de aprobar se deshabilita si falta algo (con el motivo al pasar el ratón).
+  const tiktokBlock = tiktokApproveBlock(
+    tiktokTargets.map((x) => ({
+      options: x.platformOptions,
+      creator: creator[x.socialAccountId],
+      durationSec: tiktokVideo ? durations[tiktokVideo.id] : undefined,
+      audited: tiktokAudited,
+    })),
+  );
+  const tiktokBlockText = tiktokBlock ? tTikTok(tiktokBlock.key, tiktokBlock.params) : undefined;
+
+  /** creator_info (token solo en el servidor). Ajusta las opciones a lo que permite la cuenta. */
+  function loadCreator(accountId: string) {
+    getTikTokCreatorInfo(projectId, accountId).then(
+      (res) => {
+        setCreator((p) => ({ ...p, [accountId]: res }));
+        if (!res.ok) return;
+        setTargets((prev) =>
+          prev.map((x) => {
+            if (x.socialAccountId !== accountId) return x;
+            const o = { ...x.platformOptions };
+            if (o.privacy_level && !res.info.privacyOptions.includes(o.privacy_level)) delete o.privacy_level;
+            if (res.info.commentDisabled) o.disable_comment = true;
+            if (res.info.duetDisabled) o.disable_duet = true;
+            if (res.info.stitchDisabled) o.disable_stitch = true;
+            return { ...x, platformOptions: o };
+          }),
+        );
+      },
+      () => setCreator((p) => ({ ...p, [accountId]: { error: "generic" } })),
+    );
+  }
 
   const duplicate = useMemo(
     () => duplicateCaptionWarning(targets.map((tg) => (tg.captionOverride.trim() ? tg.captionOverride : caption))),
@@ -194,7 +237,10 @@ export function PostEditor({
   }
 
   function toggleAccount(id: string, on: boolean) {
-    setTargets((prev) => (on ? [...prev, { socialAccountId: id, captionOverride: "", platformOptions: {} }] : prev.filter((x) => x.socialAccountId !== id)));
+    // TikTok: el modo por defecto depende de la auditoría (sin auditar → «Enviar a mis borradores de TikTok»).
+    const isTikTok = accounts.find((a) => a.id === id)?.platform === "tiktok";
+    const platformOptions: PlatformOptions = isTikTok ? { tiktok_mode: tiktokAudited ? "direct" : "inbox" } : {};
+    setTargets((prev) => (on ? [...prev, { socialAccountId: id, captionOverride: "", platformOptions }] : prev.filter((x) => x.socialAccountId !== id)));
   }
   function patchTarget(id: string, patch: Partial<Target>) {
     setTargets((prev) => prev.map((x) => (x.socialAccountId === id ? { ...x, ...patch } : x)));
@@ -267,7 +313,12 @@ export function PostEditor({
       scheduledAt: scheduled ? new Date(scheduled).toISOString() : null,
       aiGenerated: aiGenerated || aiForced,
       assetIds,
-      targets: targets.map((x) => ({ socialAccountId: x.socialAccountId, captionOverride: x.captionOverride || null, platformOptions: x.platformOptions })),
+      targets: targets.map((x) => {
+        const isTikTok = accounts.find((a) => a.id === x.socialAccountId)?.platform === "tiktok";
+        // Se guarda siempre el modo de TikTok elegido (o el de por defecto) para que el worker haga lo que se ve aquí.
+        const platformOptions = isTikTok && !x.platformOptions.tiktok_mode ? { ...x.platformOptions, tiktok_mode: tiktokAudited ? ("direct" as const) : ("inbox" as const) } : x.platformOptions;
+        return { socialAccountId: x.socialAccountId, captionOverride: x.captionOverride || null, platformOptions };
+      }),
     });
     if (!res.ok) {
       handleResult(res, "");
@@ -291,7 +342,7 @@ export function PostEditor({
         </div>
         <div className="flex items-center gap-2">
           {(aiGenerated || aiForced) && <AiBadge />}
-          <StatusBadge status={(["draft", "pending_approval", "scheduled", "scheduled_on_platform", "published"].includes(status) ? status : status === "failed" ? "error" : status === "approved" ? "scheduled" : "draft") as PostStatus} />
+          <StatusBadge status={(["draft", "pending_approval", "scheduled", "scheduled_on_platform", "awaiting_user_publish", "published"].includes(status) ? status : status === "failed" ? "error" : status === "approved" ? "scheduled" : "draft") as PostStatus} />
         </div>
       </div>
 
@@ -458,7 +509,20 @@ export function PostEditor({
                             {target.captionOverride.trim() && <CaptionCounters text={target.captionOverride} platforms={[acc.platform]} />}
                           </div>
                           {acc.platform === "instagram" && <InstagramOptions options={target.platformOptions} onChange={(p) => patchOptions(acc.id, p)} />}
-                          {acc.platform === "tiktok" && <TikTokOptions handle={handle} options={target.platformOptions} onChange={(p) => patchOptions(acc.id, p)} />}
+                          {acc.platform === "tiktok" && (
+                            <TikTokOptions
+                              handle={handle}
+                              options={target.platformOptions}
+                              onChange={(p) => patchOptions(acc.id, p)}
+                              audited={tiktokAudited}
+                              creator={creator[acc.id]}
+                              onLoad={() => loadCreator(acc.id)}
+                              video={tiktokVideo}
+                              durationSec={tiktokVideo ? durations[tiktokVideo.id] : undefined}
+                              onDuration={(sec) => tiktokVideo && setDurations((p) => ({ ...p, [tiktokVideo.id]: sec }))}
+                              aiGenerated={aiGenerated || aiForced}
+                            />
+                          )}
                           {acc.platform === "youtube" && (
                             <YouTubeOptions
                               key={tplVersion}
@@ -556,6 +620,8 @@ export function PostEditor({
                 </div>
               )}
 
+              {!readOnly && tiktokTargets.length > 0 && <TikTokDeclaration targets={tiktokTargets.map((x) => x.platformOptions)} blockText={tiktokBlockText} />}
+
               {!readOnly && (
                 <div className="flex flex-col gap-2">
                   <Button
@@ -576,7 +642,8 @@ export function PostEditor({
                   </Button>
                   {status === "draft" && !canApprove && (
                     <Button
-                      disabled={pending}
+                      disabled={pending || Boolean(tiktokBlock)}
+                      title={tiktokBlockText}
                       onClick={() =>
                         run(async () => {
                           if (!placeholdersOk()) return;
@@ -591,7 +658,8 @@ export function PostEditor({
                   )}
                   {canApprove && !hasDirect && ["draft", "pending_approval"].includes(status) && (
                     <Button
-                      disabled={pending}
+                      disabled={pending || Boolean(tiktokBlock)}
+                      title={tiktokBlockText}
                       onClick={() =>
                         run(async () => {
                           if (!placeholdersOk()) return;
@@ -645,7 +713,7 @@ export function PostEditor({
   );
 }
 
-/** Opciones de TikTok según sus Content Sharing Guidelines (privacidad sin valor por defecto, divulgación comercial). */
+/** Opciones de Instagram (reel de prueba). Las de TikTok están en ./tiktok-options.tsx. */
 function InstagramOptions({ options, onChange }: { options: PlatformOptions; onChange: (p: Partial<PlatformOptions>) => void }) {
   const t = useTranslations("posts.instagram");
   const on = Boolean(options.ig_trial_reel);
@@ -669,62 +737,6 @@ function InstagramOptions({ options, onChange }: { options: PlatformOptions; onC
           </select>
         </div>
       )}
-    </div>
-  );
-}
-
-function TikTokOptions({ handle, options, onChange }: { handle: string; options: PlatformOptions; onChange: (p: Partial<PlatformOptions>) => void }) {
-  const t = useTranslations("posts.tiktok");
-  return (
-    <div className="space-y-3 text-sm">
-      <p className="text-xs text-muted-foreground">{t("postingAs", { handle })}</p>
-      <div className="space-y-1">
-        <Label className="text-xs">{t("privacy")}</Label>
-        <select
-          className="w-full rounded-md border border-input bg-transparent px-2 py-1.5 text-sm"
-          value={options.privacy_level ?? ""}
-          onChange={(e) => onChange({ privacy_level: (e.target.value || undefined) as PlatformOptions["privacy_level"] })}
-        >
-          <option value="">{t("privacyPlaceholder")}</option>
-          {TIKTOK_PRIVACY.map((p) => (
-            <option key={p} value={p} disabled={p === "SELF_ONLY" && options.brand_content_toggle}>
-              {t(p)}
-            </option>
-          ))}
-        </select>
-      </div>
-      {(
-        [
-          ["disable_comment", "allowComments"],
-          ["disable_duet", "allowDuet"],
-          ["disable_stitch", "allowStitch"],
-        ] as const
-      ).map(([key, label]) => (
-        <label key={key} className="flex items-center justify-between gap-2">
-          <span>{t(label)}</span>
-          {/* TikTok Content Sharing Guidelines: ninguna interacción activada por defecto (el usuario la activa). */}
-          <Switch checked={options[key] === false} onCheckedChange={(v) => onChange({ [key]: !v })} />
-        </label>
-      ))}
-      <div className="space-y-2 rounded-md bg-secondary/60 p-2">
-        <p className="label-mono">{t("commercial")}</p>
-        <label className="flex items-start gap-2">
-          <Checkbox checked={Boolean(options.brand_organic_toggle)} onCheckedChange={(v) => onChange({ brand_organic_toggle: Boolean(v) })} className="mt-0.5" />
-          <span>
-            {t("yourBrand")}
-            <span className="block text-[11px] text-muted-foreground">{t("yourBrandHint")}</span>
-          </span>
-        </label>
-        <label className="flex items-start gap-2">
-          <Checkbox checked={Boolean(options.brand_content_toggle)} onCheckedChange={(v) => onChange({ brand_content_toggle: Boolean(v) })} className="mt-0.5" />
-          <span>
-            {t("branded")}
-            <span className="block text-[11px] text-muted-foreground">{t("brandedHint")}</span>
-          </span>
-        </label>
-      </div>
-      <p className="text-[11px] text-muted-foreground">{options.brand_content_toggle ? t("musicBranded") : t("music")}</p>
-      <p className="text-[11px] text-warning">{t("unaudited")}</p>
     </div>
   );
 }

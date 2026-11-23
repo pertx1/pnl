@@ -13,6 +13,12 @@ export type PlatformOptions = {
   disable_stitch?: boolean;
   brand_organic_toggle?: boolean; // "Tu marca"
   brand_content_toggle?: boolean; // "Contenido de marca" (colaboración pagada)
+  // Interruptor «Divulgar contenido comercial» (apagado por defecto). Encendido sin elegir opción → no se puede aprobar.
+  tiktok_disclose?: boolean;
+  // Cómo llega a TikTok: "direct" (Direct Post) o "inbox" (a los borradores del creador). Ver src/lib/social/tiktok-core.ts.
+  tiktok_mode?: "direct" | "inbox";
+  // Consentimiento expreso de la persona para enviar ESTE contenido a TikTok (Content Sharing Guidelines 5c).
+  tiktok_consent?: boolean;
   // Instagram: reel de prueba (Content Publishing API, `trial_params`). Se muestra primero a no seguidores;
   // con "manual" el usuario decide en la app de Instagram si pasa a sus seguidores; con "auto" Instagram lo hace si funciona bien.
   ig_trial_reel?: "manual" | "auto";
@@ -44,6 +50,8 @@ export type RuleViolation =
   | "tiktok_privacy_required"
   | "tiktok_media_required"
   | "tiktok_branded_private"
+  | "tiktok_disclosure_incomplete"
+  | "tiktok_consent_required"
   | "instagram_media_required"
   | "instagram_trial_requires_single_video"
   | "youtube_video_required"
@@ -77,10 +85,16 @@ export function validateTarget(
   const maxTags = HASHTAG_MAX[platform];
   if (maxTags != null && countHashtags(caption) > maxTags) v.push("too_many_hashtags");
   if (platform === "tiktok") {
-    if (!options.privacy_level) v.push("tiktok_privacy_required");
-    if (!media.length) v.push("tiktok_media_required");
-    // TikTok: el contenido de marca (pagado) no puede publicarse como privado.
-    if (options.brand_content_toggle && options.privacy_level === "SELF_ONLY") v.push("tiktok_branded_private");
+    // En borradores (inbox) la privacidad la elige el creador en la app de TikTok; en Direct Post, aquí y sin defecto.
+    const direct = options.tiktok_mode !== "inbox";
+    if (direct && !options.privacy_level) v.push("tiktok_privacy_required");
+    // Kreo solo envía vídeo a TikTok (las fotos exigen PULL_FROM_URL desde un dominio verificado).
+    if (!media.includes("video")) v.push("tiktok_media_required");
+    // TikTok: el contenido de marca (pagado) solo puede ser público o para amigos.
+    if (direct && options.brand_content_toggle && options.privacy_level && !["PUBLIC_TO_EVERYONE", "MUTUAL_FOLLOW_FRIENDS"].includes(options.privacy_level))
+      v.push("tiktok_branded_private");
+    if (direct && options.tiktok_disclose && !options.brand_organic_toggle && !options.brand_content_toggle) v.push("tiktok_disclosure_incomplete");
+    if (!options.tiktok_consent) v.push("tiktok_consent_required");
   }
   if (platform === "instagram" && !media.length) v.push("instagram_media_required");
   // Los reels de prueba son solo para un único vídeo (media_type REELS), no carrusel ni imagen.
