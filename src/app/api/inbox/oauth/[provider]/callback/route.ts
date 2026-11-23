@@ -65,12 +65,24 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
         .eq("project_id", saved.projectId)
         .eq("platform", "instagram")
         .maybeSingle();
-      if (!acc) return finish("error=no_matching_account");
+      if (!acc) {
+        console.error("[inbox-oauth] instagram: el proyecto no tiene esa cuenta de Instagram conectada");
+        return finish("error=no_matching_account");
+      }
       const t = await igExchange(code, redirectUri);
-      if (!IG_INBOX_SCOPES.every((s) => t.grantedScopes.includes(s))) return finish("error=missing_scopes");
-      const page = (await igPages(t.accessToken)).find((p) => p.igId === acc.external_id);
+      const missingScopes = IG_INBOX_SCOPES.filter((s) => !t.grantedScopes.includes(s));
+      if (missingScopes.length) {
+        // Solo nombres de permisos (sin datos personales): suele ser la configuración de login de Meta sin permisos de mensajes.
+        console.error(`[inbox-oauth] instagram: faltan permisos ${missingScopes.join(",")}`);
+        return finish("error=missing_scopes");
+      }
+      const pages = await igPages(t.accessToken);
+      const page = pages.find((p) => p.igId === acc.external_id);
       // No revocamos permisos aquí: es la misma app de Meta que usa el módulo de publicación.
-      if (!page) return finish("error=no_matching_account");
+      if (!page) {
+        console.error(`[inbox-oauth] instagram: ninguna de las ${pages.length} páginas autorizadas tiene vinculada esa cuenta de Instagram`);
+        return finish("error=no_matching_account");
+      }
       await igSubscribePage(page.pageId, page.pageToken);
       // Guardamos SOLO el token de la página (no caduca si procede de un token de usuario de larga duración).
       connectionId = await upsertConnection({
