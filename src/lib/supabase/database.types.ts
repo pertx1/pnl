@@ -92,7 +92,7 @@ export type Database = {
       };
       assets: {
         Row: { id: string; workspace_id: string; project_id: string; storage_path: string; mime_type: string; size_bytes: number | null; width: number | null; height: number | null; duration_seconds: number | null; source: "upload" | "ai"; ai_generated: boolean; generation_id: string | null; created_by: string | null; created_at: string };
-        Insert: { workspace_id: string; project_id: string; storage_path: string; mime_type: string; size_bytes?: number | null; width?: number | null; height?: number | null; source: "upload" | "ai"; ai_generated?: boolean; generation_id?: string | null; created_by?: string | null };
+        Insert: { workspace_id: string; project_id: string; storage_path: string; mime_type: string; size_bytes?: number | null; width?: number | null; height?: number | null; duration_seconds?: number | null; source: "upload" | "ai"; ai_generated?: boolean; generation_id?: string | null; created_by?: string | null };
         Update: never;
         Relationships: [];
       };

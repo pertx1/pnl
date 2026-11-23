@@ -3,15 +3,21 @@ import { downloadFalFile, falResultJson, falStatus, falSubmit, isFalFileUrl } fr
 import { createAdminClient } from "@/lib/supabase/admin";
 import type { Json } from "@/lib/supabase/database.types";
 import { detectHighlights } from "./highlights";
-import { normalizeTranscript, transcriptDuration, type TranscriptChunk } from "./segments";
+import { normalizeTranscript, toSrt, transcriptDuration, wordsToSrt, type TranscriptChunk } from "./segments";
+import { CLIP_FORMATS, parseRenderOptions, resolveRenderOptions, scaleInput, subtitleInput, type ResolvedRender } from "./styles";
 
 /**
  * Pipeline del Clipper (todo asíncrono con la cola de fal.ai + consultas periódicas, igual que el vídeo del Estudio):
  *  1. Transcripción: fal-ai/whisper (Whisper large v3, "Commercial use" en fal) → trozos con tiempos.
  *  2. Mejores momentos: Claude (runStructured) → segmentos con inicio/fin/título/hook/puntuación.
- *  3. Por cada short elegido: recorte (workflow-utilities/trim-video) → 9:16 1080×1920 con recorte centrado
- *     (workflow-utilities/scale-video, mode=crop) → subtítulos quemados estilo karaoke con colores del brand kit
- *     (workflow-utilities/auto-subtitle). Endpoints verificados en fal.ai/models el 2026-11-19, todos "Commercial use".
+ *  3. Por cada short elegido: recorte (workflow-utilities/trim-video) → formato 9:16, 1:1 o 16:9 con recorte centrado
+ *     o encajado con bandas (workflow-utilities/scale-video, mode=crop|pad) → subtítulos quemados con una plantilla y los
+ *     colores del brand kit (workflow-utilities/auto-subtitle). Al guardar, el .srt del clip queda en clip_segments.srt.
+ *     Endpoints verificados en fal.ai (API de modelos, license_type = "commercial") el 2026-11-23.
+ *
+ * SIN MARCA DE AGUA: ningún paso añade marca de agua, logo ni texto de Kreo. Los únicos endpoints que se llaman son los
+ * de FAL (lista cerrada) con los parámetros de styles.ts; ninguno tiene opción de marca de agua y no se añade ninguna capa.
+ * Lo comprueba tests/unit/clipper-v2.test.ts («sin marca de agua»). Si se añade un paso nuevo, debe pasar ese test.
  * Lo avanzan tanto el navegador (polling) como una tarea de Inngest cada 2 min, con bloqueo optimista para no
  * procesar dos veces. Si falla tras cobrar, se devuelven los créditos.
  */
@@ -23,9 +29,18 @@ export const FAL = {
 } as const;
 
 export const CLIPPER_LICENSE = {
-  name: "fal.ai · Commercial use (Whisper, workflow-utilities) + Anthropic Commercial Terms",
+  name: "fal.ai · Commercial use (Whisper, workflow-utilities trim/scale/auto-subtitle) + Anthropic Commercial Terms",
   url: "https://fal.ai/legal/terms-of-service",
-  notes: "Procesa SOLO vídeo propio o con derechos. Los subtítulos son transcripción del audio original (no es contenido sintético).",
+  commercialUse: true,
+  endpoints: {
+    [FAL.whisper]: "commercial (fal.ai, Whisper large v3, MIT)",
+    [FAL.trim]: "commercial (fal.ai, utilidad FFmpeg)",
+    [FAL.scale]: "commercial (fal.ai, utilidad FFmpeg)",
+    [FAL.subtitle]: "commercial (fal.ai; transcribe con ElevenLabs a través de fal)",
+  },
+  verifiedAt: "2026-11-23",
+  notes:
+    "Procesa SOLO vídeo propio o con derechos (nunca descargado de otras plataformas). Los subtítulos son transcripción del audio original (no es contenido sintético). Sin marca de agua.",
 };
 
 const TRANSCRIBE_TIMEOUT_MS = 45 * 60_000;
@@ -41,6 +56,7 @@ type SegState = {
   submitted_at?: string;
   input_url?: string;
   lock?: string;
+  /** Solo renders antiguos (antes de render_options). */
   style?: { font_color: string; highlight_color: string; stroke_color: string; font_name: string };
 };
 
@@ -208,6 +224,7 @@ async function analyze(jobId: string): Promise<string> {
           hook: s.hook || null,
           reason: s.reason || null,
           score: s.score,
+          score_breakdown: (s.breakdown ?? {}) as Json,
         })),
       );
     }
@@ -239,41 +256,39 @@ type SegRow = {
   subtitles: boolean;
   generation_id: string | null;
   provider_state: Json;
+  render_options: Json;
   updated_at: string;
 };
+
+/** Opciones de render del segmento (las antiguas sin render_options usan 9:16 centrado + su estilo guardado). */
+function renderOptionsOf(row: SegRow, st: SegState): ResolvedRender {
+  const raw = (row.render_options ?? {}) as Partial<ResolvedRender>;
+  if (raw.accentNamed && raw.fontName) return { ...parseRenderOptions(raw), subtitles: row.subtitles, accentNamed: raw.accentNamed, fontName: raw.fontName };
+  const base = parseRenderOptions({ ...raw, subtitles: row.subtitles, ...(st.style ? { accent: st.style.highlight_color } : {}) });
+  return resolveRenderOptions(base, st.style?.font_name);
+}
 
 async function failSegment(admin: Admin, seg: { id: string; generation_id: string | null }, code: string) {
   await admin.from("clip_segments").update({ status: "failed", error_code: code, provider_state: {} }).eq("id", seg.id);
   await refundGeneration(admin, seg.generation_id, code);
 }
 
+/** Entrada de cada paso (lista cerrada de endpoints y parámetros; ver «sin marca de agua» arriba). */
+export function stepInput(step: "trim" | "scale" | "subtitle", inputUrl: string, seg: { start_s: number; end_s: number }, r: ResolvedRender, language: string | null): Record<string, unknown> {
+  if (step === "trim") return { video_url: inputUrl, start_time: Number(seg.start_s), end_time: Number(seg.end_s) };
+  if (step === "scale") return scaleInput(inputUrl, r);
+  return subtitleInput(inputUrl, r, language);
+}
+
 async function submitStep(admin: Admin, seg: SegRow, step: "trim" | "scale" | "subtitle", inputUrl: string, st: SegState, language: string | null) {
-  let input: Record<string, unknown>;
-  if (step === "trim") input = { video_url: inputUrl, start_time: Number(seg.start_s), end_time: Number(seg.end_s) };
-  else if (step === "scale") input = { video_url: inputUrl, width: 1080, height: 1920, mode: "crop", codec: "libx264", preset: "fast", crf: 20 };
-  else
-    input = {
-      video_url: inputUrl,
-      language: language && /^[a-z]{2,3}$/.test(language) ? language : "es",
-      font_name: st.style?.font_name ?? "Montserrat",
-      font_size: 80,
-      font_weight: "black",
-      font_color: st.style?.font_color ?? "white",
-      highlight_color: st.style?.highlight_color ?? "yellow",
-      stroke_width: 4,
-      stroke_color: st.style?.stroke_color ?? "black",
-      position: "bottom",
-      y_offset: -260, // por encima de la interfaz de TikTok/Reels
-      words_per_subtitle: 3,
-      enable_animation: true,
-    };
-  const t = await falSubmit(FAL[step], input);
+  const t = await falSubmit(FAL[step], stepInput(step, inputUrl, seg, renderOptionsOf(seg, st), language));
   const next: SegState = { style: st.style, input_url: inputUrl, status_url: t.statusUrl, response_url: t.responseUrl, submitted_at: new Date().toISOString() };
   await admin.from("clip_segments").update({ render_step: step, provider_state: next as Json }).eq("id", seg.id);
 }
 
-async function finalize(admin: Admin, seg: SegRow, url: string) {
+async function finalize(admin: Admin, seg: SegRow, url: string, r: ResolvedRender, words: unknown) {
   const { bytes } = await downloadFalFile(url, 50 * 1024 * 1024);
+  const { width, height } = CLIP_FORMATS[r.format];
   const path = `${seg.workspace_id}/${seg.project_id}/${crypto.randomUUID()}.mp4`;
   const up = await admin.storage.from("project-media").upload(path, bytes, { contentType: "video/mp4" });
   if (up.error) throw new Error("storage_failed");
@@ -287,8 +302,9 @@ async function finalize(admin: Admin, seg: SegRow, url: string) {
       storage_path: path,
       mime_type: "video/mp4",
       size_bytes: bytes.byteLength,
-      width: 1080,
-      height: 1920,
+      width,
+      height,
+      duration_seconds: Math.round((Number(seg.end_s) - Number(seg.start_s)) * 10) / 10,
       source: "upload",
       ai_generated: false,
       created_by: gen?.created_by ?? null,
@@ -296,7 +312,17 @@ async function finalize(admin: Admin, seg: SegRow, url: string) {
     .select("id")
     .single();
   if (error || !asset) throw new Error("asset_failed");
-  await admin.from("clip_segments").update({ status: "done", asset_id: asset.id, render_step: null, provider_state: {}, error_code: null }).eq("id", seg.id);
+  // Subtítulos .srt del clip (tiempos relativos al clip) junto al asset, para subirlos como subtítulos (p. ej. a YouTube):
+  // primero las palabras con tiempos de auto-subtitle; si no hay, la transcripción de Whisper del tramo.
+  let srt = wordsToSrt(words);
+  if (!srt) {
+    const { data: job } = await admin.from("clip_jobs").select("transcript").eq("id", seg.job_id).single();
+    srt = toSrt(Array.isArray(job?.transcript) ? (job!.transcript as unknown as TranscriptChunk[]) : [], Number(seg.start_s), Number(seg.end_s));
+  }
+  await admin
+    .from("clip_segments")
+    .update({ status: "done", asset_id: asset.id, render_step: null, provider_state: {}, error_code: null, srt: srt ? srt.slice(0, 200_000) : null, rendered_at: new Date().toISOString() })
+    .eq("id", seg.id);
   await succeed(admin, seg.generation_id);
 }
 
@@ -305,7 +331,7 @@ export async function advanceSegment(segmentId: string): Promise<string> {
   const admin = db();
   const { data: seg } = await admin
     .from("clip_segments")
-    .select("id, job_id, workspace_id, project_id, start_s, end_s, title, status, render_step, subtitles, generation_id, provider_state, updated_at")
+    .select("id, job_id, workspace_id, project_id, start_s, end_s, title, status, render_step, subtitles, generation_id, provider_state, render_options, updated_at")
     .eq("id", segmentId)
     .maybeSingle();
   if (!seg || seg.status !== "rendering") return seg?.status ?? "failed";
@@ -334,7 +360,7 @@ export async function advanceSegment(segmentId: string): Promise<string> {
       await failSegment(admin, row, `${step}_failed`);
       return "failed";
     }
-    const out = await falResultJson<{ video?: { url?: string } }>(st.response_url);
+    const out = await falResultJson<{ video?: { url?: string }; words?: unknown }>(st.response_url);
     const url = out.video?.url;
     if (!url || !isFalFileUrl(url)) throw new Error(`${step}_empty`);
 
@@ -347,11 +373,23 @@ export async function advanceSegment(segmentId: string): Promise<string> {
       await submitStep(admin, row, "subtitle", url, st, job?.language ?? null);
       return "rendering";
     }
-    await finalize(admin, row, url);
+    await finalize(admin, row, url, renderOptionsOf(row, st), step === "subtitle" ? out.words : null);
     return "done";
   } catch (e) {
     console.error("[clipper] render falló", (e as Error).message?.slice(0, 60));
     await failSegment(admin, row, `${step}_failed`);
     return "failed";
   }
+}
+
+/**
+ * Subtítulos .srt de un clip generado, a partir del id de su asset (para el módulo que los sube a YouTube como
+ * subtítulos con captions.insert). Dónde están: columna `clip_segments.srt` (texto SRT, tiempos relativos al clip),
+ * fila con `clip_segments.asset_id = <asset del clip>`. Devuelve null si el asset no es un clip o no tiene .srt.
+ */
+export async function getClipSrtForAsset(assetId: string): Promise<{ srt: string; language: string | null } | null> {
+  const admin = db();
+  const { data } = await admin.from("clip_segments").select("srt, clip_jobs!inner(language)").eq("asset_id", assetId).not("srt", "is", null).limit(1).maybeSingle();
+  if (!data?.srt) return null;
+  return { srt: data.srt, language: data.clip_jobs?.language ?? null };
 }

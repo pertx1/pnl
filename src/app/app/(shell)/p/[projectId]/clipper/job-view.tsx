@@ -1,83 +1,73 @@
 "use client";
 
-import Link from "next/link";
-import { TerminalCursor } from "@/components/brand/terminal-cursor";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useRef, useState, useTransition } from "react";
 import { useTranslations } from "next-intl";
-import {CalendarPlus, Captions, Download, FileText, Scissors, Trash2 } from "lucide-react";
+import { CalendarClock, FileArchive, FileText, Palette, Scissors, Trash2 } from "lucide-react";
 import { toast } from "sonner";
+import { TerminalCursor } from "@/components/brand/terminal-cursor";
 import { CreditCost } from "@/components/kreo/credit-cost";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { renderCredits, toSrt, type TranscriptChunk } from "@/lib/clipper/segments";
-import { cn } from "@/lib/utils";
-import { checkClipJob, deleteClipJob, renderSegments, updateSegment } from "./actions";
-
-type Seg = {
-  id: string;
-  start: number;
-  end: number;
-  title: string;
-  hook: string | null;
-  reason: string | null;
-  score: number;
-  status: string;
-  step: string | null;
-  subtitles: boolean;
-  errorCode: string | null;
-  assetUrl: string | null;
-  assetId: string | null;
-};
+import { DEFAULT_RENDER_OPTIONS, type RenderOptions } from "@/lib/clipper/styles";
+import { uniqueNames, zipStore } from "@/lib/clipper/zip";
+import { checkClipJob, deleteClipJob, renderSegments } from "./actions";
+import { RenderOptionsPanel } from "./render-options";
+import { SchedulePanel, type ScheduleAccount } from "./schedule-panel";
+import { downloadText, mmss, SegmentCard, slug, type Seg } from "./segment-card";
 
 /** Huella del progreso (ordenada por id) para refrescar la página solo cuando algo cambia. */
 const progressKey = (status: string, segs: { id: string; status: string; step: string | null }[]) =>
   `${status}|${[...segs].sort((a, b) => a.id.localeCompare(b.id)).map((s) => `${s.id}:${s.status}:${s.step}`).join(",")}`;
 
-const mmss = (s: number) => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, "0")}`;
-
-function downloadText(name: string, text: string) {
-  const url = URL.createObjectURL(new Blob([text], { type: "application/x-subrip;charset=utf-8" }));
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = name;
-  a.click();
-  setTimeout(() => URL.revokeObjectURL(url), 1000);
+function Section({ icon: Icon, title, children }: { icon: typeof Palette; title: string; children: React.ReactNode }) {
+  return (
+    <section className="space-y-3 rounded-md border px-3 py-3">
+      <h3 className="flex items-center gap-2 text-sm font-medium">
+        <Icon className="size-4 text-muted-foreground" aria-hidden /> {title}
+      </h3>
+      {children}
+    </section>
+  );
 }
-
-const slug = (s: string) => s.normalize("NFKD").replace(/[^\w-]+/g, "-").replace(/-+/g, "-").slice(0, 60) || "clip";
 
 export function JobView({
   projectId,
   canEdit,
   enabled,
+  agentsEnabled,
   balance,
   job,
   sourceUrl,
   transcript,
   segments,
+  brandColors,
+  accounts,
 }: {
   projectId: string;
   canEdit: boolean;
   enabled: boolean;
+  agentsEnabled: boolean;
   balance: number;
   job: { id: string; title: string | null; status: string; durationS: number | null; language: string | null; errorCode: string | null };
   sourceUrl: string | null;
   transcript: TranscriptChunk[];
   segments: Seg[];
+  brandColors: string[];
+  accounts: ScheduleAccount[];
 }) {
   const t = useTranslations("clipper");
   const router = useRouter();
   const [selected, setSelected] = useState<string[]>([]);
-  const [subtitles, setSubtitles] = useState(true);
+  const [options, setOptions] = useState<RenderOptions>(() => ({ ...DEFAULT_RENDER_OPTIONS, accent: brandColors.find((c) => /^#[0-9a-fA-F]{6}$/.test(c)) ?? DEFAULT_RENDER_OPTIONS.accent }));
   const [error, setError] = useState<string>();
+  const [zipping, setZipping] = useState(false);
   const [busy, start] = useTransition();
   const lastKey = useRef(progressKey(job.status, segments));
 
   const working = job.status === "transcribing" || job.status === "analyzing" || segments.some((s) => s.status === "rendering");
+  const sorted = useMemo(() => [...segments].sort((a, b) => b.score - a.score), [segments]);
 
   // Consulta el progreso cada 6 s mientras haya algo en marcha (también lo avanza una tarea en segundo plano).
   useEffect(() => {
@@ -92,12 +82,36 @@ export function JobView({
     return () => clearInterval(id);
   }, [working, job.id, router]);
 
-  const selectable = segments.filter((s) => s.status === "proposed" || s.status === "failed");
-  const total = useMemo(
-    () => segments.filter((s) => selected.includes(s.id)).reduce((sum, s) => sum + renderCredits(s.end - s.start, subtitles), 0),
-    [segments, selected, subtitles],
-  );
+  const toRender = sorted.filter((s) => selected.includes(s.id) && (s.status === "proposed" || s.status === "failed"));
+  const doneAll = sorted.filter((s) => s.status === "done" && s.assetUrl);
+  const doneSelected = doneAll.filter((s) => selected.includes(s.id));
+  const total = toRender.reduce((sum, s) => sum + renderCredits(s.end - s.start, options.subtitles), 0);
   const errText = (code: string) => (t.has(`errors.${code}`) ? t(`errors.${code}`) : t("errors.generic"));
+
+  /** Descarga el lote en un ZIP (sin compresión: los MP4 ya van comprimidos). */
+  async function downloadZip(list: Seg[]) {
+    setZipping(true);
+    try {
+      const names = uniqueNames(list.map((s) => `${slug(s.title)}.mp4`));
+      const files: { name: string; data: Uint8Array }[] = [];
+      for (let i = 0; i < list.length; i++) {
+        const res = await fetch(list[i].assetUrl!);
+        if (!res.ok) throw new Error("download_failed");
+        files.push({ name: names[i], data: new Uint8Array(await res.arrayBuffer()) });
+        if (list[i].srt) files.push({ name: names[i].replace(/\.mp4$/, ".srt"), data: new TextEncoder().encode(list[i].srt!) });
+      }
+      const url = URL.createObjectURL(new Blob(zipStore(files) as BlobPart[], { type: "application/zip" }));
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `${slug(job.title ?? "clips")}-clips.zip`;
+      a.click();
+      setTimeout(() => URL.revokeObjectURL(url), 5000);
+    } catch {
+      toast.error(t("errors.download_failed"));
+    } finally {
+      setZipping(false);
+    }
+  }
 
   return (
     <Card className="gap-0 py-0">
@@ -111,6 +125,11 @@ export function JobView({
           </p>
         </div>
         <div className="flex flex-wrap gap-2">
+          {doneAll.length > 0 && (
+            <Button variant="secondary" size="sm" disabled={zipping} onClick={() => downloadZip(doneSelected.length ? doneSelected : doneAll)}>
+              <FileArchive aria-hidden /> {zipping ? t("zipping") : t("downloadAll", { n: doneSelected.length || doneAll.length })}
+            </Button>
+          )}
           {transcript.length > 0 && (
             <Button variant="secondary" size="sm" onClick={() => downloadText(`${slug(job.title ?? "transcript")}.srt`, toSrt(transcript))}>
               <FileText aria-hidden /> {t("downloadSrt")}
@@ -153,202 +172,79 @@ export function JobView({
         )}
         {job.status === "ready" && segments.length === 0 && <p className="text-sm text-muted-foreground">{t("noMoments")}</p>}
 
-        {segments.length > 0 && (
+        {sorted.length > 0 && (
           <>
             <p className="text-xs text-muted-foreground">{t("momentsHint")}</p>
-            <ul className="grid gap-3 md:grid-cols-2">
-              {segments.map((s) => (
+            <ul className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+              {sorted.map((s) => (
                 <SegmentCard
-                  key={s.id}
+                  key={`${s.id}:${s.start}:${s.end}:${s.status}`}
                   seg={s}
                   projectId={projectId}
                   canEdit={canEdit}
+                  enabled={enabled}
                   sourceUrl={sourceUrl}
                   transcript={transcript}
                   selected={selected.includes(s.id)}
                   onToggle={(on) => setSelected((p) => (on ? [...p, s.id] : p.filter((x) => x !== s.id)))}
+                  options={options}
+                  balance={balance}
                 />
               ))}
             </ul>
           </>
         )}
 
-        {selectable.length > 0 && canEdit && (
-          <div className="space-y-3 rounded-md border px-3 py-3">
-            <label className="flex items-start gap-2 text-sm">
-              <Checkbox checked={subtitles} onCheckedChange={(v) => setSubtitles(Boolean(v))} className="mt-0.5" />
-              <span>
-                <span className="font-medium">{t("subtitles")}</span>
-                <span className="block text-xs text-muted-foreground">{t("subtitlesHint")}</span>
-              </span>
-            </label>
-            <p className="text-xs text-muted-foreground">{t("renderHint")}</p>
-            {error && (
-              <p role="alert" className="text-sm text-destructive">
-                {errText(error)}
-              </p>
-            )}
-            <div className="flex flex-wrap items-center justify-between gap-3 border-t pt-3">
-              <div className="flex items-center gap-3">
-                <span className="label-mono">{t("renderCost")}</span>
-                <CreditCost credits={total} />
-                <span className="font-mono text-xs text-muted-foreground">{t("balance", { balance })}</span>
+        {canEdit && job.status === "ready" && sorted.length > 0 && (
+          <div className="grid gap-4 lg:grid-cols-2">
+            <Section icon={Palette} title={t("styleTitle")}>
+              <RenderOptionsPanel value={options} onChange={setOptions} brandColors={brandColors} />
+              <p className="text-xs text-muted-foreground">{t("renderHint")}</p>
+              {error && (
+                <p role="alert" className="text-sm text-destructive">
+                  {errText(error)}
+                </p>
+              )}
+              <div className="flex flex-wrap items-center justify-between gap-3 border-t pt-3">
+                <div className="flex flex-wrap items-center gap-3">
+                  <span className="label-mono">{t("renderCost")}</span>
+                  <CreditCost credits={total} />
+                  <span className="font-mono text-xs text-muted-foreground">{t("balance", { balance })}</span>
+                </div>
+                <Button
+                  variant="brand"
+                  disabled={!enabled || busy || toRender.length === 0 || balance < total}
+                  onClick={() =>
+                    start(async () => {
+                      setError(undefined);
+                      const res = await renderSegments({ jobId: job.id, segmentIds: toRender.map((s) => s.id), options });
+                      if (!res.ok) {
+                        setError(res.error);
+                        return;
+                      }
+                      toast.success(t("renderStarted", { n: res.data?.started ?? 0 }));
+                      setSelected((p) => p.filter((id) => !toRender.some((s) => s.id === id)));
+                      router.refresh();
+                    })
+                  }
+                >
+                  <Scissors aria-hidden /> {busy ? t("starting") : `${t("render", { n: toRender.length })} · ${total}`}
+                </Button>
               </div>
-              <Button
-                variant="brand"
-                disabled={!enabled || busy || selected.length === 0 || balance < total}
-                onClick={() =>
-                  start(async () => {
-                    setError(undefined);
-                    const res = await renderSegments({ jobId: job.id, segmentIds: selected, subtitles });
-                    if (!res.ok) {
-                      setError(res.error);
-                      return;
-                    }
-                    toast.success(t("renderStarted", { n: res.data?.started ?? 0 }));
-                    setSelected([]);
-                    router.refresh();
-                  })
-                }
-              >
-                <Scissors aria-hidden /> {busy ? t("starting") : `${t("render", { n: selected.length })} · ${total}`}
-              </Button>
-            </div>
+              {toRender.length === 0 && <p className="text-xs text-muted-foreground">{t("selectToRender")}</p>}
+            </Section>
+
+            <Section icon={CalendarClock} title={t("scheduler.title")}>
+              <p className="text-xs text-muted-foreground">{t("scheduler.intro")}</p>
+              {doneSelected.length ? (
+                <SchedulePanel projectId={projectId} clips={doneSelected.map((s) => ({ id: s.id, title: s.title }))} accounts={accounts} balance={balance} enabled={agentsEnabled} />
+              ) : (
+                <p className="text-sm text-muted-foreground">{doneAll.length ? t("scheduler.selectDone") : t("scheduler.noneDone")}</p>
+              )}
+            </Section>
           </div>
         )}
       </CardContent>
     </Card>
-  );
-}
-
-function SegmentCard({
-  seg,
-  projectId,
-  canEdit,
-  sourceUrl,
-  transcript,
-  selected,
-  onToggle,
-}: {
-  seg: Seg;
-  projectId: string;
-  canEdit: boolean;
-  sourceUrl: string | null;
-  transcript: TranscriptChunk[];
-  selected: boolean;
-  onToggle: (on: boolean) => void;
-}) {
-  const t = useTranslations("clipper");
-  const router = useRouter();
-  const [editing, setEditing] = useState(false);
-  const [startS, setStartS] = useState(String(seg.start));
-  const [endS, setEndS] = useState(String(seg.end));
-  const [title, setTitle] = useState(seg.title);
-  const [saving, startSave] = useTransition();
-  const editable = canEdit && (seg.status === "proposed" || seg.status === "failed");
-  const len = seg.end - seg.start;
-
-  return (
-    <li className={cn("space-y-3 rounded-md border p-3", selected && "border-selected bg-primary/5")}>
-      <div className="flex items-start gap-2">
-        {editable && <Checkbox checked={selected} onCheckedChange={(v) => onToggle(Boolean(v))} aria-label={t("selectMoment", { title: seg.title })} className="mt-1" />}
-        <div className="min-w-0 flex-1">
-          <p className="font-medium">{seg.title}</p>
-          <p className="font-mono text-xs text-muted-foreground tabular-nums">
-            {mmss(seg.start)}–{mmss(seg.end)} · {Math.round(len)} s
-          </p>
-        </div>
-        <span className="rounded-sm border px-1.5 py-px font-mono text-xs tabular-nums" title={t("scoreHint")}>
-          {seg.score}
-        </span>
-      </div>
-      {seg.hook && <p className="text-sm">“{seg.hook}”</p>}
-      {seg.reason && <p className="text-xs text-muted-foreground">{seg.reason}</p>}
-
-      {seg.status === "done" && seg.assetUrl ? (
-        <video src={seg.assetUrl} controls playsInline preload="metadata" className="mx-auto aspect-[9/16] max-h-[420px] rounded-md border bg-black" />
-      ) : (
-        sourceUrl && <video src={`${sourceUrl}#t=${seg.start},${seg.end}`} controls playsInline preload="none" className="aspect-video w-full rounded-md border bg-black" aria-label={t("previewMoment")} />
-      )}
-
-      {seg.status === "rendering" && (
-        <p role="status" className="flex items-center gap-2 text-xs text-muted-foreground">
-          <TerminalCursor /> {t(`steps.${seg.step ?? "trim"}`)}
-        </p>
-      )}
-      {seg.status === "failed" && <p className="text-xs text-destructive">{t("renderFailed")}</p>}
-
-      {editing && editable && (
-        <div className="grid grid-cols-2 gap-2">
-          <div className="space-y-1">
-            <Label htmlFor={`s-${seg.id}`} className="text-xs">
-              {t("start")}
-            </Label>
-            <Input id={`s-${seg.id}`} type="number" step="0.1" min={0} value={startS} onChange={(e) => setStartS(e.target.value)} />
-          </div>
-          <div className="space-y-1">
-            <Label htmlFor={`e-${seg.id}`} className="text-xs">
-              {t("end")}
-            </Label>
-            <Input id={`e-${seg.id}`} type="number" step="0.1" min={0} value={endS} onChange={(e) => setEndS(e.target.value)} />
-          </div>
-          <div className="col-span-2 space-y-1">
-            <Label htmlFor={`t-${seg.id}`} className="text-xs">
-              {t("momentTitle")}
-            </Label>
-            <Input id={`t-${seg.id}`} value={title} maxLength={200} onChange={(e) => setTitle(e.target.value)} />
-          </div>
-          <div className="col-span-2 flex gap-2">
-            <Button
-              size="sm"
-              disabled={saving}
-              onClick={() =>
-                startSave(async () => {
-                  const res = await updateSegment(seg.id, { start: Number(startS), end: Number(endS), title });
-                  if (!res.ok) {
-                    toast.error(t.has(`errors.${res.error}`) ? t(`errors.${res.error}`) : t("errors.generic"));
-                    return;
-                  }
-                  setEditing(false);
-                  router.refresh();
-                })
-              }
-            >
-              {t("save")}
-            </Button>
-            <Button size="sm" variant="ghost" onClick={() => setEditing(false)}>
-              {t("cancel")}
-            </Button>
-          </div>
-        </div>
-      )}
-
-      <div className="flex flex-wrap gap-x-3 gap-y-1 text-xs">
-        {editable && !editing && (
-          <button type="button" className="text-muted-foreground hover:text-foreground" onClick={() => setEditing(true)}>
-            {t("adjust")}
-          </button>
-        )}
-        {transcript.length > 0 && (
-          <button
-            type="button"
-            className="inline-flex items-center gap-1 text-muted-foreground hover:text-foreground"
-            onClick={() => downloadText(`${slug(seg.title)}.srt`, toSrt(transcript, seg.start, seg.end))}
-          >
-            <Captions className="size-3.5" aria-hidden /> {t("segmentSrt")}
-          </button>
-        )}
-        {seg.status === "done" && seg.assetUrl && (
-          <>
-            <a href={seg.assetUrl} download className="inline-flex items-center gap-1 text-muted-foreground hover:text-foreground">
-              <Download className="size-3.5" aria-hidden /> {t("download")}
-            </a>
-            <Link href={`/app/p/${projectId}/posts/new?caption=${encodeURIComponent(seg.hook ?? seg.title)}`} className="link inline-flex items-center gap-1">
-              <CalendarPlus className="size-3.5" aria-hidden /> {t("schedule")}
-            </Link>
-          </>
-        )}
-      </div>
-    </li>
   );
 }

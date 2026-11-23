@@ -3,7 +3,7 @@ import { cookies, headers } from "next/headers";
 import { defaultLocale, isLocale, LOCALE_COOKIE, type Locale } from "./config";
 
 // Cada módulo tiene su propio archivo de textos (messages/modules/<módulo>/<idioma>.json) para trabajar en paralelo.
-const MODULES = ["research", "strategy", "inbox", "team", "commerce", "mcp"] as const;
+const MODULES = ["research", "strategy", "inbox", "team", "commerce", "mcp", "clipper"] as const;
 
 // Idioma sin prefijo en la URL: cookie (elegida por el usuario) → cabecera Accept-Language → español.
 export default getRequestConfig(async () => {

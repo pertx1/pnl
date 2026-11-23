@@ -5,14 +5,18 @@ import { Card, CardContent } from "@/components/ui/card";
 import { isAgentsConfigured } from "@/lib/agents";
 import { isFalConfigured } from "@/lib/ai/providers/fal";
 import type { TranscriptChunk } from "@/lib/clipper/segments";
+import { FORMAT_KEYS, type ClipFormat } from "@/lib/clipper/styles";
+import { hasBreakdown } from "@/lib/clipper/virality";
 import { getCreditBalance, getProject, roleAtLeast } from "@/lib/server/dal";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 import { cn } from "@/lib/utils";
 import { JobView } from "./job-view";
+import type { Seg } from "./segment-card";
 import { UploadCard } from "./upload-card";
 
-export const maxDuration = 60;
+// «Programar clips» escribe los textos de hasta 8 clips con Claude en la misma petición.
+export const maxDuration = 120;
 
 export async function generateMetadata() {
   const t = await getTranslations("clipper");
@@ -35,10 +39,13 @@ export default async function ClipperPage({
   const configured = isFalConfigured() && isAgentsConfigured() && Boolean(createAdminClient());
   const supabase = await createClient();
 
-  const [{ data: jobs }, balance] = await Promise.all([
+  const [{ data: jobs }, balance, { data: kit }, { data: accounts }] = await Promise.all([
     supabase.from("clip_jobs").select("id, title, status, duration_s, declared_duration_s, created_at, error_code").eq("project_id", projectId).order("created_at", { ascending: false }).limit(12),
     getCreditBalance(project.workspace_id),
+    supabase.from("brand_kits").select("colors").eq("project_id", projectId).maybeSingle(),
+    supabase.from("social_accounts").select("id, platform, handle, daily_post_limit").eq("project_id", projectId).eq("status", "active").order("created_at"),
   ]);
+  const brandColors = Array.isArray(kit?.colors) ? (kit!.colors as { hex?: string }[]).map((c) => c.hex).filter((x): x is string => typeof x === "string") : [];
   const requested = typeof sp.job === "string" ? sp.job : undefined;
   const current = (jobs ?? []).find((j) => j.id === requested) ?? (jobs ?? [])[0];
 
@@ -46,12 +53,16 @@ export default async function ClipperPage({
     job: { id: string; title: string | null; status: string; durationS: number | null; language: string | null; errorCode: string | null };
     sourceUrl: string | null;
     transcript: TranscriptChunk[];
-    segments: { id: string; start: number; end: number; title: string; hook: string | null; reason: string | null; score: number; status: string; step: string | null; subtitles: boolean; errorCode: string | null; assetUrl: string | null; assetId: string | null }[];
+    segments: Seg[];
   };
   if (current) {
     const [{ data: job }, { data: segs }] = await Promise.all([
       supabase.from("clip_jobs").select("id, title, status, duration_s, language, error_code, transcript, source_asset_id").eq("id", current.id).single(),
-      supabase.from("clip_segments").select("id, start_s, end_s, title, hook, reason, score, status, render_step, subtitles, error_code, asset_id").eq("job_id", current.id).order("score", { ascending: false }),
+      supabase
+        .from("clip_segments")
+        .select("id, start_s, end_s, title, hook, reason, score, score_breakdown, status, render_step, subtitles, error_code, asset_id, render_options, srt")
+        .eq("job_id", current.id)
+        .order("score", { ascending: false }),
     ]);
     if (job) {
       const assetIds = [job.source_asset_id, ...(segs ?? []).map((s) => s.asset_id)].filter((x): x is string => Boolean(x));
@@ -59,6 +70,10 @@ export default async function ClipperPage({
       const paths = (assets ?? []).map((a) => a.storage_path);
       const { data: signed } = paths.length ? await supabase.storage.from("project-media").createSignedUrls(paths, 3600) : { data: [] };
       const urlByAsset = new Map((assets ?? []).map((a) => [a.id, (signed ?? []).find((s) => s.path === a.storage_path)?.signedUrl ?? null]));
+      // Descarga directa: URL firmada con Content-Disposition: attachment (el MP4 tal cual, sin marca de agua).
+      const clipPaths = (assets ?? []).filter((a) => a.id !== job.source_asset_id).map((a) => a.storage_path);
+      const { data: dl } = clipPaths.length ? await supabase.storage.from("project-media").createSignedUrls(clipPaths, 3600, { download: true }) : { data: [] };
+      const dlByAsset = new Map((assets ?? []).map((a) => [a.id, (dl ?? []).find((s) => s.path === a.storage_path)?.signedUrl ?? null]));
       detail = {
         job: { id: job.id, title: job.title, status: job.status, durationS: job.duration_s, language: job.language, errorCode: job.error_code },
         sourceUrl: job.source_asset_id ? (urlByAsset.get(job.source_asset_id) ?? null) : null,
@@ -71,12 +86,19 @@ export default async function ClipperPage({
           hook: s.hook,
           reason: s.reason,
           score: s.score,
+          breakdown: hasBreakdown(s.score_breakdown) ? s.score_breakdown : null,
           status: s.status,
           step: s.render_step,
           subtitles: s.subtitles,
           errorCode: s.error_code,
           assetId: s.asset_id,
           assetUrl: s.asset_id ? (urlByAsset.get(s.asset_id) ?? null) : null,
+          downloadUrl: s.asset_id ? (dlByAsset.get(s.asset_id) ?? null) : null,
+          format: (() => {
+            const f = (s.render_options as { format?: string } | null)?.format;
+            return s.asset_id ? ((FORMAT_KEYS as string[]).includes(f ?? "") ? (f as ClipFormat) : "9:16") : null;
+          })(),
+          srt: s.srt,
         })),
       };
     }
@@ -129,7 +151,17 @@ export default async function ClipperPage({
       )}
 
       {detail ? (
-        <JobView key={detail.job.id} projectId={projectId} canEdit={canEdit} enabled={configured && canEdit} balance={balance} {...detail} />
+        <JobView
+          key={detail.job.id}
+          projectId={projectId}
+          canEdit={canEdit}
+          enabled={configured && canEdit}
+          agentsEnabled={isAgentsConfigured() && canEdit}
+          balance={balance}
+          brandColors={brandColors}
+          accounts={(accounts ?? []).map((a) => ({ id: a.id, platform: a.platform, handle: a.handle, dailyLimit: a.daily_post_limit }))}
+          {...detail}
+        />
       ) : (
         <Card>
           <CardContent className="flex flex-col items-center gap-3 py-12 text-center">

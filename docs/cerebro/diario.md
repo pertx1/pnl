@@ -2,6 +2,11 @@
 
 Una entrada por sesión, lo más reciente arriba. 3-6 líneas: qué se hizo, qué quedó a medias, qué toca después.
 
+## 2026-11-24
+- **Clipper v2** (sin fusionar): viralidad 0-100 desglosada (gancho, ritmo, valor, tendencia), formatos 9:16/1:1/16:9 con recorte centrado o encajado y vista previa del encuadre, 5 plantillas de subtítulos con vista previa, editar inicio/fin con la transcripción y volver a renderizar, descarga MP4 y ZIP del lote (sin marca de agua, con test), «Programar clips» en huecos libres con textos por red y `.srt` guardado por clip.
+- Arreglado: doble clic en «Generar» ya no cobra dos veces (reclamo atómico antes del cobro); el ajuste de un momento fallido no se podía guardar.
+- Migración `20261124100000_clipper_v2.sql` pendiente de aplicar. Seguimiento: reencuadre que sigue a la persona y título-gancho (decisiones de Oier).
+
 ## 2026-11-23
 - Panel del proyecto rediseñado: primeros pasos, «Hoy» con cifras clicables, tarjetas por cuenta (seguidores, variación, sparkline), semana, rendimiento 30 días y créditos. Logos oficiales de las redes. Estadísticas al conectar/abrir Analíticas.
 - **Inngest conectado** (PUT a `/api/inngest` → «Successfully registered»; primera llamada POST de Inngest comprobada). La publicación programada ya puede funcionar.

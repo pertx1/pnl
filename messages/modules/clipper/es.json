@@ -1,0 +1,217 @@
+{
+  "clipper": {
+    "title": "Clipper",
+    "subtitle": "Sube un vídeo largo tuyo y saca shorts verticales con subtítulos. La IA propone los momentos; tú eliges.",
+    "notConfigured": "El Clipper aún no está activado.",
+    "soon": "Próximamente",
+    "youtube": {
+      "title": "Desde un enlace de YouTube",
+      "body": "La API oficial de YouTube no permite descargar vídeos, así que no lo haremos. Descarga tu vídeo desde YouTube Studio y súbelo aquí."
+    },
+    "historyLabel": "Vídeos procesados",
+    "untitled": "Vídeo sin título",
+    "status": {
+      "transcribing": "Transcribiendo",
+      "analyzing": "Buscando momentos",
+      "ready": "Listo",
+      "failed": "Error"
+    },
+    "empty": {
+      "title": "Sube tu primer vídeo largo",
+      "body": "Podcast, directo, tutorial o charla. Transcribimos el audio, la IA propone los mejores momentos y generas los shorts que elijas."
+    },
+    "upload": {
+      "title": "Nuevo vídeo",
+      "body": "MP4 de hasta 50 MB y 60 min (límite actual de almacenamiento). Si pesa más, expórtalo a 720p.",
+      "choose": "Elegir MP4",
+      "limits": "MP4 · máx. 50 MB · 20 s – 60 min",
+      "rights": "Confirmo que es contenido mío o que tengo los derechos para editarlo y publicarlo.",
+      "rightsHint": "No subas vídeos de otros creadores, cadenas de TV ni música con derechos de terceros: las plataformas pueden retirar los clips y sancionar tu cuenta.",
+      "uploading": "Subiendo el vídeo…",
+      "starting": "Enviando a transcribir…",
+      "costHint": "Elige un vídeo para ver el coste.",
+      "analyze": "Analizar vídeo",
+      "working": "Un momento…"
+    },
+    "analysisCost": "Análisis",
+    "balance": "Saldo: {balance}",
+    "buyCredits": "Comprar créditos",
+    "downloadSrt": "Transcripción .srt",
+    "deleteConfirm": "¿Borrar este análisis? El vídeo original y los shorts generados seguirán en la biblioteca.",
+    "deleteJob": "Borrar análisis",
+    "progress": {
+      "transcribing": "Transcribiendo el audio… suele tardar 1–5 minutos. Puedes cerrar la página: seguimos en segundo plano.",
+      "analyzing": "La IA está eligiendo los mejores momentos…"
+    },
+    "refunded": "Te hemos devuelto los créditos.",
+    "noMoments": "No encontramos momentos claros en este vídeo. Prueba con otro con más diálogo.",
+    "momentsHint": "Momentos propuestos por la IA, ordenados por puntuación de viralidad (potencial relativo dentro de este vídeo). Marca los que quieras generar, programar o descargar.",
+    "renderHint": "Cada clip se recorta del original, se adapta al formato elegido y se guarda en la biblioteca listo para programar. Sin marca de agua.",
+    "renderCost": "Coste",
+    "renderStarted": "{n, plural, one {Generando # short…} other {Generando # shorts…}}",
+    "starting": "Iniciando…",
+    "render": "{n, plural, =0 {Generar shorts} one {Generar # short} other {Generar # shorts}}",
+    "selectMoment": "Seleccionar «{title}»",
+    "previewMoment": "Vista previa del momento en el vídeo original",
+    "steps": {
+      "trim": "Recortando el momento…",
+      "scale": "Adaptando el formato…",
+      "subtitle": "Añadiendo subtítulos…"
+    },
+    "renderFailed": "No se pudo generar este short. Te hemos devuelto los créditos; puedes volver a intentarlo.",
+    "start": "Inicio (s)",
+    "end": "Fin (s)",
+    "momentTitle": "Título",
+    "save": "Guardar",
+    "cancel": "Cancelar",
+    "adjust": "Ajustar tiempos",
+    "segmentSrt": ".srt del momento",
+    "errors": {
+      "only_mp4": "Solo MP4 por ahora (es el formato que admite la transcripción). Expórtalo como MP4 (H.264).",
+      "too_big": "El vídeo pesa más de 50 MB. Expórtalo a 720p o recórtalo.",
+      "too_long": "El vídeo dura más de 60 minutos.",
+      "too_short": "El vídeo es demasiado corto para sacar clips (mín. 20 s).",
+      "no_duration": "No pudimos leer la duración del vídeo. Prueba a exportarlo de nuevo como MP4.",
+      "upload_failed": "No se pudo subir el vídeo. Revisa tu conexión.",
+      "insufficient_credits": "No tienes créditos suficientes.",
+      "not_configured": "El Clipper aún no está activado.",
+      "forbidden": "No tienes permiso para hacer esto en este proyecto.",
+      "invalid_input": "Revisa los datos.",
+      "provider_error": "El servicio de vídeo no está disponible. Te hemos devuelto los créditos.",
+      "no_speech": "No detectamos voz en el vídeo.",
+      "duration_mismatch": "La duración real del vídeo no coincide con la leída al subirlo.",
+      "transcription_failed": "Falló la transcripción.",
+      "analysis_failed": "La IA no pudo analizar la transcripción.",
+      "timeout": "El proceso tardó demasiado.",
+      "submit_failed": "No se pudo iniciar el proceso.",
+      "bad_range": "Cada clip debe durar entre 10 y 90 segundos y estar dentro del vídeo.",
+      "busy": "Espera a que termine el proceso en curso.",
+      "generic": "Algo ha fallado.",
+      "download_failed": "No se pudo descargar algún clip. Vuelve a intentarlo.",
+      "no_slots": "No hay huecos libres en los próximos 21 días para esas cuentas (límite diario alcanzado).",
+      "invalid_accounts": "Alguna cuenta no está activa o no es de este proyecto.",
+      "refusal": "La IA no pudo escribir los textos. Te hemos devuelto los créditos."
+    },
+    "styleTitle": "Formato y subtítulos",
+    "selectToRender": "Marca momentos propuestos (o fallidos) para generarlos con este estilo.",
+    "downloadAll": "{n, plural, one {Descargar # clip (ZIP)} other {Descargar # clips (ZIP)}}",
+    "zipping": "Preparando el ZIP…",
+    "downloadMp4": "Descargar MP4",
+    "manualPost": "Publicación manual",
+    "editClip": "Editar clip",
+    "cropHint": "El marco discontinuo es lo que se queda al recortar a {format}. Si quien habla queda fuera, elige «Encajar».",
+    "minusSecond": "{which}: restar 1 segundo",
+    "plusSecond": "{which}: sumar 1 segundo",
+    "duration": "Duración: {s} s",
+    "transcriptAround": "Transcripción alrededor del momento",
+    "startHere": "Inicio",
+    "endHere": "Fin",
+    "startHereAria": "Empezar en {time}",
+    "endHereAria": "Terminar en {time}",
+    "rerender": "Volver a renderizar",
+    "rerenderStarted": "Renderizando de nuevo…",
+    "rerenderHint": "Usa el formato y el estilo elegidos en «Formato y subtítulos». El clip anterior sigue en la biblioteca. Si falla, te devolvemos los créditos.",
+    "virality": {
+      "badge": "Puntuación de viralidad: {score} de 100",
+      "tier": {
+        "high": "Potencial alto",
+        "mid": "Potencial medio",
+        "low": "Potencial bajo"
+      },
+      "why": "¿Por qué?",
+      "axes": {
+        "hook": "Gancho",
+        "pacing": "Ritmo",
+        "value": "Valor",
+        "trend": "Tendencia"
+      },
+      "noBreakdown": "Este momento se analizó antes del desglose: solo tiene la puntuación total.",
+      "disclaimer": "Potencial relativo dentro de este vídeo (gancho 35 %, valor 30 %, ritmo 20 %, tendencia 15 %). «Tendencia» es el encaje con formatos que suelen funcionar, sin datos en tiempo real. No es una predicción de visualizaciones."
+    },
+    "options": {
+      "format": "Formato",
+      "layout": "Encuadre",
+      "layouts": {
+        "crop": "Recorte centrado",
+        "fit": "Encajar sin recortar"
+      },
+      "layoutHint": {
+        "crop": "Llena la pantalla recortando los lados por el centro. Ideal si hablas centrado.",
+        "fit": "Muestra el vídeo entero con bandas de color. Úsalo si hay dos personas o hablas a un lado."
+      },
+      "padColor": "Color de las bandas",
+      "subtitles": "Subtítulos quemados",
+      "subtitlesHint": "Transcripción automática del audio con la plantilla elegida. Si los desactivas, descarga el .srt y súbelo como subtítulos en la plataforma.",
+      "style": "Plantilla",
+      "styles": {
+        "karaoke": "Karaoke",
+        "box": "Caja de color",
+        "caps": "Mayúsculas",
+        "minimal": "Minimalista",
+        "word": "Una palabra"
+      },
+      "styleHint": {
+        "karaoke": "Bloques de 3 palabras; la que suena se resalta con tu color de acento.",
+        "box": "Frases de 2 palabras sobre una caja de tu color (la caja cubre la frase, no solo la palabra activa).",
+        "caps": "Mayúsculas grandes con la fuente Bebas Neue y la palabra activa resaltada.",
+        "minimal": "Frase completa, fina y sin animación.",
+        "word": "Una sola palabra grande en tu color, con rebote."
+      },
+      "position": "Posición",
+      "positions": {
+        "top": "Arriba",
+        "center": "Centro",
+        "bottom": "Abajo"
+      },
+      "size": "Tamaño",
+      "sizes": {
+        "s": "Pequeño",
+        "m": "Mediano",
+        "l": "Grande"
+      },
+      "accent": "Color de acento",
+      "accentHint": "Los colores de tu brand kit se convierten al color más cercano que admite el motor de subtítulos.",
+      "textColor": "Color del texto",
+      "preview": "Vista previa",
+      "previewHint": "Simulación del estilo. El resultado real anima la entrada de cada bloque.",
+      "colors": {
+        "white": "Blanco",
+        "black": "Negro",
+        "gray": "Gris",
+        "red": "Rojo",
+        "green": "Verde",
+        "blue": "Azul",
+        "yellow": "Amarillo",
+        "cyan": "Cian",
+        "magenta": "Magenta",
+        "orange": "Naranja",
+        "purple": "Morado",
+        "pink": "Rosa",
+        "brown": "Marrón"
+      }
+    },
+    "scheduler": {
+      "title": "Programar clips",
+      "intro": "Kreo reparte los clips marcados en los próximos huecos libres de tu calendario (respetando el límite diario de cada cuenta) y escribe el texto de cada red con la voz de tu marca.",
+      "selectDone": "Marca uno o varios clips ya generados para programarlos.",
+      "noneDone": "Genera primero algún clip para poder programarlo.",
+      "noAccounts": "No hay cuentas conectadas en este proyecto.",
+      "connect": "Conectar una cuenta",
+      "accounts": "Cuentas",
+      "limit": "máx. {n}/día",
+      "perDay": "Clips al día como máximo",
+      "perDayHint": "Nunca se supera el límite diario de ninguna cuenta. Empieza mañana, hora de Madrid.",
+      "proposal": "Propuesta",
+      "proposalHint": "Las fechas son una propuesta: podrás cambiarlas en el calendario antes de aprobar.",
+      "unscheduled": "{n, plural, one {# clip no cabe en los próximos 21 días.} other {# clips no caben en los próximos 21 días.}}",
+      "submit": "Enviar a aprobación",
+      "submitHint": "Solo si cumple las reglas de cada red. TikTok necesita que elijas la privacidad a mano, así que se queda en borrador. La aprobación siempre es tuya.",
+      "done": "{n, plural, one {# borrador creado en el calendario.} other {# borradores creados en el calendario.}}",
+      "openCalendar": "Abrir el calendario",
+      "cost": "Textos con IA",
+      "working": "Escribiendo textos…",
+      "button": "{n, plural, one {Programar # clip} other {Programar # clips}}",
+      "legal": "Kreo no publica nada por su cuenta: crea borradores (o pendientes de aprobación) que tú revisas y apruebas."
+    }
+  }
+}
