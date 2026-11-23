@@ -11,6 +11,7 @@ import { salesSummary, type LineItem } from "@/lib/shopify/core";
 import { defaultFrequency } from "@/lib/strategy/templates";
 import type { Database, WorkspaceRoleT } from "@/lib/supabase/database.types";
 import { addDays, computeFreeSlots, daysBetween, DEFAULT_TZ, isIsoDay, isValidTimeZone, PLANNED_STATUSES, zonedParts, zonedToUtc } from "./calendar";
+import { instagramOptionsSchema, tiktokOptionsSchema, toPlatformOptions, UPLOAD_MAX_BYTES, UPLOAD_MIME, youtubeOptionsSchema, type InstagramIn, type TikTokIn, type UploadMime, type YouTubeIn } from "./post-options";
 import { draftReply, DRAFT_REPLY_VERSION } from "./reply-agent";
 import { modelsCostText, startStudioGeneration } from "./studio";
 
@@ -152,6 +153,15 @@ const dayField = z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Formato YYYY-MM-DD");
 const tzField = z.string().max(64).optional().describe(`Zona horaria IANA para días y horas (por defecto ${DEFAULT_TZ}).`);
 
 export function createKreoMcpServer(ctx: McpContext) {
+  /** La miniatura de YouTube debe ser una imagen JPG/PNG ≤ 2 MB del mismo proyecto. */
+  const checkThumbnail = async (projectId: string, assetId?: string) => {
+    if (!assetId) return null;
+    const { data } = await ctx.db.from("assets").select("mime_type, size_bytes").eq("id", assetId).eq("project_id", projectId).maybeSingle();
+    if (!data || !["image/jpeg", "image/png"].includes(data.mime_type) || (data.size_bytes ?? 0) > 2 * 1024 * 1024)
+      return fail("invalid_thumbnail", "La miniatura de YouTube debe ser una imagen JPG o PNG de máximo 2 MB de la biblioteca de este proyecto.");
+    return null;
+  };
+
   const server = new McpServer(
     { name: "kreo", version: "2.0.0" },
     {
@@ -444,6 +454,9 @@ export function createKreoMcpServer(ctx: McpContext) {
         asset_ids: z.array(z.uuid()).max(10).optional().describe("Ids de medios del proyecto (p. ej. el asset_id que devuelve get_generation)."),
         task_id: z.uuid().optional().describe("Tarea del roadmap a la que vincular este borrador."),
         submit_for_approval: z.boolean().default(false).describe("Enviar a aprobación humana si cumple las reglas de cada red."),
+        youtube: youtubeOptionsSchema.optional().describe("Opciones de YouTube (título, etiquetas, privacidad, categoría, miniatura, lista…). Se aplican a las cuentas de YouTube."),
+        tiktok: tiktokOptionsSchema.optional().describe("Opciones de TikTok (privacidad e interacciones)."),
+        instagram: instagramOptionsSchema.optional().describe("Opciones de Instagram (reel de prueba)."),
       }),
       annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: false, openWorldHint: false },
     },
@@ -457,6 +470,9 @@ export function createKreoMcpServer(ctx: McpContext) {
         asset_ids?: string[];
         task_id?: string;
         submit_for_approval: boolean;
+        youtube?: YouTubeIn;
+        tiktok?: TikTokIn;
+        instagram?: InstagramIn;
       }) => {
         const p = await projectFor(ctx, a.project_id, "editor");
         if (a.scheduled_at && new Date(a.scheduled_at).getTime() < Date.now()) return fail("scheduled_in_past", "scheduled_at debe ser una fecha futura.");
@@ -470,6 +486,9 @@ export function createKreoMcpServer(ctx: McpContext) {
           ? await ctx.db.from("assets").select("id, mime_type, ai_generated").eq("project_id", p.id).in("id", assetIds)
           : { data: [] as { id: string; mime_type: string; ai_generated: boolean }[] };
         if ((assets ?? []).length !== assetIds.length) return fail("invalid_assets", "Algunos asset_ids no pertenecen a este proyecto.");
+        const thumbErr = await checkThumbnail(p.id, a.youtube?.thumbnail_asset_id);
+        if (thumbErr) return thumbErr;
+        const optionsOf = (platform: string) => toPlatformOptions(platform, a, a.title);
         if (a.task_id) {
           const { data: task } = await ctx.db.from("roadmap_tasks").select("id").eq("id", a.task_id).eq("project_id", p.id).maybeSingle();
           if (!task) return fail("invalid_task", "La tarea no pertenece a este proyecto.");
@@ -492,7 +511,9 @@ export function createKreoMcpServer(ctx: McpContext) {
           .single();
         if (error || !post) throw new Error("insert_failed");
         if (ids.length) {
-          const { error: tErr } = await ctx.db.from("post_targets").insert(ids.map((id) => ({ post_id: post.id, workspace_id: p.workspace_id, social_account_id: id, platform_options: {} })));
+          const { error: tErr } = await ctx.db
+            .from("post_targets")
+            .insert(ids.map((id) => ({ post_id: post.id, workspace_id: p.workspace_id, social_account_id: id, platform_options: optionsOf((accounts ?? []).find((x) => x.id === id)!.platform) as never })));
           if (tErr) {
             await ctx.db.from("posts").delete().eq("id", post.id);
             throw new Error("targets_failed");
@@ -522,7 +543,7 @@ export function createKreoMcpServer(ctx: McpContext) {
         const blockers: { account_id: string; rules: string[] }[] = [];
         if (a.submit_for_approval) {
           for (const acc of accounts ?? []) {
-            const rules: string[] = validateTarget(acc.platform, a.caption, media, {} as PlatformOptions);
+            const rules: string[] = validateTarget(acc.platform, a.caption, media, optionsOf(acc.platform));
             if (acc.status !== "active") rules.push("account_not_active");
             if (rules.length) blockers.push({ account_id: acc.id, rules });
           }
@@ -545,10 +566,194 @@ export function createKreoMcpServer(ctx: McpContext) {
           notice:
             status === "pending_approval"
               ? "Enviada a aprobación. Solo se programará cuando un admin la apruebe en Kreo."
-              : "Guardada como borrador. Ábrela en Kreo para revisar, añadir medios o elegir opciones de cada red y enviarla a aprobación. Nada se publica automáticamente.",
+              : "Guardada como borrador. Puedes completarla con update_draft_post (opciones de cada red, medios, fecha) o en Kreo, y enviarla a aprobación. Nada se publica automáticamente.",
         });
       },
     ),
+  );
+
+  server.registerTool(
+    "update_draft_post",
+    {
+      title: "Editar borrador",
+      description:
+        "Edita una publicación que aún NO está aprobada (borrador o pendiente de aprobación): texto, título, fecha, medios, cuentas y opciones de cada red (YouTube: título, etiquetas, privacidad, categoría, miniatura, lista…; TikTok: privacidad e interacciones; Instagram: reel de prueba). Si estaba pendiente de aprobación vuelve a borrador (hay que reenviarla, con submit_for_approval: true). NUNCA aprueba ni publica. Requiere rol editor.",
+      inputSchema: z.object({
+        post_id: z.uuid(),
+        caption: z.string().min(1).max(5000).optional(),
+        title: z.string().max(120).optional(),
+        scheduled_at: z.iso.datetime({ offset: true }).nullable().optional().describe("Nueva fecha (ISO 8601 con desfase) o null para quitarla."),
+        asset_ids: z.array(z.uuid()).max(10).optional().describe("Lista COMPLETA de medios (sustituye a la actual)."),
+        add_asset_ids: z.array(z.uuid()).max(10).optional().describe("Medios a AÑADIR a los actuales."),
+        account_ids: z.array(z.uuid()).max(20).optional().describe("Lista COMPLETA de cuentas destino (sustituye a la actual)."),
+        youtube: youtubeOptionsSchema.optional(),
+        tiktok: tiktokOptionsSchema.optional(),
+        instagram: instagramOptionsSchema.optional(),
+        submit_for_approval: z.boolean().default(false).describe("Enviar a aprobación humana tras editar, si cumple las reglas."),
+      }),
+      annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: false },
+    },
+    safe(
+      async (a: {
+        post_id: string;
+        caption?: string;
+        title?: string;
+        scheduled_at?: string | null;
+        asset_ids?: string[];
+        add_asset_ids?: string[];
+        account_ids?: string[];
+        youtube?: YouTubeIn;
+        tiktok?: TikTokIn;
+        instagram?: InstagramIn;
+        submit_for_approval: boolean;
+      }) => {
+        const { data: post } = await ctx.db.from("posts").select("id, project_id, workspace_id, status, caption, title, asset_ids, scheduled_at").eq("id", a.post_id).maybeSingle();
+        if (!post) throw new ToolError("not_found");
+        const p = await projectFor(ctx, post.project_id, "editor");
+        if (post.status !== "draft" && post.status !== "pending_approval")
+          return fail("not_editable", "Solo se pueden editar borradores o publicaciones pendientes de aprobación. Para cambiar una ya aprobada, desprográmala en Kreo.");
+        if (a.scheduled_at && new Date(a.scheduled_at).getTime() < Date.now()) return fail("scheduled_in_past", "scheduled_at debe ser una fecha futura.");
+
+        let assetIds = a.asset_ids ? [...new Set(a.asset_ids)] : [...post.asset_ids];
+        if (a.add_asset_ids) assetIds = [...new Set([...assetIds, ...a.add_asset_ids])];
+        if (assetIds.length > 10) return fail("too_many_assets", "Máximo 10 medios por publicación.");
+        const { data: assets } = assetIds.length
+          ? await ctx.db.from("assets").select("id, mime_type, ai_generated").eq("project_id", p.id).in("id", assetIds)
+          : { data: [] as { id: string; mime_type: string; ai_generated: boolean }[] };
+        if ((assets ?? []).length !== assetIds.length) return fail("invalid_assets", "Algunos asset_ids no pertenecen a este proyecto.");
+        const thumbErr = await checkThumbnail(p.id, a.youtube?.thumbnail_asset_id);
+        if (thumbErr) return thumbErr;
+        const media: MediaKind[] = assetIds.map((id) => ((assets ?? []).find((x) => x.id === id)!.mime_type.startsWith("video/") ? "video" : "image"));
+        const caption = a.caption ?? post.caption;
+        const title = a.title ?? post.title;
+
+        await ctx.db
+          .from("posts")
+          .update({
+            caption,
+            title: title?.trim() || null,
+            asset_ids: assetIds,
+            ai_generated: (assets ?? []).some((x) => x.ai_generated),
+            ...(a.scheduled_at !== undefined ? { scheduled_at: a.scheduled_at } : {}),
+            status: "draft",
+          })
+          .eq("id", post.id);
+
+        // Cuentas destino: sustituir si se pasan; si no, mantener las actuales.
+        const { data: current } = await ctx.db.from("post_targets").select("id, social_account_id, platform_options").eq("post_id", post.id);
+        const wanted = a.account_ids ? [...new Set(a.account_ids)] : (current ?? []).map((t) => t.social_account_id);
+        const { data: accounts } = wanted.length
+          ? await ctx.db.from("social_accounts").select("id, platform, status").eq("project_id", p.id).in("id", wanted)
+          : { data: [] as { id: string; platform: string; status: string }[] };
+        if ((accounts ?? []).length !== wanted.length) return fail("invalid_accounts", "Algunas account_ids no pertenecen a este proyecto.");
+        const toDelete = (current ?? []).filter((t) => !wanted.includes(t.social_account_id)).map((t) => t.id);
+        if (toDelete.length) await ctx.db.from("post_targets").delete().in("id", toDelete);
+        const finalOptions = new Map<string, PlatformOptions>();
+        for (const acc of accounts ?? []) {
+          const ex = (current ?? []).find((t) => t.social_account_id === acc.id);
+          const merged = { ...((ex?.platform_options ?? {}) as PlatformOptions), ...toPlatformOptions(acc.platform, a, a.title) };
+          finalOptions.set(acc.id, merged);
+          if (ex) await ctx.db.from("post_targets").update({ platform_options: merged as never, status: "draft" }).eq("id", ex.id);
+          else await ctx.db.from("post_targets").insert({ post_id: post.id, workspace_id: p.workspace_id, social_account_id: acc.id, platform_options: merged as never });
+        }
+        await log(ctx, p.workspace_id, "post.updated", "post", post.id);
+
+        let status = "draft";
+        const blockers: { account_id: string; rules: string[] }[] = [];
+        if (a.submit_for_approval) {
+          for (const acc of accounts ?? []) {
+            const rules: string[] = validateTarget(acc.platform, caption, media, finalOptions.get(acc.id) ?? {});
+            if (acc.status !== "active") rules.push("account_not_active");
+            if (rules.length) blockers.push({ account_id: acc.id, rules });
+          }
+          if (!wanted.length) blockers.push({ account_id: "-", rules: ["no_targets"] });
+          if (!blockers.length) {
+            await ctx.db.from("posts").update({ status: "pending_approval" }).eq("id", post.id).eq("status", "draft");
+            await ctx.db.from("post_targets").update({ status: "pending_approval" }).eq("post_id", post.id);
+            await log(ctx, p.workspace_id, "post.submitted", "post", post.id);
+            status = "pending_approval";
+          }
+        }
+        return json({
+          post_id: post.id,
+          status,
+          was_pending_approval: post.status === "pending_approval",
+          asset_ids: assetIds,
+          targets: (accounts ?? []).map((acc) => ({ account_id: acc.id, platform: acc.platform, options: finalOptions.get(acc.id) })),
+          approval_blockers: blockers,
+          edit_url_path: `/app/p/${p.id}/posts/${post.id}`,
+          notice: status === "pending_approval" ? "Enviada a aprobación. Un admin debe aprobarla en Kreo." : "Borrador actualizado. Nada se publica sin aprobación humana en Kreo.",
+        });
+      },
+    ),
+  );
+
+  // =============================================================================================== SUBIDA DE ARCHIVOS
+  server.registerTool(
+    "create_media_upload",
+    {
+      title: "Preparar subida de un archivo",
+      description: `Prepara la subida de un vídeo o imagen PROPIO (o con derechos) a la biblioteca del proyecto. Devuelve una URL firmada (2 h) a la que hay que hacer PUT con el contenido binario del archivo (p. ej. desde tu entorno de código: curl -X PUT -H "Content-Type: <mime>" --data-binary @archivo "<upload_url>"), y después llamar a finish_media_upload con el upload_id para obtener el asset_id. Tipos: ${Object.keys(UPLOAD_MIME).join(", ")}. Máximo ${UPLOAD_MAX_BYTES / 1024 / 1024} MB por archivo (plan actual); para vídeos más grandes de YouTube, usa la subida directa a YouTube desde el editor de Kreo. Requiere rol editor. No cuesta créditos.`,
+      inputSchema: z.object({
+        project_id: z.uuid(),
+        mime_type: z.enum(Object.keys(UPLOAD_MIME) as [UploadMime, ...UploadMime[]]),
+        size_bytes: z.number().int().positive().describe("Tamaño exacto del archivo en bytes."),
+        file_name: z.string().max(200).optional().describe("Nombre original (solo informativo)."),
+      }),
+      annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: false, openWorldHint: true },
+    },
+    safe(async (a: { project_id: string; mime_type: UploadMime; size_bytes: number; file_name?: string }) => {
+      const p = await projectFor(ctx, a.project_id, "editor");
+      if (a.size_bytes > UPLOAD_MAX_BYTES)
+        return fail(
+          "file_too_large",
+          `El archivo pesa ${(a.size_bytes / 1024 / 1024).toFixed(0)} MB y el máximo para la biblioteca es ${UPLOAD_MAX_BYTES / 1024 / 1024} MB. Para YouTube, súbelo desde el editor de Kreo con «Subir directo a YouTube» (sin límite de peso); para otras redes, comprime el vídeo (p. ej. 1080p, ~8 Mbps).`,
+        );
+      const path = `${p.workspace_id}/${p.id}/${crypto.randomUUID()}.${UPLOAD_MIME[a.mime_type]}`;
+      const { data, error } = await ctx.db.storage.from("project-media").createSignedUploadUrl(path);
+      if (error || !data) throw new Error("upload_url_failed");
+      return json({
+        upload_id: path,
+        upload_url: data.signedUrl,
+        method: "PUT",
+        headers: { "Content-Type": a.mime_type },
+        expires_in_seconds: 7200,
+        next_step: "Haz PUT del archivo binario a upload_url con esa cabecera y luego llama a finish_media_upload con project_id y upload_id.",
+        curl_example: `curl -X PUT -H "Content-Type: ${a.mime_type}" --data-binary @"${(a.file_name ?? "archivo").replace(/"/g, "")}" "<upload_url>"`,
+        network_note: "Tu entorno de código necesita acceso de red al host de upload_url. Si la subida falla por red, el usuario debe permitir ese dominio en los ajustes de ejecución de código de Claude, o subir el archivo en Kreo.",
+      });
+    }),
+  );
+
+  server.registerTool(
+    "finish_media_upload",
+    {
+      title: "Registrar archivo subido",
+      description: "Tras subir el archivo con create_media_upload, lo registra en la biblioteca del proyecto y devuelve su asset_id (para create_draft_post o update_draft_post; una imagen JPG/PNG ≤ 2 MB sirve como miniatura de YouTube). Requiere rol editor.",
+      inputSchema: z.object({ project_id: z.uuid(), upload_id: z.string().max(200) }),
+      annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: false },
+    },
+    safe(async (a: { project_id: string; upload_id: string }) => {
+      const p = await projectFor(ctx, a.project_id, "editor");
+      const m = a.upload_id.match(/^([0-9a-f-]{36})\/([0-9a-f-]{36})\/([0-9a-f-]{36})\.(mp4|mov|png|jpg|webp)$/);
+      if (!m || m[1] !== p.workspace_id || m[2] !== p.id) return fail("invalid_upload", "upload_id no válido para este proyecto.");
+      const { data: existing } = await ctx.db.from("assets").select("id").eq("storage_path", a.upload_id).maybeSingle();
+      if (existing) return json({ asset_id: existing.id, already_registered: true });
+      const { data: files } = await ctx.db.storage.from("project-media").list(`${m[1]}/${m[2]}`, { search: `${m[3]}.${m[4]}`, limit: 1 });
+      const file = files?.find((f) => f.name === `${m[3]}.${m[4]}`);
+      if (!file) return fail("not_uploaded", "No encuentro el archivo: haz primero el PUT a upload_url (y comprueba que respondió 200).");
+      const meta = (file.metadata ?? {}) as { size?: number; mimetype?: string };
+      const ext = m[4] as (typeof UPLOAD_MIME)[UploadMime];
+      const mime = (Object.keys(UPLOAD_MIME) as UploadMime[]).find((k) => UPLOAD_MIME[k] === ext)!;
+      const { data: asset, error } = await ctx.db
+        .from("assets")
+        .insert({ workspace_id: p.workspace_id, project_id: p.id, storage_path: a.upload_id, mime_type: mime, size_bytes: meta.size ?? null, source: "upload", created_by: ctx.userId })
+        .select("id")
+        .single();
+      if (error || !asset) throw new Error("asset_insert_failed");
+      await log(ctx, p.workspace_id, "asset.uploaded", "asset", asset.id, { via: ctx.via });
+      return json({ asset_id: asset.id, mime_type: mime, size_bytes: meta.size ?? null, notice: "Añadido a la biblioteca del proyecto. Úsalo con create_draft_post o update_draft_post (asset_ids / add_asset_ids, o youtube.thumbnail_asset_id si es la miniatura)." });
+    }),
   );
 
   // =============================================================================================== TAREAS
