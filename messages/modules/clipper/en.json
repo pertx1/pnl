@@ -1,0 +1,217 @@
+{
+  "clipper": {
+    "title": "Clipper",
+    "subtitle": "Upload one of your long videos and get vertical shorts with captions. AI proposes the moments; you choose.",
+    "notConfigured": "Clipper isn't turned on yet.",
+    "soon": "Coming soon",
+    "youtube": {
+      "title": "From a YouTube link",
+      "body": "YouTube's official API doesn't allow downloading videos, so we won't. Download your video from YouTube Studio and upload it here."
+    },
+    "historyLabel": "Processed videos",
+    "untitled": "Untitled video",
+    "status": {
+      "transcribing": "Transcribing",
+      "analyzing": "Finding moments",
+      "ready": "Ready",
+      "failed": "Error"
+    },
+    "empty": {
+      "title": "Upload your first long video",
+      "body": "Podcast, livestream, tutorial or talk. We transcribe the audio, AI proposes the best moments and you generate the shorts you pick."
+    },
+    "upload": {
+      "title": "New video",
+      "body": "MP4 up to 50 MB and 60 min (current storage limit). If it's bigger, export it at 720p.",
+      "choose": "Choose MP4",
+      "limits": "MP4 · max 50 MB · 20 s – 60 min",
+      "rights": "I confirm this is my own content or that I have the rights to edit and publish it.",
+      "rightsHint": "Don't upload other creators' videos, TV broadcasts or third-party copyrighted music: platforms may remove the clips and penalise your account.",
+      "uploading": "Uploading the video…",
+      "starting": "Sending for transcription…",
+      "costHint": "Pick a video to see the cost.",
+      "analyze": "Analyse video",
+      "working": "One moment…"
+    },
+    "analysisCost": "Analysis",
+    "balance": "Balance: {balance}",
+    "buyCredits": "Buy credits",
+    "downloadSrt": "Transcript .srt",
+    "deleteConfirm": "Delete this analysis? The original video and generated shorts stay in the library.",
+    "deleteJob": "Delete analysis",
+    "progress": {
+      "transcribing": "Transcribing the audio… usually 1–5 minutes. You can close the page: we keep going in the background.",
+      "analyzing": "AI is picking the best moments…"
+    },
+    "refunded": "Your credits were refunded.",
+    "noMoments": "We couldn't find clear moments in this video. Try one with more dialogue.",
+    "momentsHint": "Moments proposed by AI, ranked by virality score (relative potential within this video). Tick the ones you want to generate, schedule or download.",
+    "renderHint": "Each clip is cut from the original, adapted to the chosen format and saved to the library ready to schedule. No watermark.",
+    "renderCost": "Cost",
+    "renderStarted": "{n, plural, one {Generating # short…} other {Generating # shorts…}}",
+    "starting": "Starting…",
+    "render": "{n, plural, =0 {Generate shorts} one {Generate # short} other {Generate # shorts}}",
+    "selectMoment": "Select “{title}”",
+    "previewMoment": "Preview of the moment in the original video",
+    "steps": {
+      "trim": "Trimming the moment…",
+      "scale": "Adapting the format…",
+      "subtitle": "Adding captions…"
+    },
+    "renderFailed": "This short couldn't be generated. Your credits were refunded; you can try again.",
+    "start": "Start (s)",
+    "end": "End (s)",
+    "momentTitle": "Title",
+    "save": "Save",
+    "cancel": "Cancel",
+    "adjust": "Adjust timing",
+    "segmentSrt": "Moment .srt",
+    "errors": {
+      "only_mp4": "MP4 only for now (it's the format transcription supports). Export it as MP4 (H.264).",
+      "too_big": "The video is larger than 50 MB. Export it at 720p or trim it.",
+      "too_long": "The video is longer than 60 minutes.",
+      "too_short": "The video is too short to clip (min 20 s).",
+      "no_duration": "We couldn't read the video's length. Try exporting it again as MP4.",
+      "upload_failed": "The video couldn't be uploaded. Check your connection.",
+      "insufficient_credits": "You don't have enough credits.",
+      "not_configured": "Clipper isn't turned on yet.",
+      "forbidden": "You don't have permission to do this in this project.",
+      "invalid_input": "Check the details.",
+      "provider_error": "The video service isn't available. Your credits were refunded.",
+      "no_speech": "We didn't detect speech in the video.",
+      "duration_mismatch": "The video's real length doesn't match the one read at upload.",
+      "transcription_failed": "Transcription failed.",
+      "analysis_failed": "The AI couldn't analyse the transcript.",
+      "timeout": "The process took too long.",
+      "submit_failed": "The process couldn't start.",
+      "bad_range": "Each clip must last 10–90 seconds and be within the video.",
+      "busy": "Wait for the current process to finish.",
+      "generic": "Something went wrong.",
+      "download_failed": "Some clip couldn't be downloaded. Try again.",
+      "no_slots": "No free slots in the next 21 days for those accounts (daily limit reached).",
+      "invalid_accounts": "Some account isn't active or doesn't belong to this project.",
+      "refusal": "The AI couldn't write the copy. Your credits were refunded."
+    },
+    "styleTitle": "Format and captions",
+    "selectToRender": "Tick proposed (or failed) moments to generate them with this style.",
+    "downloadAll": "{n, plural, one {Download # clip (ZIP)} other {Download # clips (ZIP)}}",
+    "zipping": "Preparing the ZIP…",
+    "downloadMp4": "Download MP4",
+    "manualPost": "Manual post",
+    "editClip": "Edit clip",
+    "cropHint": "The dashed frame is what's kept when cropping to {format}. If the speaker falls outside, choose “Fit”.",
+    "minusSecond": "{which}: subtract 1 second",
+    "plusSecond": "{which}: add 1 second",
+    "duration": "Length: {s} s",
+    "transcriptAround": "Transcript around the moment",
+    "startHere": "Start",
+    "endHere": "End",
+    "startHereAria": "Start at {time}",
+    "endHereAria": "End at {time}",
+    "rerender": "Render again",
+    "rerenderStarted": "Rendering again…",
+    "rerenderHint": "Uses the format and style chosen in “Format and captions”. The previous clip stays in the library. If it fails, your credits are refunded.",
+    "virality": {
+      "badge": "Virality score: {score} out of 100",
+      "tier": {
+        "high": "High potential",
+        "mid": "Medium potential",
+        "low": "Low potential"
+      },
+      "why": "Why?",
+      "axes": {
+        "hook": "Hook",
+        "pacing": "Pacing",
+        "value": "Value",
+        "trend": "Trend"
+      },
+      "noBreakdown": "This moment was analysed before the breakdown existed: it only has the total score.",
+      "disclaimer": "Relative potential within this video (hook 35%, value 30%, pacing 20%, trend 15%). “Trend” is the fit with formats that usually work, without real-time data. It is not a view prediction."
+    },
+    "options": {
+      "format": "Format",
+      "layout": "Framing",
+      "layouts": {
+        "crop": "Centre crop",
+        "fit": "Fit without cropping"
+      },
+      "layoutHint": {
+        "crop": "Fills the screen by cropping the sides around the centre. Best if you're centred.",
+        "fit": "Shows the whole video with coloured bars. Use it for two people or if you're off to one side."
+      },
+      "padColor": "Bar colour",
+      "subtitles": "Burned-in captions",
+      "subtitlesHint": "Automatic transcription of the audio with the chosen template. If you turn them off, download the .srt and upload it as captions on the platform.",
+      "style": "Template",
+      "styles": {
+        "karaoke": "Karaoke",
+        "box": "Colour box",
+        "caps": "Caps",
+        "minimal": "Minimal",
+        "word": "One word"
+      },
+      "styleHint": {
+        "karaoke": "3-word blocks; the spoken word is highlighted in your accent colour.",
+        "box": "2-word phrases on a box in your colour (the box covers the phrase, not just the active word).",
+        "caps": "Big capitals in Bebas Neue with the active word highlighted.",
+        "minimal": "Full sentence, light and without animation.",
+        "word": "A single big word in your colour, with a bounce."
+      },
+      "position": "Position",
+      "positions": {
+        "top": "Top",
+        "center": "Centre",
+        "bottom": "Bottom"
+      },
+      "size": "Size",
+      "sizes": {
+        "s": "Small",
+        "m": "Medium",
+        "l": "Large"
+      },
+      "accent": "Accent colour",
+      "accentHint": "Your brand kit colours are converted to the closest colour the caption engine supports.",
+      "textColor": "Text colour",
+      "preview": "Preview",
+      "previewHint": "Style simulation. The real result animates each block's entrance.",
+      "colors": {
+        "white": "White",
+        "black": "Black",
+        "gray": "Grey",
+        "red": "Red",
+        "green": "Green",
+        "blue": "Blue",
+        "yellow": "Yellow",
+        "cyan": "Cyan",
+        "magenta": "Magenta",
+        "orange": "Orange",
+        "purple": "Purple",
+        "pink": "Pink",
+        "brown": "Brown"
+      }
+    },
+    "scheduler": {
+      "title": "Schedule clips",
+      "intro": "Kreo spreads the ticked clips over the next free slots in your calendar (respecting each account's daily limit) and writes each network's copy in your brand voice.",
+      "selectDone": "Tick one or more generated clips to schedule them.",
+      "noneDone": "Generate a clip first to be able to schedule it.",
+      "noAccounts": "There are no connected accounts in this project.",
+      "connect": "Connect an account",
+      "accounts": "Accounts",
+      "limit": "max {n}/day",
+      "perDay": "Max clips per day",
+      "perDayHint": "No account's daily limit is ever exceeded. Starts tomorrow, Madrid time.",
+      "proposal": "Proposal",
+      "proposalHint": "Dates are a proposal: you can change them in the calendar before approving.",
+      "unscheduled": "{n, plural, one {# clip doesn't fit in the next 21 days.} other {# clips don't fit in the next 21 days.}}",
+      "submit": "Send for approval",
+      "submitHint": "Only if it meets each network's rules. TikTok needs you to choose privacy by hand, so it stays as a draft. Approval is always yours.",
+      "done": "{n, plural, one {# draft created in the calendar.} other {# drafts created in the calendar.}}",
+      "openCalendar": "Open the calendar",
+      "cost": "AI copy",
+      "working": "Writing copy…",
+      "button": "{n, plural, one {Schedule # clip} other {Schedule # clips}}",
+      "legal": "Kreo never publishes on its own: it creates drafts (or pending approvals) that you review and approve."
+    }
+  }
+}

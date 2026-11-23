@@ -455,3 +455,30 @@ de cada módulo en `docs/compliance/{research,strategy,inbox,commerce,team}.md`)
 - Email: no se envía nada (falta dominio y proveedor UE con DPA).
 - Para revisar: base legal del resumen semanal a todos los miembros del workspace (incluidos lectores); texto de la política de
   privacidad (avisos dentro de la app y plazos 90 días / 1 año).
+## Clipper v2 (viralidad, formatos, plantillas de subtítulos, editar y «Programar clips») — 2026-11-24 — Estado: ⏳ pendiente de revisión `seguridad-legal`
+- Modelos (todos `license_type = "commercial"` en la API de modelos de fal.ai, comprobado el 2026-11-23; registrados en
+  `CLIPPER_LICENSE` de `src/lib/clipper/pipeline.ts` y en cada `ai_generations.license`):
+  `fal-ai/whisper`, `fal-ai/workflow-utilities/trim-video`, `fal-ai/workflow-utilities/scale-video`,
+  `fal-ai/workflow-utilities/auto-subtitle` (transcribe con ElevenLabs a través de fal → subencargado a declarar). Textos: Claude
+  (Anthropic Commercial Terms).
+- Descartados: reencuadres generativos de fal (`fal-ai/ltx-2.3/reframe`, `lightricks/ltx-2.5/reframe`, `luma/.../reframe`,
+  `minimax/h3-max/reframe-video`, `wan-vace`): no siguen a la persona, rellenan con píxeles inventados alrededor de una persona
+  real (contenido sintético) y cuestan más. `veed/subtitles` (título-gancho vía SRT): tercero adicional, coste mínimo de 1 min y
+  sin confirmar que no añada marca de agua → no se usa sin decisión de Oier.
+- Verificado en código:
+  - Solo vídeo propio subido por el usuario (casilla de derechos; ninguna descarga por enlace de YouTube/TikTok). Límite de 50 MB
+    del bucket (plan gratis de Supabase) avisado en la UI.
+  - **Sin marca de agua**: lista cerrada de 4 endpoints y parámetros sin ninguna capa extra; test «sin marca de agua» en
+    `tests/unit/clipper-v2.test.ts`.
+  - Créditos: coste visible antes de lanzar (render, re-render y textos); cobro atómico (`start_ai_generation`); reembolso si falla.
+    **Arreglado el riesgo 7 de la revisión anterior**: el segmento se reclama de forma atómica (`status` esperado) ANTES de cobrar,
+    así que dos clics simultáneos ya no cobran dos renders.
+  - «Programar clips» crea BORRADORES (o `pending_approval` si el usuario lo marca y cumple `validateTarget`; TikTok siempre queda en
+    borrador porque la privacidad la elige una persona). Nunca aprueba ni publica. Huecos con `computeFreeSlots` (límite diario por
+    cuenta y día UTC) y textos distintos por red (anti-duplicado). Al agente solo van título, gancho y extracto de la transcripción.
+  - `ai_generated` del post según los medios (los clips de vídeo propio no son sintéticos → `false`; el trigger `posts_ai_label` lo
+    fuerza si algún medio es IA).
+  - Puntuación de viralidad: se presenta como potencial relativo dentro del vídeo, nunca como predicción («no prometer resultados»).
+  - `.srt` del clip en `clip_segments.srt` (RLS existente + `mfa_required`).
+- Migración `20261124100000_clipper_v2.sql` (sin tablas nuevas; columnas en `clip_segments` y guard actualizado). **No aplicada.**
+- Pendiente: revisión `seguridad-legal`; declarar ElevenLabs (vía fal) como subencargado del audio de los clips; DPA con fal.

@@ -1,6 +1,6 @@
 # Estado de Kreo
 
-_Última actualización: 2026-11-23_
+_Última actualización: 2026-11-24_
 
 ## Qué es
 SaaS todo-en-uno para creadores, dropshippers, marcas y agencias: crear con IA, programar y publicar en
@@ -38,6 +38,7 @@ Variables de entorno: lista completa en `.env.example`; estado de cada una en Ve
 - **Centro de avisos, mejores horas, resumen semanal y subtítulos de YouTube** (2026-11-24, rama del agente): migración
   `20261124120000_notifications.sql` pendiente de aplicar.
 - Bandeja (DMs de Instagram, Gmail, Outlook), audio (ElevenLabs), Clipper, informes PDF, Shopify, MCP, equipo, planes, afiliados.
+- **Clipper v2** (rama `worktree-agent-a9f67ec6c10e52a72`): viralidad 0-100 con desglose, formatos 9:16/1:1/16:9 con recorte centrado o «encajar», 5 plantillas de subtítulos, editar y volver a renderizar, ZIP sin marca de agua y «Programar clips» (borradores en huecos libres con textos por red). **Necesita la migración `20261124100000_clipper_v2.sql` aplicada ANTES de desplegar** (si no, la página del Clipper falla).
 
 ## Límites actuales
 - TikTok publica en **privado** hasta pasar su auditoría.

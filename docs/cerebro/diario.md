@@ -7,6 +7,10 @@ Una entrada por sesión, lo más reciente arriba. 3-6 líneas: qué se hizo, qu�
 - **Mejores horas**: `bestTimes()` (patrón orientativo citado + historial propio con umbral de 12), tarjeta en Analíticas, `BestTimeHint` para el editor, MCP `get_best_times`; `get_free_slots` ordena por puntuación si hay historial. YouTube solo orientativo.
 - **Resumen semanal** (lunes 8:00) como aviso con página propia + MCP `get_weekly_summary`. **Subtítulos de YouTube** con captions.insert si el vídeo tiene `.srt` (convención en `src/lib/social/captions.ts`).
 - Migración `20261124120000_notifications.sql` **sin aplicar** (la aplica el dueño). Falta revisión `seguridad-legal` y `qa-tester`.
+## 2026-11-24
+- **Clipper v2** (sin fusionar): viralidad 0-100 desglosada (gancho, ritmo, valor, tendencia), formatos 9:16/1:1/16:9 con recorte centrado o encajado y vista previa del encuadre, 5 plantillas de subtítulos con vista previa, editar inicio/fin con la transcripción y volver a renderizar, descarga MP4 y ZIP del lote (sin marca de agua, con test), «Programar clips» en huecos libres con textos por red y `.srt` guardado por clip.
+- Arreglado: doble clic en «Generar» ya no cobra dos veces (reclamo atómico antes del cobro); el ajuste de un momento fallido no se podía guardar.
+- Migración `20261124100000_clipper_v2.sql` pendiente de aplicar. Seguimiento: reencuadre que sigue a la persona y título-gancho (decisiones de Oier).
 
 ## 2026-11-23
 - Instagram: opción «reel de prueba» en el editor (`trial_params`, MANUAL o SS_PERFORMANCE). Sin probar en real.

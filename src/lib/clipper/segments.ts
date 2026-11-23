@@ -1,8 +1,10 @@
 /**
  * Lógica pura del Clipper (sin dependencias de servidor): transcripción, segmentos, SRT, colores y créditos.
  */
+import { normalizeBreakdown, viralityScore, type ViralityBreakdown } from "./virality";
+
 export type TranscriptChunk = { s: number; e: number; t: string };
-export type Segment = { start: number; end: number; title: string; hook: string; score: number; reason: string };
+export type Segment = { start: number; end: number; title: string; hook: string; score: number; reason: string; breakdown?: ViralityBreakdown };
 
 export const MIN_CLIP_S = 10;
 export const MAX_CLIP_S = 90;
@@ -46,6 +48,7 @@ export function transcriptForPrompt(chunks: TranscriptChunk[], maxChars = 60_000
 /**
  * Valida y ajusta los segmentos propuestos por la IA: dentro del vídeo, 10–90 s, alineados con el inicio/fin de
  * frases de la transcripción, sin solapes fuertes (se queda el de mayor puntuación) y máx. 8, ordenados por puntuación.
+ * Si traen desglose de viralidad, la puntuación total se calcula con los pesos fijos de virality.ts.
  */
 export function normalizeSegments(raw: Segment[], chunks: TranscriptChunk[], duration: number, opts = { min: MIN_CLIP_S, max: MAX_CLIP_S, count: MAX_SEGMENTS }): Segment[] {
   const snapStart = (t: number) => {
@@ -69,13 +72,15 @@ export function normalizeSegments(raw: Segment[], chunks: TranscriptChunk[], dur
     if (end - start > opts.max) end = start + opts.max;
     if (end - start < opts.min) end = Math.min(duration || start + opts.min, start + opts.min);
     if (end - start < opts.min * 0.8) continue;
+    const breakdown = s.breakdown ? normalizeBreakdown(s.breakdown) : undefined;
     cleaned.push({
       start: r2(start),
       end: r2(end),
       title: (s.title ?? "").trim().slice(0, 200) || "Clip",
       hook: (s.hook ?? "").trim().slice(0, 300),
       reason: (s.reason ?? "").trim().slice(0, 500),
-      score: Math.max(0, Math.min(100, Math.round(s.score))),
+      score: breakdown ? viralityScore(breakdown) : Math.max(0, Math.min(100, Math.round(Number(s.score) || 0))),
+      ...(breakdown ? { breakdown } : {}),
     });
   }
   cleaned.sort((a, b) => b.score - a.score);
@@ -112,6 +117,30 @@ export function toSrt(chunks: TranscriptChunk[], start = 0, end = Number.POSITIV
     lines.push(`${i++}\n${srtTime(s)} --> ${srtTime(e)}\n${c.t}\n`);
   }
   return lines.join("\n");
+}
+
+/** Palabra con tiempos (salida `words` de auto-subtitle, que transcribe con ElevenLabs a través de fal). */
+type TimedWord = { text?: unknown; word?: unknown; start?: unknown; end?: unknown; type?: unknown };
+
+/**
+ * .srt a partir de palabras con tiempos (relativos al clip): líneas de hasta `maxWords` palabras o `maxSeconds`,
+ * cortando también en pausas largas. Devuelve "" si no hay palabras válidas.
+ */
+export function wordsToSrt(words: unknown, maxWords = 7, maxSeconds = 3.5) {
+  if (!Array.isArray(words)) return "";
+  const list = (words as TimedWord[])
+    .filter((w) => w && (w.type === undefined || w.type === "word"))
+    .map((w) => ({ t: String(w.text ?? w.word ?? "").trim(), s: Number(w.start), e: Number(w.end) }))
+    .filter((w) => w.t && Number.isFinite(w.s) && Number.isFinite(w.e) && w.e >= w.s);
+  const cues: { s: number; e: number; t: string[] }[] = [];
+  for (const w of list) {
+    const cur = cues.at(-1);
+    if (cur && cur.t.length < maxWords && w.e - cur.s <= maxSeconds && w.s - cur.e < 0.8) {
+      cur.t.push(w.t);
+      cur.e = w.e;
+    } else cues.push({ s: w.s, e: w.e, t: [w.t] });
+  }
+  return cues.map((c, i) => `${i + 1}\n${srtTime(c.s)} --> ${srtTime(Math.max(c.e, c.s + 0.3))}\n${c.t.join(" ")}\n`).join("\n");
 }
 
 /** Colores admitidos por fal-ai/workflow-utilities/auto-subtitle (solo nombres). */

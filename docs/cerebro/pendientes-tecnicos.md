@@ -22,6 +22,9 @@ Por prioridad. Claude: tacha `[x]` al terminar y anota el commit.
   en vez de la aproximación por seguidores. YouTube nunca (normas de su API).
 - [ ] Integrar `BestTimeHint` (`src/components/analytics/best-time-hint.tsx`) en el editor de publicaciones.
 - [ ] Email de avisos cuando haya dominio (punto de extensión `deliverExternal` en `src/lib/notifications/notify.ts`).
+- [ ] Subtítulos de YouTube (captions.insert) reutilizando los `.srt` del Clipper: ya están en `clip_segments.srt` (por `asset_id`); helper `getClipSrtForAsset()` en `src/lib/clipper/pipeline.ts`.
+- [ ] Clipper v2: revisión `seguridad-legal` + `qa-tester` (Playwright) y prueba real de un render en 1:1/16:9 y de cada plantilla (sobre todo «Mayúsculas» con Bebas Neue).
+- [ ] Refactor: `get_free_slots` del MCP y `planForAccounts` del Clipper cargan los datos igual; extraer un cargador común.
 - [ ] TikTok: leer `creator_info` y ofrecer solo las privacidades permitidas.
 - [ ] Probar en real: Bandeja, audio, Clipper, informes PDF.
 
