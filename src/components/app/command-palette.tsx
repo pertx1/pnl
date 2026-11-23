@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { useCallback, useEffect, useId, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import { Dialog as DialogPrimitive } from "radix-ui";
-import { CornerDownLeft, FilePlus2, FolderKanban, FolderPlus, LayoutDashboard, Search, Sparkles } from "lucide-react";
+import { CornerDownLeft, FilePlus2, FolderKanban, FolderPlus, LayoutDashboard, LayoutTemplate, Search, Sparkles } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { GLOBAL_NAV, PROJECT_NAV, createHrefs, matchesQuery, type NavIcon } from "./nav-config";
 
@@ -70,12 +70,14 @@ export function CommandPalette({
     if (currentProject) {
       list.push(
         { id: "c-post", group: gCreate, label: t("newPost"), hint: currentProject.name, href: createHrefs.newPost(currentProject.id), icon: FilePlus2 },
+        { id: "c-tpl", group: gCreate, label: t("fromTemplate"), hint: currentProject.name, keywords: t("templatesKeywords"), href: createHrefs.fromTemplate(currentProject.id), icon: LayoutTemplate },
         { id: "c-ai", group: gCreate, label: t("generateAI"), hint: currentProject.name, keywords: t("studio"), href: createHrefs.generate(currentProject.id), icon: Sparkles },
       );
     } else {
       for (const p of projects) {
         list.push(
           { id: `c-post-${p.id}`, group: gCreate, label: t("newPost"), hint: p.name, href: createHrefs.newPost(p.id), icon: FilePlus2 },
+          { id: `c-tpl-${p.id}`, group: gCreate, label: t("fromTemplate"), hint: p.name, keywords: t("templatesKeywords"), href: createHrefs.fromTemplate(p.id), icon: LayoutTemplate },
           { id: `c-ai-${p.id}`, group: gCreate, label: t("generateAI"), hint: p.name, keywords: t("studio"), href: createHrefs.generate(p.id), icon: Sparkles },
         );
       }

@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import { getProject, roleAtLeast } from "@/lib/server/dal";
 import { getEditorData } from "@/lib/server/posts";
+import { getTemplatesData } from "@/lib/server/templates";
 import type { PlatformOptions } from "@/lib/posts/rules";
 import { createClient } from "@/lib/supabase/server";
 import { PostEditor } from "../post-editor";
@@ -13,7 +14,7 @@ export default async function EditPostPage({ params }: { params: Promise<{ proje
   const { data: post } = await supabase.from("posts").select("*").eq("id", postId).eq("project_id", projectId).maybeSingle();
   if (!post) notFound();
   const { data: targets } = await supabase.from("post_targets").select("social_account_id, caption_override, platform_options, status, error_code").eq("post_id", postId);
-  const { accounts, assets } = await getEditorData(projectId);
+  const [{ accounts, assets }, tpl] = await Promise.all([getEditorData(projectId, post.asset_ids), getTemplatesData(projectId)]);
 
   return (
     <PostEditor
@@ -24,6 +25,9 @@ export default async function EditPostPage({ params }: { params: Promise<{ proje
       library={assets}
       canEdit={roleAtLeast(project.workspace.role, "editor")}
       canApprove={roleAtLeast(project.workspace.role, "admin")}
+      templates={tpl.templates}
+      snippets={tpl.snippets}
+      templatesAvailable={tpl.available}
       initial={{
         postId,
         title: post.title ?? "",

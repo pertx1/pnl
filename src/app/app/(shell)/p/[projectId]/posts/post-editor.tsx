@@ -19,10 +19,13 @@ import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { duplicateCaptionWarning, TIKTOK_PRIVACY, YT_CATEGORIES, YT_LANGUAGES, ytTagsLength, type PlatformOptions, type RuleViolation } from "@/lib/posts/rules";
 import type { EditorAccount, EditorAsset } from "@/lib/server/posts";
+import { appendHashtags, extractPlaceholders, fillPlaceholders, insertSnippet, nextLocalSlot, optionsForPlatform } from "@/lib/posts/templates";
+import type { SnippetDTO, TemplateDTO } from "@/lib/server/templates";
 import { cn } from "@/lib/utils";
 import { createClient } from "@/lib/supabase/client";
 import { addUploadedAsset, approvePost, deletePost, savePost, submitPost, unschedulePost, type PostActionResult } from "./actions";
 import { aiCaptionVariations, aiSuggestCaptions } from "./ai-actions";
+import { CaptionCounters, PlaceholderPanel, SnippetChips, TemplateBar } from "./template-tools";
 import { getYouTubePlaylists } from "./youtube-actions";
 
 type Target = { socialAccountId: string; captionOverride: string; platformOptions: PlatformOptions };
@@ -56,6 +59,10 @@ export function PostEditor({
   canEdit,
   canApprove,
   initial,
+  templates = [],
+  snippets = [],
+  templatesAvailable = false,
+  preferredTime = null,
 }: {
   projectId: string;
   workspaceId: string;
@@ -65,8 +72,18 @@ export function PostEditor({
   canEdit: boolean;
   canApprove: boolean;
   initial: Initial;
+  /** Plantillas y textos guardados del proyecto (módulo de plantillas). */
+  templates?: TemplateDTO[];
+  snippets?: SnippetDTO[];
+  templatesAvailable?: boolean;
+  /** Hora preferida de la plantilla con la que se abrió el editor (se propone la próxima vez que llegue). */
+  preferredTime?: string | null;
 }) {
   const t = useTranslations("posts");
+  const tt = useTranslations("templates.editor");
+  const captionRef = useRef<HTMLTextAreaElement>(null);
+  // Cambia al aplicar una plantilla para reiniciar los subformularios con estado propio (p. ej. etiquetas de YouTube).
+  const [tplVersion, setTplVersion] = useState(0);
   const router = useRouter();
   const fileInput = useRef<HTMLInputElement>(null);
   const [pending, start] = useTransition();
@@ -96,6 +113,14 @@ export function PostEditor({
     }
   }, [initial.scheduledAt]);
 
+  // Abierto desde una plantilla con hora preferida: se propone la próxima vez que llegue esa hora (en el navegador).
+  useEffect(() => {
+    if (preferredTime && !initial.scheduledAt && !initial.scheduledLocal) {
+      const id = setTimeout(() => setScheduled((s) => s || nextLocalSlot(new Date(), preferredTime)), 0);
+      return () => clearTimeout(id);
+    }
+  }, [preferredTime, initial.scheduledAt, initial.scheduledLocal]);
+
   const selectedAssets = assetIds.map((id) => library.find((a) => a.id === id)).filter(Boolean) as EditorAsset[];
   const aiForced = selectedAssets.some((a) => a.ai);
   const locked = ["publishing", "published"].includes(status);
@@ -105,6 +130,64 @@ export function PostEditor({
     () => duplicateCaptionWarning(targets.map((tg) => (tg.captionOverride.trim() ? tg.captionOverride : caption))),
     [targets, caption],
   );
+
+  const placeholders = useMemo(
+    () => extractPlaceholders(title, caption, ...targets.flatMap((x) => [x.captionOverride, x.platformOptions.yt_title])),
+    [title, caption, targets],
+  );
+  const targetPlatforms = useMemo(
+    () => [...new Set(targets.map((x) => accounts.find((a) => a.id === x.socialAccountId)?.platform).filter(Boolean) as string[])],
+    [targets, accounts],
+  );
+
+  function applyTemplate(tpl: TemplateDTO) {
+    const hasContent = caption.trim() || title.trim() || targets.length;
+    if (hasContent && !window.confirm(tt("replaceConfirm"))) return;
+    setTitle(tpl.title);
+    setCaption(appendHashtags(tpl.caption, tpl.hashtags));
+    setTargets(
+      tpl.accountIds
+        .map((id) => accounts.find((a) => a.id === id))
+        .filter((a): a is EditorAccount => Boolean(a))
+        .map((a) => ({ socialAccountId: a.id, captionOverride: "", platformOptions: optionsForPlatform(tpl.options, a.platform) })),
+    );
+    if (!scheduled && tpl.preferredTime) setScheduled(nextLocalSlot(new Date(), tpl.preferredTime));
+    setTplVersion((v) => v + 1);
+    toast.success(tt("applied", { name: tpl.name }));
+  }
+
+  function insertSaved(sn: SnippetDTO) {
+    const el = captionRef.current;
+    const start = el?.selectionStart ?? caption.length;
+    const end = el?.selectionEnd ?? caption.length;
+    const res = insertSnippet(caption, sn.content, start, end, sn.kind);
+    setCaption(res.text.slice(0, 5000));
+    requestAnimationFrame(() => {
+      el?.focus();
+      el?.setSelectionRange(res.cursor, res.cursor);
+    });
+  }
+
+  function fillAll(values: Record<string, string>) {
+    setTitle((v) => fillPlaceholders(v, values));
+    setCaption((v) => fillPlaceholders(v, values));
+    setTargets((prev) =>
+      prev.map((x) => ({
+        ...x,
+        captionOverride: fillPlaceholders(x.captionOverride, values),
+        platformOptions: x.platformOptions.yt_title ? { ...x.platformOptions, yt_title: fillPlaceholders(x.platformOptions.yt_title, values) } : x.platformOptions,
+      })),
+    );
+    setTplVersion((v) => v + 1);
+  }
+
+  /** Antes de enviar o aprobar: no puede quedar ningún hueco {tema} sin rellenar. */
+  function placeholdersOk() {
+    if (!placeholders.length) return true;
+    setErrorKey(undefined);
+    toast.error(tt("placeholdersLeft", { names: placeholders.map((n) => `{${n}}`).join(", ") }));
+    return false;
+  }
 
   function toggleAccount(id: string, on: boolean) {
     setTargets((prev) => (on ? [...prev, { socialAccountId: id, captionOverride: "", platformOptions: {} }] : prev.filter((x) => x.socialAccountId !== id)));
@@ -198,13 +281,28 @@ export function PostEditor({
         <fieldset disabled={readOnly || pending} className="space-y-6 lg:col-span-3">
           <Card>
             <CardContent className="space-y-4">
+              {!readOnly && (
+                <TemplateBar
+                  projectId={projectId}
+                  templates={templates}
+                  available={templatesAvailable}
+                  onApply={applyTemplate}
+                  saveDisabled={!caption.trim() && !title.trim()}
+                  current={() => ({
+                    title,
+                    caption,
+                    scheduled,
+                    targets: targets.map((x) => ({ id: x.socialAccountId, platform: accounts.find((a) => a.id === x.socialAccountId)?.platform ?? "", options: x.platformOptions })),
+                  })}
+                />
+              )}
               <div className="space-y-2">
                 <Label htmlFor="title">{t("title")}</Label>
                 <Input id="title" value={title} maxLength={120} placeholder={t("titlePlaceholder")} onChange={(e) => setTitle(e.target.value)} />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="caption">{t("caption")}</Label>
-                <Textarea id="caption" rows={6} value={caption} maxLength={5000} placeholder={t("captionPlaceholder")} onChange={(e) => setCaption(e.target.value)} />
+                <Textarea ref={captionRef} id="caption" rows={6} value={caption} maxLength={5000} placeholder={t("captionPlaceholder")} onChange={(e) => setCaption(e.target.value)} />
                 <div className="flex flex-wrap items-center justify-between gap-2">
                   <div className="flex items-center gap-2">
                     <Button
@@ -226,8 +324,10 @@ export function PostEditor({
                     </Button>
                     <CreditCost credits={1} />
                   </div>
-                  <p className="font-mono text-xs text-muted-foreground">{t("chars", { count: caption.length })}</p>
+                  <CaptionCounters text={caption} platforms={targetPlatforms} />
                 </div>
+                {!readOnly && templatesAvailable && <SnippetChips projectId={projectId} snippets={snippets} onInsert={insertSaved} />}
+                {!readOnly && <PlaceholderPanel key={tplVersion} names={placeholders} onFill={fillAll} />}
                 {!readOnly && caption.trim().length < 3 && <p className="text-xs text-muted-foreground">{t("suggestHint")}</p>}
                 {aiError && <p className="text-xs text-destructive">{t.has(`aiErrors.${aiError}`) ? t(`aiErrors.${aiError}`) : t("errorsX.generic")}</p>}
                 {suggestions.length > 0 && (
@@ -335,11 +435,13 @@ export function PostEditor({
                             <Label className="text-xs">{t("captionOverride")}</Label>
                             <Textarea rows={2} value={target.captionOverride} onChange={(e) => patchTarget(acc.id, { captionOverride: e.target.value })} placeholder={caption.slice(0, 80)} />
                             <p className="text-[11px] text-muted-foreground">{t("captionOverrideHint")}</p>
+                            {target.captionOverride.trim() && <CaptionCounters text={target.captionOverride} platforms={[acc.platform]} />}
                           </div>
                           {acc.platform === "instagram" && <InstagramOptions options={target.platformOptions} onChange={(p) => patchOptions(acc.id, p)} />}
                           {acc.platform === "tiktok" && <TikTokOptions handle={handle} options={target.platformOptions} onChange={(p) => patchOptions(acc.id, p)} />}
                           {acc.platform === "youtube" && (
                             <YouTubeOptions
+                              key={tplVersion}
                               projectId={projectId}
                               accountId={acc.id}
                               images={library.filter((a) => a.mime === "image/jpeg" || a.mime === "image/png")}
@@ -432,6 +534,7 @@ export function PostEditor({
                       disabled={pending}
                       onClick={() =>
                         run(async () => {
+                          if (!placeholdersOk()) return;
                           const id = await doSave();
                           if (!id) return;
                           if (handleResult(await submitPost(projectId, id), t("submitted"))) setStatus("pending_approval");
@@ -446,6 +549,7 @@ export function PostEditor({
                       disabled={pending}
                       onClick={() =>
                         run(async () => {
+                          if (!placeholdersOk()) return;
                           const id = await doSave();
                           if (!id) return;
                           const res = await approvePost(projectId, id);

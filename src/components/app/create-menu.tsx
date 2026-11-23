@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useTranslations } from "next-intl";
-import { FilePlus2, FolderPlus, Plus, Sparkles } from "lucide-react";
+import { FilePlus2, FolderPlus, LayoutTemplate, Plus, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -27,7 +27,7 @@ type Project = { id: string; name: string };
 export function CreateMenu({ projects, currentProject }: { projects: Project[]; currentProject?: Project }) {
   const t = useTranslations("nav");
 
-  const projectAction = (key: "newPost" | "generate", icon: NavIcon, label: string) => {
+  const projectAction = (key: "newPost" | "generate" | "fromTemplate", icon: NavIcon, label: string) => {
     const Icon = icon;
     if (currentProject) {
       return (
@@ -78,6 +78,7 @@ export function CreateMenu({ projects, currentProject }: { projects: Project[]; 
       <DropdownMenuContent className="min-w-56">
         {currentProject && <DropdownMenuLabel className="truncate">{currentProject.name}</DropdownMenuLabel>}
         {projectAction("newPost", FilePlus2, t("newPost"))}
+        {projectAction("fromTemplate", LayoutTemplate, t("fromTemplate"))}
         {projectAction("generate", Sparkles, t("generateAI"))}
         {!currentProject && projects.length === 0 && (
           <p className="px-1.5 py-1 text-xs text-muted-foreground">{t("noProjectsYet")}</p>

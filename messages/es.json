@@ -97,6 +97,9 @@
     "newPost": "Nueva publicación",
     "generateAI": "Generar con IA",
     "newProject": "Nuevo proyecto",
+    "templates": "Plantillas",
+    "fromTemplate": "Desde plantilla",
+    "templatesKeywords": "plantillas series hashtags textos guardados",
     "chooseProject": "Elige proyecto",
     "noProjectsYet": "Crea un proyecto para empezar a publicar.",
     "search": "Buscar",
@@ -522,6 +525,7 @@
       "shortsHint": "Los vídeos verticales de hasta 3 minutos se publican como Shorts automáticamente."
     },
     "rules": {
+      "too_many_hashtags": "Demasiados hashtags para esta red (Instagram: máx. 30; YouTube: máx. 60).",
       "tiktok_privacy_required": "TikTok: elige quién puede ver la publicación.",
       "tiktok_media_required": "TikTok: añade un vídeo o fotos.",
       "tiktok_branded_private": "TikTok: el contenido de marca no puede ser privado.",

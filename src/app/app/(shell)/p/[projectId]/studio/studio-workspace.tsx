@@ -1,9 +1,10 @@
 "use client";
 
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState, useTransition } from "react";
 import { useLocale, useTranslations } from "next-intl";
-import { AudioLines, Download, Film, ImageIcon, Palette, Sparkles } from "lucide-react";
+import { AudioLines, Download, Film, FilePlus2, ImageIcon, Palette, Sparkles } from "lucide-react";
 import { toast } from "sonner";
 import { TerminalCursor } from "@/components/brand/terminal-cursor";
 import { cn } from "@/lib/utils";
@@ -55,8 +56,11 @@ export function StudioWorkspace({
   assets,
   models,
   audio,
+  canPost = false,
 }: {
   projectId: string;
+  /** Editor o más: puede crear publicaciones con las piezas de la galería. */
+  canPost?: boolean;
   balance: number;
   enabled: boolean;
   pending: Pending[];
@@ -67,6 +71,7 @@ export function StudioWorkspace({
   const t = useTranslations("studio");
   const tb = useTranslations("billing");
   const ta = useTranslations("studioAudio");
+  const tt = useTranslations("templates.studio");
   const locale = useLocale() as "es" | "en";
   const router = useRouter();
   const [kind, setKind] = useState<Kind>("image");
@@ -238,16 +243,29 @@ export function StudioWorkspace({
                   ) : (
                     <span />
                   )}
-                  {a.url && (
-                    <a
-                      href={a.url}
-                      download
-                      className="pointer-events-auto grid size-8 place-items-center rounded-full bg-black/60 text-white hover:bg-black/80"
-                      aria-label={t("download")}
-                    >
-                      <Download className="size-4" />
-                    </a>
-                  )}
+                  <span className="flex items-center gap-1.5">
+                    {canPost && (
+                      // Abre el editor con esta pieza ya añadida (la etiqueta IA se hereda del medio).
+                      <Link
+                        href={`/app/p/${projectId}/posts/new?asset=${a.id}`}
+                        aria-label={tt("useInPost")}
+                        title={tt("useInPost")}
+                        className="pointer-events-auto inline-flex h-8 items-center gap-1 rounded-full bg-background/90 px-3 text-xs font-medium text-foreground hover:bg-background focus-visible:ring-3 focus-visible:ring-ring/60 focus-visible:outline-none pointer-coarse:h-11"
+                      >
+                        <FilePlus2 className="size-3.5" aria-hidden /> {tt("use")}
+                      </Link>
+                    )}
+                    {a.url && (
+                      <a
+                        href={a.url}
+                        download
+                        className="pointer-events-auto grid size-8 place-items-center rounded-full bg-black/60 text-white hover:bg-black/80 pointer-coarse:size-11"
+                        aria-label={t("download")}
+                      >
+                        <Download className="size-4" />
+                      </a>
+                    )}
+                  </span>
                 </figcaption>
               )}
             </figure>
