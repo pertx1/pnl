@@ -24,6 +24,7 @@ import { createClient } from "@/lib/supabase/client";
 import { addUploadedAsset, approvePost, deletePost, savePost, submitPost, unschedulePost, type PostActionResult } from "./actions";
 import { aiCaptionVariations, aiSuggestCaptions } from "./ai-actions";
 import { getYouTubePlaylists } from "./youtube-actions";
+import { YouTubeDirectUpload } from "./youtube-direct-upload";
 
 type Target = { socialAccountId: string; captionOverride: string; platformOptions: PlatformOptions };
 type Initial = {
@@ -98,7 +99,9 @@ export function PostEditor({
 
   const selectedAssets = assetIds.map((id) => library.find((a) => a.id === id)).filter(Boolean) as EditorAsset[];
   const aiForced = selectedAssets.some((a) => a.ai);
-  const locked = ["publishing", "published"].includes(status);
+  const locked = ["publishing", "published", "scheduled_on_platform"].includes(status);
+  // Subida directa a YouTube: la aprobación se hace con «Aprobar y subir a YouTube» (dentro del destino).
+  const hasDirect = targets.some((x) => x.platformOptions.yt_direct_upload);
   const readOnly = !canEdit || locked;
 
   const duplicate = useMemo(
@@ -188,7 +191,7 @@ export function PostEditor({
         </div>
         <div className="flex items-center gap-2">
           {(aiGenerated || aiForced) && <AiBadge />}
-          <StatusBadge status={(["draft", "pending_approval", "scheduled", "published"].includes(status) ? status : status === "failed" ? "error" : status === "approved" ? "scheduled" : "draft") as PostStatus} />
+          <StatusBadge status={(["draft", "pending_approval", "scheduled", "scheduled_on_platform", "published"].includes(status) ? status : status === "failed" ? "error" : status === "approved" ? "scheduled" : "draft") as PostStatus} />
         </div>
       </div>
 
@@ -347,6 +350,30 @@ export function PostEditor({
                               onChange={(p) => patchOptions(acc.id, p)}
                             />
                           )}
+                          {acc.platform === "youtube" && (
+                            <YouTubeDirectUpload
+                              accountId={acc.id}
+                              postId={postId}
+                              status={status}
+                              options={target.platformOptions}
+                              savedDirect={initial.targets.find((x) => x.socialAccountId === acc.id)?.platformOptions.yt_direct_upload}
+                              otherPlatforms={targets.some((x) => accounts.find((a) => a.id === x.socialAccountId)?.platform !== "youtube")}
+                              canApprove={canApprove}
+                              onChange={(p) => patchOptions(acc.id, p)}
+                              approve={async () => {
+                                const id = await doSave();
+                                if (!id) return null;
+                                const res = await approvePost(projectId, id);
+                                if (!handleResult(res, t("approved")) || !res.ok) return null;
+                                setStatus(res.status ?? "scheduled");
+                                return id;
+                              }}
+                              onDone={(s) => {
+                                setStatus((prev) => (s === "published" || s === "scheduled_on_platform" ? (targets.length === 1 ? s : prev) : prev));
+                                router.refresh();
+                              }}
+                            />
+                          )}
                           {v && (
                             <ul className="space-y-1 text-xs text-destructive">
                               {v.rules.map((r) => (
@@ -441,7 +468,7 @@ export function PostEditor({
                       <Send /> {t("submit")}
                     </Button>
                   )}
-                  {canApprove && ["draft", "pending_approval"].includes(status) && (
+                  {canApprove && !hasDirect && ["draft", "pending_approval"].includes(status) && (
                     <Button
                       disabled={pending}
                       onClick={() =>

@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { TIKTOK_PRIVACY, validateTarget, YT_CATEGORIES, YT_LANGUAGES, type MediaKind, type PlatformOptions, type RuleViolation } from "@/lib/posts/rules";
 import { toErrorKey } from "@/lib/server/errors";
+import { YT_MAX_BYTES } from "@/lib/social/youtube-upload-core";
 import { createClient } from "@/lib/supabase/server";
 
 export type PostActionResult =
@@ -30,6 +31,15 @@ const optionsSchema = z
     yt_embeddable: z.boolean().optional(),
     yt_license: z.enum(["youtube", "creativeCommon"]).optional(),
     yt_language: z.enum(YT_LANGUAGES).optional(),
+    // Subida directa a YouTube: solo metadatos del archivo (nombre, tamaño, tipo); el archivo no pasa por Kreo.
+    yt_direct_upload: z
+      .object({
+        file_name: z.string().trim().min(1).max(255),
+        size_bytes: z.number().int().positive().max(YT_MAX_BYTES),
+        mime: z.string().regex(/^video\/[a-z0-9.+-]+$/i).max(100),
+      })
+      .strict()
+      .optional(),
   })
   .strict();
 

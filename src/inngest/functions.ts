@@ -1,9 +1,11 @@
 import { NonRetriableError } from "inngest";
 import type { PlatformOptions } from "@/lib/posts/rules";
 import { getAdapter } from "@/lib/social";
+import { getFreshTokens, TokenUnavailableError } from "@/lib/social/fresh-tokens";
 import { publishTo } from "@/lib/social/publish";
-import { loadTokens, saveTokens } from "@/lib/social/token-store";
+import { loadYouTubeThumbnail } from "@/lib/social/youtube-direct";
 import { PlatformError, type Platform, type TokenSet } from "@/lib/social/types";
+import { settledPostStatus } from "@/lib/posts/settle";
 import { refundGeneration, settleStudioGeneration, STUDIO_TIMEOUT_MS } from "@/lib/ai/settle";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { inngest } from "./client";
@@ -18,18 +20,11 @@ function admin() {
 
 /** Devuelve tokens vigentes; si caducan en < 5 min los refresca. Si no se puede, marca la cuenta como caducada. */
 async function freshTokens(accountId: string, platform: Platform): Promise<TokenSet> {
-  const adapter = getAdapter(platform)!;
-  const tokens = await loadTokens(accountId);
-  if (!tokens) throw new NonRetriableError("missing_tokens");
-  const expiresSoon = tokens.accessExpiresAt && tokens.accessExpiresAt.getTime() < Date.now() + 5 * 60_000;
-  if (!expiresSoon) return tokens;
   try {
-    const refreshed = await adapter.refresh(tokens.refreshToken ?? tokens.accessToken);
-    await saveTokens(accountId, { ...refreshed, refreshToken: refreshed.refreshToken ?? tokens.refreshToken });
-    return refreshed;
-  } catch {
-    await admin().from("social_accounts").update({ status: "expired" }).eq("id", accountId);
-    throw new NonRetriableError("token_expired");
+    return await getFreshTokens(accountId, platform);
+  } catch (e) {
+    if (e instanceof TokenUnavailableError) throw new NonRetriableError(e.code);
+    throw e;
   }
 }
 
@@ -37,10 +32,8 @@ async function freshTokens(accountId: string, platform: Platform): Promise<Token
 async function settlePost(postId: string) {
   const db = admin();
   const { data: targets } = await db.from("post_targets").select("status").eq("post_id", postId);
-  const s = (targets ?? []).map((t) => t.status);
-  if (!s.length || s.some((x) => x === "publishing" || x === "scheduled")) return;
-  const status = s.every((x) => x === "published") ? "published" : "failed";
-  await db.from("posts").update({ status }).eq("id", postId);
+  const status = settledPostStatus((targets ?? []).map((t) => t.status));
+  if (status) await db.from("posts").update({ status }).eq("id", postId);
 }
 
 // -----------------------------------------------------------------------------------------------
@@ -56,8 +49,25 @@ export const dispatchDuePosts = inngest.createFunction(
         .eq("status", "scheduled")
         .eq("posts.status", "scheduled")
         .lte("posts.scheduled_at", new Date().toISOString())
+        // Subida directa a YouTube: la hace el navegador de quien aprueba, nunca el worker.
+        .is("platform_options->>yt_direct_upload", null)
         .limit(200);
       return (data ?? []).map((t) => ({ id: t.id, accountId: t.social_account_id }));
+    });
+    // Vídeos programados en YouTube (publishAt): llegada la hora, YouTube los hace públicos → se reflejan como publicados.
+    await step.run("platform-scheduled-due", async () => {
+      const db = admin();
+      const { data } = await db
+        .from("post_targets")
+        .select("id, post_id, posts!inner(scheduled_at)")
+        .eq("status", "scheduled_on_platform")
+        .lte("posts.scheduled_at", new Date().toISOString())
+        .limit(200);
+      for (const t of data ?? []) {
+        await db.from("post_targets").update({ status: "published", published_at: t.posts.scheduled_at }).eq("id", t.id).eq("status", "scheduled_on_platform");
+        await settlePost(t.post_id);
+      }
+      return data?.length ?? 0;
     });
     if (due.length) {
       // id del evento = id del destino → Inngest descarta duplicados (no se publica dos veces).
@@ -103,6 +113,7 @@ export const publishTarget = inngest.createFunction(
         .update({ status: "publishing", attempts: 1 })
         .eq("id", postTargetId)
         .eq("status", "scheduled")
+        .is("platform_options->>yt_direct_upload", null) // nunca reclamar una subida directa a YouTube
         .select("id, post_id, social_account_id")
         .maybeSingle();
       if (!data) return null;
@@ -144,21 +155,10 @@ export const publishTarget = inngest.createFunction(
 
       const options = (target.platform_options ?? {}) as PlatformOptions;
       // Miniatura de YouTube: solo una imagen JPG/PNG del MISMO proyecto que la publicación.
-      let thumbnail: { url: string; mime: string; bytes: () => Promise<ArrayBuffer> } | undefined;
+      let thumbnail: Awaited<ReturnType<typeof loadYouTubeThumbnail>>;
       if (platform === "youtube" && options.yt_thumbnail_asset_id) {
-        const { data: th } = await db
-          .from("assets")
-          .select("storage_path, mime_type, project_id")
-          .eq("id", options.yt_thumbnail_asset_id)
-          .maybeSingle();
         const { data: postProject } = await db.from("posts").select("project_id").eq("id", claimed.postId).single();
-        if (th && postProject && th.project_id === postProject.project_id && /^image\/(jpeg|png)$/.test(th.mime_type)) {
-          const { data: signed } = await db.storage.from("project-media").createSignedUrl(th.storage_path, 60 * 60);
-          if (signed?.signedUrl) {
-            const url = signed.signedUrl;
-            thumbnail = { url, mime: th.mime_type, bytes: async () => (await fetch(url)).arrayBuffer() };
-          }
-        }
+        if (postProject) thumbnail = await loadYouTubeThumbnail(db, options.yt_thumbnail_asset_id, postProject.project_id);
       }
 
       try {

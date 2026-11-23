@@ -28,6 +28,9 @@ export type PlatformOptions = {
   yt_embeddable?: boolean; // por defecto true
   yt_license?: "youtube" | "creativeCommon";
   yt_language?: (typeof YT_LANGUAGES)[number];
+  // YouTube · vídeo grande subido DIRECTO del navegador a YouTube (no se guarda en Kreo). Lo sube quien aprueba,
+  // justo después de aprobar. Solo sirve para este destino: Instagram y TikTok no pueden usar ese archivo.
+  yt_direct_upload?: { file_name: string; size_bytes: number; mime: string };
 };
 
 /** Categorías de YouTube asignables (ids estables de la Data API). */
@@ -68,7 +71,8 @@ export function validateTarget(
   // Los reels de prueba son solo para un único vídeo (media_type REELS), no carrusel ni imagen.
   if (platform === "instagram" && options.ig_trial_reel && (media.length !== 1 || media[0] !== "video")) v.push("instagram_trial_requires_single_video");
   if (platform === "youtube") {
-    if (media.filter((m) => m === "video").length !== 1) v.push("youtube_video_required");
+    // Con subida directa el vídeo no está en la biblioteca: basta con el archivo declarado (lo sube quien aprueba).
+    if (!options.yt_direct_upload && media.filter((m) => m === "video").length !== 1) v.push("youtube_video_required");
     if (!options.yt_title?.trim()) v.push("youtube_title_required");
     if (ytTagsLength(options.yt_tags) > 500) v.push("youtube_tags_too_long");
   }

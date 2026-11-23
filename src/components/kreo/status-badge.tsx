@@ -1,11 +1,12 @@
 import { cn } from "@/lib/utils";
 
-export type PostStatus = "draft" | "pending_approval" | "approved" | "scheduled" | "publishing" | "published" | "failed" | "cancelled" | "error";
+export type PostStatus = "draft" | "pending_approval" | "approved" | "scheduled" | "scheduled_on_platform" | "publishing" | "published" | "failed" | "cancelled" | "error";
 
 const styles: Record<PostStatus, { label: string; color: string }> = {
   draft: { label: "Borrador", color: "var(--muted-foreground)" },
   pending_approval: { label: "Pendiente de aprobación", color: "var(--warning)" },
   scheduled: { label: "Programado", color: "var(--primary-ink)" },
+  scheduled_on_platform: { label: "Programado en YouTube", color: "var(--info)" },
   published: { label: "Publicado", color: "var(--success)" },
   approved: { label: "Aprobado", color: "var(--info)" },
   publishing: { label: "Publicando", color: "var(--primary-ink)" },
