@@ -27,7 +27,7 @@ Lo que solo puedes hacer tú (consolas, pagos, decisiones). En orden. Tacha con 
   hay que probar antes que no añade marca de agua y declarar a VEED como subencargado.
 
 ## Pruebas reales que faltan
-- [ ] **Subir un vídeo grande con «Vídeo grande: subir directo a YouTube»** (primera prueba real; si falla, captura a Claude).
+- [x] Subida directa a YouTube probada en real (265 MB, programado con publishAt) — 2026-11-24.
 - [ ] Firmar el DPA de fal.ai y pedir su lista de subencargados (incluye ElevenLabs vía auto-subtitle).
 
 ## Decisiones (cuestan dinero o son legales)

@@ -30,6 +30,7 @@ Variables de entorno: lista completa en `.env.example`; estado de cada una en Ve
 - Estudio de IA: imágenes (FLUX 2 Flash comprobado en producción), con cobro de créditos y reembolso automático.
 - Cuentas conectadas: **Instagram**, **TikTok** (sandbox) y **YouTube** (canal Akerra).
 - Editor de publicaciones con reglas por red, aprobación y calendario; YouTube con miniatura, etiquetas, categoría y listas.
+- **Subida directa a YouTube** de vídeos grandes (265 MB probado, programado con `publishAt`).
 - Diseño v2, móvil con barra inferior, ordenador con ancho unificado, accesibilidad (HIG).
 
 ## Hecho pero SIN comprobar en real
@@ -37,7 +38,6 @@ Variables de entorno: lista completa en `.env.example`; estado de cada una en Ve
 - **Inicio general** (`/app`) y **Mi agenda** (`/app/agenda`, + herramientas MCP de agenda).
 - **Conector de Claude (MCP + OAuth)**: conectado por Oier; herramientas nuevas (opciones por red, `update_draft_post`, subir archivos ≤ 50 MB) solo en conversaciones nuevas.
 - **Publicación programada**: Inngest llama a la app cada minuto; falta la primera publicación real.
-- **Subida directa a YouTube** (vídeos grandes, programación nativa con `publishAt`): CORS sin probar en real.
 - **Centro de avisos, mejores horas, resumen semanal y subtítulos de YouTube**.
 - **Clipper v2** (viralidad, formatos, 5 plantillas de subtítulos, editar, ZIP sin marca de agua, «Programar clips»).
 - **Plantillas, series y textos guardados**; **reel de prueba** de Instagram.
