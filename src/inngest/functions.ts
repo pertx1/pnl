@@ -49,7 +49,8 @@ export const dispatchDuePosts = inngest.createFunction(
         .from("post_targets")
         .select("id, social_account_id, posts!inner(status, scheduled_at)")
         .eq("status", "scheduled")
-        .eq("posts.status", "scheduled")
+        // "publishing": otra red del mismo post ya se está publicando (o ya salió); las demás deben salir igual.
+        .in("posts.status", ["scheduled", "publishing"])
         .lte("posts.scheduled_at", new Date().toISOString())
         // Subida directa a YouTube: la hace el navegador de quien aprueba, nunca el worker.
         .is("platform_options->>yt_direct_upload", null)
@@ -124,11 +125,12 @@ export const publishTarget = inngest.createFunction(
       if (!data) return null;
       const { data: post } = await db.from("posts").select("id, status, approved_by").eq("id", data.post_id).single();
       // Garantía final: sin aprobación humana no se publica nada.
-      if (!post || post.status !== "scheduled" || !post.approved_by) {
+      // "publishing" = otra red de este mismo post (aprobado) se está publicando: esta también debe salir.
+      if (!post || !["scheduled", "publishing"].includes(post.status) || !post.approved_by) {
         await db.from("post_targets").update({ status: "scheduled" }).eq("id", postTargetId);
         return null;
       }
-      await db.from("posts").update({ status: "publishing" }).eq("id", post.id);
+      if (post.status === "scheduled") await db.from("posts").update({ status: "publishing" }).eq("id", post.id).eq("status", "scheduled");
       // Solo IDs: lo que devuelve un paso se guarda en Inngest (minimización, sin captions ni datos personales).
       return { postId: post.id, socialAccountId: data.social_account_id };
     });
