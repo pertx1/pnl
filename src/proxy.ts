@@ -7,7 +7,7 @@ export async function proxy(request: NextRequest) {
 
 export const config = {
   matcher: [
-    // Todo menos estáticos, imágenes e iconos.
-    "/((?!api/inngest|api/stripe|_next/static|_next/image|favicon.ico|icon.svg|brand/|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
+    // Todo menos estáticos, imágenes e iconos, y los endpoints máquina a máquina (MCP y OAuth sin cookies).
+    "/((?!api/inngest|api/stripe|api/mcp|\\.well-known|oauth/token|oauth/register|oauth/revoke|_next/static|_next/image|favicon.ico|icon.svg|brand/|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
   ],
 };

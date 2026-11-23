@@ -27,3 +27,13 @@ export async function revokeApiKey(id: string): Promise<ApiKeyResult> {
   revalidatePath("/app/settings/api-keys");
   return { ok: true };
 }
+
+/** Revoca una app conectada por OAuth (Claude, etc.): corta al momento sus tokens de acceso y de refresco. */
+export async function revokeConnectedApp(id: string): Promise<ApiKeyResult> {
+  if (!z.uuid().safeParse(id).success) return { error: "invalid_input" };
+  const supabase = await createClient();
+  const { error } = await supabase.rpc("revoke_mcp_oauth_grant", { p_id: id });
+  if (error) return { error: "forbidden" };
+  revalidatePath("/app/settings/api-keys");
+  return { ok: true };
+}

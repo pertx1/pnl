@@ -380,3 +380,20 @@ de cada módulo en `docs/compliance/{research,strategy,inbox,commerce,team}.md`)
 > ⚖️ Recordatorio a Oier: **un abogado debe revisar todos los textos legales** (privacidad, términos, cookies, aviso legal,
 > afiliados, DPA para clientes) y los avisos con efecto legal de estos módulos (bandeja/Gmail, informes a terceros, afiliados,
 > suscripciones) **antes del lanzamiento público**.
+
+## MCP · OAuth 2.1 para conectores de Claude + herramientas "cerebro" — 2026-11-23 — Estado: ⚠️ pendiente de revisión `seguridad-legal`
+- APIs usadas: ninguna de plataformas sociales nueva. fal.ai (ya existente) vía generate_image/generate_video. Descarga de
+  Client ID Metadata Documents SOLO de hosts permitidos (`MCP_CIMD_ALLOWED_HOSTS`, por defecto claude.ai y claude.com).
+- Especificación: MCP 2026-07-28 (Authorization) y guía de conectores de Claude: OAuth 2.1 + PKCE S256, RFC 9728, RFC 8414,
+  CIMD y DCR (RFC 7591), RFC 8707 (`resource`), RFC 9207 (`iss`), RFC 7009 (revocación). Se descartó Supabase OAuth Server
+  (emite JWT de Supabase utilizables contra su API REST, sin CIMD ni `resource`, sin ligar a un workspace).
+- Permisos: un scope `kreo`, ligado a usuario + UN workspace (elegido en el consentimiento) + cliente + recurso. Mismos roles
+  y reglas que la app (lector lee; editor crea borradores/tareas/IA). Nada se aprueba, publica ni envía desde el MCP.
+- Datos guardados: hash SHA-256 de códigos (5 min, un uso), tokens de acceso (1 h) y refresco (30 días, rotatorios); nombre
+  autodeclarado del cliente y host de su redirect URI; límites por usuario o por HMAC truncado de la IP (se borran a los 2 días).
+  Ningún token en claro; tablas solo service_role salvo "apps conectadas" (cada usuario ve y revoca las suyas). 2FA exigida.
+- Mitigaciones: redirect URI exacta (puerto libre solo en loopback), https o loopback; sin redirección si cliente/URI no
+  válidos; consentimiento con host de vuelta y aviso para loopback; anti-clickjacking (`frame-ancestors 'none'`);
+  reutilización de código o de refresh rotado → revocación; auditoría en activity_log (`via: mcp_oauth`).
+- Pendiente: revisión `seguridad-legal`; mencionar en la política de privacidad las "apps conectadas" (OAuth) y su revocación;
+  incluir las apps conectadas en la exportación de datos.

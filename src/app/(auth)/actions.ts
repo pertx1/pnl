@@ -3,6 +3,7 @@
 import { redirect } from "next/navigation";
 import { getLocale } from "next-intl/server";
 import { z } from "zod";
+import { safeNext } from "@/lib/auth/safe-next";
 import { appUrl } from "@/lib/env";
 import { keep, toErrorKey, type ActionState } from "@/lib/server/errors";
 import { createClient } from "@/lib/supabase/server";
@@ -13,10 +14,6 @@ const loginSchema = z.object({
   next: z.string().optional(),
 });
 
-/** Solo redirecciones internas (evita open redirects). */
-function safeNext(next: string | undefined) {
-  return next && next.startsWith("/app") && !next.startsWith("//") ? next : "/app";
-}
 
 export async function login(_prev: ActionState, formData: FormData): Promise<ActionState> {
   const values = keep(formData, ["email"]);

@@ -1,0 +1,67 @@
+{
+  "mcpOAuth": {
+    "consent": {
+      "metaTitle": "Authorize access to Kreo",
+      "eyebrow": "Connect app",
+      "title": "{client} wants to access your Kreo account",
+      "signedInAs": "Signed in as {email}",
+      "notYou": "Not you? Sign out of Kreo and try again.",
+      "verifiedBy": "Client identity verified by its domain: {host}",
+      "unverified": "The name is declared by the app itself. Check the return address before allowing.",
+      "redirectTo": "It will send you back to",
+      "loopbackWarning": "This app returns to a local address on your computer (localhost). Only allow it if you just opened it yourself, e.g. Claude Code.",
+      "workspace": "Workspace",
+      "workspaceHelp": "The app can only use this workspace, with your role in it.",
+      "role": "your role: {role}",
+      "canTitle": "On your behalf it will be able to",
+      "can": {
+        "read": "View projects, the publishing calendar, free slots, tasks and metrics.",
+        "drafts": "Create post drafts and tasks, and send them for approval (if you are an editor).",
+        "ai": "Generate AI images and videos using the workspace's credits (it always tells you the cost)."
+      },
+      "cannotTitle": "It will never be able to",
+      "cannot": "Approve, publish or send anything, or change your password, plan or connected accounts.",
+      "duration": "Access lasts until you revoke it in Settings › API keys & MCP › Connected apps (tokens expire every hour and renew automatically for up to 30 days of use).",
+      "allow": "Allow",
+      "allowing": "Authorizing…",
+      "cancel": "Cancel",
+      "noWorkspaces": "You don't belong to any workspace. Create one in Kreo before connecting apps.",
+      "errors": {
+        "expired": "The request has expired. Connect again from the app (e.g. Claude).",
+        "login": "Your session has ended. Sign in again.",
+        "forbidden": "Authorization failed. If you use 2FA, verify it again.",
+        "invalid_input": "Choose a workspace."
+      },
+      "impersonationWarning": "This app claims to be “{client}” but sends access to {host}, which isn't Claude. If you don't recognise it, click Cancel."
+    },
+    "error": {
+      "metaTitle": "Can't connect",
+      "title": "This app can't be connected",
+      "back": "Go to Kreo",
+      "reasons": {
+        "invalid_client": "The app isn't registered with Kreo or its identifier is invalid. Add the connector again from the app.",
+        "invalid_redirect_uri": "The app's return address doesn't match the registered one. For your safety we won't redirect you.",
+        "invalid_request": "The authorization request is malformed.",
+        "not_configured": "Connecting apps isn't configured on this Kreo server yet.",
+        "expired": "The request has expired. Connect again from the app."
+      }
+    },
+    "apps": {
+      "title": "Connected apps",
+      "body": "Apps you authorized with OAuth (e.g. Claude). They act in one workspace with your role. Revoking cuts access immediately.",
+      "empty": "No connected apps. Add Kreo as a connector in Claude (steps below).",
+      "workspace": "workspace {name}",
+      "connected": "connected on {when}",
+      "lastUsed": "used {when}",
+      "neverUsed": "never used",
+      "via": "returns to {host}",
+      "revoke": "Revoke",
+      "revokeNamed": "Revoke access for {name}",
+      "revokeConfirm": "It will stop working immediately.",
+      "revokeYes": "Yes, revoke",
+      "cancel": "Cancel",
+      "revoked": "Access revoked.",
+      "error": "Couldn't revoke. If you use 2FA, verify it again."
+    }
+  }
+}

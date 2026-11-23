@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
-import { createApiKey, revokeApiKey } from "./actions";
+import { createApiKey, revokeApiKey, revokeConnectedApp } from "./actions";
 
 export function CopyField({ label, value, mono, multiline }: { label?: string; value: string; mono?: boolean; multiline?: boolean }) {
   const t = useTranslations("commerce.apiKeys");
@@ -114,6 +114,41 @@ export function RevokeKeyButton({ id, name }: { id: string; name: string }) {
             const r = await revokeApiKey(id);
             if (r.ok) toast.success(t("revoked"));
             else toast.error(t("errors.generic"));
+            setConfirming(false);
+          })
+        }
+      >
+        {t("revokeYes")}
+      </Button>
+      <Button variant="ghost" size="sm" onClick={() => setConfirming(false)}>
+        {t("cancel")}
+      </Button>
+    </div>
+  );
+}
+
+export function RevokeAppButton({ id, name }: { id: string; name: string }) {
+  const t = useTranslations("mcpOAuth.apps");
+  const [confirming, setConfirming] = useState(false);
+  const [pending, start] = useTransition();
+  if (!confirming)
+    return (
+      <Button variant="ghost" size="sm" onClick={() => setConfirming(true)} aria-label={t("revokeNamed", { name })}>
+        {t("revoke")}
+      </Button>
+    );
+  return (
+    <div role="group" aria-label={t("revokeNamed", { name })} className="flex items-center gap-2">
+      <span className="text-xs text-muted-foreground">{t("revokeConfirm")}</span>
+      <Button
+        variant="destructive"
+        size="sm"
+        disabled={pending}
+        onClick={() =>
+          start(async () => {
+            const r = await revokeConnectedApp(id);
+            if (r.ok) toast.success(t("revoked"));
+            else toast.error(t("error"));
             setConfirming(false);
           })
         }

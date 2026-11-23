@@ -10,6 +10,19 @@ const nextConfig: NextConfig = {
     "/blog": ["./content/blog/**/*"],
     "/blog/[slug]": ["./content/blog/**/*"],
   },
+  // Pantalla de consentimiento OAuth del MCP: nunca dentro de un iframe (anti-clickjacking).
+  async headers() {
+    return [
+      {
+        source: "/oauth/:path*",
+        headers: [
+          { key: "X-Frame-Options", value: "DENY" },
+          { key: "Content-Security-Policy", value: "frame-ancestors 'none'" },
+          { key: "Referrer-Policy", value: "no-referrer" },
+        ],
+      },
+    ];
+  },
   // Cache Components desactivado: casi toda la app es por usuario (sesión) y simplifica el desarrollo.
   // Las páginas sin datos dinámicos (landing, legales) siguen generándose estáticas.
   turbopack: {

@@ -6,6 +6,10 @@ y seguir donde se quedó, sin volver a explicar nada.
 
 ## Dos partes, un solo cerebro
 
+- **Kreo (conector de Claude)**: el cerebro principal de Oier. En claude.ai › Ajustes › Conectores › «Añadir conector
+  personalizado» con `https://kreo-nine.vercel.app/api/mcp`. Cualquier chat ve el calendario de contenido, los huecos libres,
+  las tareas, crea borradores e imágenes/vídeos (todo queda como borrador: Oier aprueba en la app).
+
 - **Notion · «Cerebro de Oier»** (https://app.notion.com/p/421ecd20cb1d818a8eebe6ff7fbaa789): lo personal y del día a día,
   accesible desde **cualquier chat de Claude** con el conector de Notion: Tareas (con Google Calendar), Vídeos, Ideas,
   Decisiones y Diario. Las tareas de Oier sobre Kreo están allí con el prefijo «Kreo ·».

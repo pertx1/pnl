@@ -1,0 +1,67 @@
+{
+  "mcpOAuth": {
+    "consent": {
+      "metaTitle": "Autorizar acceso a Kreo",
+      "eyebrow": "Conectar app",
+      "title": "{client} quiere acceder a tu cuenta de Kreo",
+      "signedInAs": "Has iniciado sesión como {email}",
+      "notYou": "¿No eres tú? Cierra sesión en Kreo y vuelve a intentarlo.",
+      "verifiedBy": "Identidad del cliente verificada por su dominio: {host}",
+      "unverified": "El nombre lo declara la propia app. Comprueba la dirección de vuelta antes de permitir.",
+      "redirectTo": "Te devolverá a",
+      "loopbackWarning": "Esta app vuelve a una dirección local de tu ordenador (localhost). Permite solo si la acabas de abrir tú, por ejemplo Claude Code.",
+      "workspace": "Espacio de trabajo",
+      "workspaceHelp": "La app solo podrá usar este espacio, con tu rol en él.",
+      "role": "tu rol: {role}",
+      "canTitle": "Podrá, en tu nombre",
+      "can": {
+        "read": "Ver proyectos, calendario de publicaciones, huecos libres, tareas y métricas.",
+        "drafts": "Crear borradores de publicaciones y tareas, y enviarlas a aprobación (si eres editor).",
+        "ai": "Generar imágenes y vídeos con IA gastando créditos del espacio (siempre te dirá el coste)."
+      },
+      "cannotTitle": "Nunca podrá",
+      "cannot": "Aprobar, publicar ni enviar nada, ni cambiar tu contraseña, tu plan o tus cuentas conectadas.",
+      "duration": "El acceso dura hasta que lo revoques en Ajustes › API keys y MCP › Apps conectadas (los tokens caducan cada hora y se renuevan solos durante 30 días de uso).",
+      "allow": "Permitir",
+      "allowing": "Autorizando…",
+      "cancel": "Cancelar",
+      "noWorkspaces": "No perteneces a ningún espacio de trabajo. Crea uno en Kreo antes de conectar apps.",
+      "errors": {
+        "expired": "La solicitud ha caducado. Vuelve a conectar desde la app (por ejemplo, Claude).",
+        "login": "Tu sesión ha terminado. Vuelve a iniciar sesión.",
+        "forbidden": "No se ha podido autorizar. Si tienes 2FA, verifícala de nuevo.",
+        "invalid_input": "Elige un espacio de trabajo."
+      },
+      "impersonationWarning": "Esta app dice llamarse «{client}» pero devuelve el acceso a {host}, que no es de Claude. Si no la reconoces, pulsa Cancelar."
+    },
+    "error": {
+      "metaTitle": "No se puede conectar",
+      "title": "No se puede conectar esta app",
+      "back": "Ir a Kreo",
+      "reasons": {
+        "invalid_client": "La app no está registrada en Kreo o su identificador no es válido. Vuelve a añadir el conector desde la app.",
+        "invalid_redirect_uri": "La dirección de vuelta de la app no coincide con la registrada. Por seguridad no te redirigimos.",
+        "invalid_request": "La solicitud de autorización está mal formada.",
+        "not_configured": "La conexión de apps todavía no está configurada en este servidor de Kreo.",
+        "expired": "La solicitud ha caducado. Vuelve a conectar desde la app."
+      }
+    },
+    "apps": {
+      "title": "Apps conectadas",
+      "body": "Apps que has autorizado con OAuth (por ejemplo, Claude). Actúan en un espacio de trabajo con tu rol. Revocar corta el acceso al momento.",
+      "empty": "Ninguna app conectada. Añade Kreo como conector en Claude (pasos abajo).",
+      "workspace": "espacio {name}",
+      "connected": "conectada el {when}",
+      "lastUsed": "usada {when}",
+      "neverUsed": "sin usar",
+      "via": "vuelve a {host}",
+      "revoke": "Revocar",
+      "revokeNamed": "Revocar el acceso de {name}",
+      "revokeConfirm": "Dejará de funcionar al momento.",
+      "revokeYes": "Sí, revocar",
+      "cancel": "Cancelar",
+      "revoked": "Acceso revocado.",
+      "error": "No se ha podido revocar. Si tienes 2FA, vuelve a verificarla."
+    }
+  }
+}

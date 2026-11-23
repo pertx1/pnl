@@ -4,6 +4,8 @@ Lo que solo puedes hacer tú (consolas, pagos, decisiones). En orden. Tacha con 
 (o dile a Claude «hecho lo de X» y lo tacha él).
 
 ## Ahora (para usar la app al 100 %)
+- [ ] **Añadir Kreo como conector en Claude**: claude.ai → Ajustes → Conectores → «Añadir conector personalizado» →
+  URL `https://kreo-nine.vercel.app/api/mcp` → Conectar → iniciar sesión en Kreo → elegir workspace → Permitir.
 - [ ] **Conectar Inngest con el dominio público** (sin esto no se publica nada programado ni se actualizan estadísticas).
   1. https://app.inngest.com/settings/integrations/vercel → proyecto kreo → «Custom Production Domain» = `kreo-nine.vercel.app`
   2. https://app.inngest.com/env/production/apps → «Resync» (o «Sync new app» con `https://kreo-nine.vercel.app/api/inngest`)

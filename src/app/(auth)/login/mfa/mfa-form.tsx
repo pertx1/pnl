@@ -11,7 +11,7 @@ import { Label } from "@/components/ui/label";
 import { createClient } from "@/lib/supabase/client";
 import type { ErrorKey } from "@/lib/server/errors";
 
-export function MfaForm() {
+export function MfaForm({ next = "/app" }: { next?: string }) {
   const t = useTranslations("auth_extra");
   const router = useRouter();
   const [code, setCode] = useState("");
@@ -26,7 +26,7 @@ export function MfaForm() {
       const { data: factors } = await supabase.auth.mfa.listFactors();
       const factor = factors?.totp?.[0];
       if (!factor) {
-        router.replace("/app");
+        router.replace(next);
         return;
       }
       const { error } = await supabase.auth.mfa.challengeAndVerify({ factorId: factor.id, code });
@@ -34,7 +34,7 @@ export function MfaForm() {
         setError("mfa_invalid");
         return;
       }
-      router.replace("/app");
+      router.replace(next);
       router.refresh();
     });
   }

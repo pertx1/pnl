@@ -27,5 +27,9 @@ Por prioridad. Claude: tacha `[x]` al terminar y anota el commit.
 - [ ] Traducir el «Workspace» del selector y el «Close» del diálogo de shadcn.
 
 ## Baja
-- [ ] OAuth para el servidor MCP (conector de Claude.ai).
+- [x] OAuth para el servidor MCP (conector de Claude.ai) — 2026-11-23, código hecho (migración `20261123100000_mcp_oauth.sql`).
+  - [x] Migración aplicada en Supabase (2026-11-23).
+  - [ ] Probar el flujo real desde claude.ai (Ajustes › Conectores › Añadir conector personalizado).
+  - [ ] Revisión `seguridad-legal` del servidor de autorización y de las herramientas nuevas del MCP.
+  - [ ] Tarea programada que borre tokens/códigos caducados de autorizaciones abandonadas (hoy la limpieza es perezosa).
 - [ ] Gmail en un proyecto de Google Cloud aparte (para no atar la verificación de YouTube a CASA).
