@@ -61,7 +61,7 @@ export function zonedToUtc(day: string, minutes: number, tz: string) {
 export const hhmm = (min: number) => `${String(Math.floor(min / 60)).padStart(2, "0")}:${String(min % 60).padStart(2, "0")}`;
 
 /** Estados que ocupan el límite diario de una cuenta (mismos que comprueba la aprobación, más los pendientes de aprobar). */
-export const PLANNED_STATUSES = ["pending_approval", "approved", "scheduled", "publishing", "published"] as const;
+export const PLANNED_STATUSES = ["pending_approval", "approved", "scheduled", "scheduled_on_platform", "publishing", "published"] as const;
 
 export type SlotAccount = {
   id: string;

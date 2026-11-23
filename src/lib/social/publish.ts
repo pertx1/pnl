@@ -2,6 +2,7 @@ import "server-only";
 import type { PlatformOptions } from "@/lib/posts/rules";
 import { jsonOrThrow, platformFetch } from "./http";
 import { PlatformError, type Platform, type TokenSet } from "./types";
+import { buildYouTubeVideoResource, youtubeInsertUrl } from "./youtube-upload-core";
 
 /**
  * Publicación con las APIs OFICIALES. Solo la invoca el worker para posts APROBADOS por un humano.
@@ -155,40 +156,35 @@ async function publishYouTube(tokens: TokenSet, input: PublishInput): Promise<Pu
   const o = input.options;
   const auth = { Authorization: `Bearer ${tokens.accessToken}` };
 
-  const tags = (o.yt_tags ?? []).map((t) => t.trim()).filter(Boolean);
-  const notify = o.yt_notify_subscribers === false ? "false" : "true";
-  const start = await platformFetch(
-    "youtube",
-    `https://www.googleapis.com/upload/youtube/v3/videos?uploadType=resumable&part=snippet,status&notifySubscribers=${notify}`,
-    {
-      method: "POST",
-      headers: { ...auth, "Content-Type": "application/json; charset=UTF-8", "X-Upload-Content-Type": video.mime, "X-Upload-Content-Length": String(bytes.byteLength) },
-      body: JSON.stringify({
-        snippet: {
-          title: (o.yt_title ?? "").slice(0, 100),
-          description: input.caption.slice(0, 5000),
-          ...(tags.length ? { tags } : {}),
-          categoryId: o.yt_category_id ?? "22",
-          ...(o.yt_language ? { defaultLanguage: o.yt_language, defaultAudioLanguage: o.yt_language } : {}),
-        },
-        status: {
-          privacyStatus: o.yt_privacy ?? "private",
-          selfDeclaredMadeForKids: Boolean(o.yt_made_for_kids),
-          containsSyntheticMedia: input.aiGenerated, // divulgación de contenido alterado o sintético
-          embeddable: o.yt_embeddable !== false,
-          license: o.yt_license ?? "youtube",
-        },
-      }),
-    },
-  );
+  const start = await platformFetch("youtube", youtubeInsertUrl(o), {
+    method: "POST",
+    headers: { ...auth, "Content-Type": "application/json; charset=UTF-8", "X-Upload-Content-Type": video.mime, "X-Upload-Content-Length": String(bytes.byteLength) },
+    // Metadatos (título, etiquetas, privacidad, `containsSyntheticMedia`…): mismo cuerpo que la subida directa.
+    body: JSON.stringify(buildYouTubeVideoResource({ options: o, caption: input.caption, aiGenerated: input.aiGenerated })),
+  });
   const location = start.headers.get("location");
   if (!start.ok || !location) throw new PlatformError("youtube", "upload_init_failed", start.status);
 
   const put = await fetch(location, { method: "PUT", headers: { "Content-Type": video.mime }, body: bytes });
   const json = await jsonOrThrow<{ id: string }>("youtube", put, "upload_failed");
+  const warnings = await applyYouTubeExtras(tokens, json.id, { options: o, thumbnail: input.thumbnail, captions: input.captions });
+  return { externalPostId: json.id, url: `https://www.youtube.com/watch?v=${json.id}`, warnings };
+}
+
+/**
+ * Pasos opcionales tras subir un vídeo a YouTube (miniatura, lista de reproducción…). Los usan el worker y la
+ * subida directa. Si fallan, el vídeo ya está subido: se devuelven avisos y NO se reintenta la subida.
+ */
+export async function applyYouTubeExtras(
+  tokens: TokenSet,
+  videoId: string,
+  input: { options: PlatformOptions; thumbnail?: PublishMedia; captions?: { srt: string; language: string } },
+): Promise<string[]> {
+  const o = input.options;
+  const auth = { Authorization: `Bearer ${tokens.accessToken}` };
+  const json = { id: videoId };
   const warnings: string[] = [];
 
-  // Pasos opcionales: si fallan, el vídeo ya está subido; se avisa pero NO se reintenta la subida.
   if (input.thumbnail?.bytes) {
     try {
       const img = await input.thumbnail.bytes();
@@ -234,7 +230,7 @@ async function publishYouTube(tokens: TokenSet, input: PublishInput): Promise<Pu
       warnings.push("captions_failed");
     }
   }
-  return { externalPostId: json.id, url: `https://www.youtube.com/watch?v=${json.id}`, warnings };
+  return warnings;
 }
 
 /** Listas de reproducción del canal conectado (solo lectura). */

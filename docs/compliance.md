@@ -482,3 +482,30 @@ de cada módulo en `docs/compliance/{research,strategy,inbox,commerce,team}.md`)
   - `.srt` del clip en `clip_segments.srt` (RLS existente + `mfa_required`).
 - Migración `20261124100000_clipper_v2.sql` (sin tablas nuevas; columnas en `clip_segments` y guard actualizado). **No aplicada.**
 - Pendiente: revisión `seguridad-legal`; declarar ElevenLabs (vía fal) como subencargado del audio de los clips; DPA con fal.
+## YouTube · subida directa navegador → YouTube (vídeos grandes) — 2026-11-23 — Estado: ⚠️ pendiente de revisión `seguridad-legal`
+- APIs usadas: YouTube Data API v3 oficial. `videos.insert` con el protocolo de subida reanudable (sesión abierta por el
+  servidor, bytes enviados por el navegador), `videos.list` (comprobar que el vídeo existe y es del canal), y los pasos
+  opcionales que ya hacía el worker (`thumbnails.set`, `playlistItems.insert`). Programación nativa con `status.publishAt`.
+- Permisos / scopes: ninguno nuevo (`youtube.upload` para subir; `youtube.readonly`/`youtube.force-ssl` ya concedidos para
+  leer el vídeo, miniatura y listas).
+- Datos guardados: en `post_targets.platform_options.yt_direct_upload` solo nombre, tamaño y tipo del archivo (lo que se
+  aprobó). El vídeo NO pasa por Kreo ni se guarda en Storage. Id y URL del vídeo como en cualquier publicación.
+- Regla nº 1: la subida solo la lanza un admin/owner con «Aprobar y subir a YouTube», que llama a `approve_post` (aprobación
+  humana, límite diario anti-baneo, cuenta activa) ANTES de abrir la sesión. El servidor vuelve a comprobar rol, aprobación,
+  destino YouTube y que tamaño/tipo coinciden con lo aprobado (otro archivo = volver a aprobar). El worker de Inngest nunca
+  reclama estos destinos (`platform_options->>yt_direct_upload is null`). Etiqueta IA: `containsSyntheticMedia` = `ai_generated`.
+- Riesgos aceptados:
+  - **URL de sesión en el navegador**: el access token nunca sale del servidor, pero la URL de la sesión reanudable sí llega
+    al navegador de quien aprueba. Esa URL solo permite subir los bytes de ESE vídeo, con los metadatos ya fijados por el
+    servidor, al canal conectado, y caduca sola. No da acceso de lectura ni a otras acciones. Se entrega solo a admin/owner
+    del workspace y no se guarda en ninguna parte. (Google Cloud Storage documenta lo mismo para sus URLs de sesión:
+    tratarlas como secreto.)
+  - **CORS**: el servidor abre la sesión con la cabecera `Origin` = `appUrl()` para que los PUT del navegador pasen CORS. La guía
+    de YouTube no lo documenta (sí la de Google Cloud Storage para su protocolo reanudable): verificar en la prueba manual.
+  - Doble subida si dos admins lanzan a la vez la subida del mismo destino (no hay bloqueo): el segundo `complete` se rechaza
+    con `already_uploaded` y quedaría un vídeo duplicado en YouTube (borrar en YouTube Studio). Riesgo bajo (acción manual).
+  - Si se cierra la pestaña a mitad, no se crea vídeo (YouTube solo lo crea al completar) y el destino sigue «programado»
+    sin que el worker lo toque: hay que volver a elegir el archivo y subir.
+- Estado nuevo `scheduled_on_platform` («Programado en YouTube»): bloquea la edición en Kreo (se gestiona en YouTube Studio),
+  cuenta para el límite diario y el worker lo pasa a `published` al llegar la hora. Migración `20261124140000_youtube_direct.sql`
+  (sin aplicar).

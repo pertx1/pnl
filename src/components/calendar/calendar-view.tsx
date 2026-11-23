@@ -30,6 +30,7 @@ const STATUS_COLOR: Record<string, string> = {
   pending_approval: "var(--warning)",
   approved: "var(--info)",
   scheduled: "var(--primary-ink)",
+  scheduled_on_platform: "var(--info)",
   publishing: "var(--info)",
   published: "var(--success)",
   failed: "var(--destructive)",

@@ -39,7 +39,7 @@ export async function generateMetadata({ params }: PageProps<"/app/p/[projectId]
   return { title: project.name };
 }
 
-const UPCOMING_STATUSES = ["draft", "pending_approval", "approved", "scheduled", "publishing"] as const;
+const UPCOMING_STATUSES = ["draft", "pending_approval", "approved", "scheduled", "scheduled_on_platform", "publishing"] as const;
 
 /**
  * Panel del proyecto: «¿cómo van mis cuentas?», «¿qué tengo que hacer hoy?» y «¿qué viene esta semana?».

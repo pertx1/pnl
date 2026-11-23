@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { YT_MAX_BYTES } from "@/lib/social/youtube-upload-core";
 import { TIKTOK_PRIVACY, YT_CATEGORIES, YT_LANGUAGES } from "./rules";
 
 /** Validación de las opciones por red de un destino (compartida por el editor de publicaciones y las plantillas). */
@@ -22,5 +23,14 @@ export const platformOptionsSchema = z
     yt_embeddable: z.boolean().optional(),
     yt_license: z.enum(["youtube", "creativeCommon"]).optional(),
     yt_language: z.enum(YT_LANGUAGES).optional(),
+    // Subida directa a YouTube: solo metadatos del archivo (nombre, tamaño, tipo); el archivo no pasa por Kreo.
+    yt_direct_upload: z
+      .object({
+        file_name: z.string().trim().min(1).max(255),
+        size_bytes: z.number().int().positive().max(YT_MAX_BYTES),
+        mime: z.string().regex(/^video\/[a-z0-9.+-]+$/i).max(100),
+      })
+      .strict()
+      .optional(),
   })
   .strict();
