@@ -336,6 +336,7 @@ export function PostEditor({
                             <Textarea rows={2} value={target.captionOverride} onChange={(e) => patchTarget(acc.id, { captionOverride: e.target.value })} placeholder={caption.slice(0, 80)} />
                             <p className="text-[11px] text-muted-foreground">{t("captionOverrideHint")}</p>
                           </div>
+                          {acc.platform === "instagram" && <InstagramOptions options={target.platformOptions} onChange={(p) => patchOptions(acc.id, p)} />}
                           {acc.platform === "tiktok" && <TikTokOptions handle={handle} options={target.platformOptions} onChange={(p) => patchOptions(acc.id, p)} />}
                           {acc.platform === "youtube" && (
                             <YouTubeOptions
@@ -496,6 +497,33 @@ export function PostEditor({
 }
 
 /** Opciones de TikTok según sus Content Sharing Guidelines (privacidad sin valor por defecto, divulgación comercial). */
+function InstagramOptions({ options, onChange }: { options: PlatformOptions; onChange: (p: Partial<PlatformOptions>) => void }) {
+  const t = useTranslations("posts.instagram");
+  const on = Boolean(options.ig_trial_reel);
+  return (
+    <div className="space-y-2 text-sm">
+      <label className="flex items-center justify-between gap-2">
+        <span>{t("trial")}</span>
+        <Switch checked={on} onCheckedChange={(v) => onChange({ ig_trial_reel: v ? "manual" : undefined })} />
+      </label>
+      <p className="text-[11px] text-muted-foreground">{t("trialHint")}</p>
+      {on && (
+        <div className="space-y-1">
+          <Label className="text-xs">{t("graduation")}</Label>
+          <select
+            className="w-full rounded-md border border-input bg-transparent px-2 py-1.5 text-sm"
+            value={options.ig_trial_reel}
+            onChange={(e) => onChange({ ig_trial_reel: e.target.value as "manual" | "auto" })}
+          >
+            <option value="manual">{t("graduationManual")}</option>
+            <option value="auto">{t("graduationAuto")}</option>
+          </select>
+        </div>
+      )}
+    </div>
+  );
+}
+
 function TikTokOptions({ handle, options, onChange }: { handle: string; options: PlatformOptions; onChange: (p: Partial<PlatformOptions>) => void }) {
   const t = useTranslations("posts.tiktok");
   return (

@@ -529,7 +529,8 @@
       "youtube_video_required": "YouTube: añade exactamente un vídeo.",
       "youtube_title_required": "YouTube: escribe un título.",
       "caption_too_long": "El texto supera el máximo de la plataforma.",
-      "youtube_tags_too_long": "Las etiquetas de YouTube superan los 500 caracteres."
+      "youtube_tags_too_long": "Las etiquetas de YouTube superan los 500 caracteres.",
+      "instagram_trial_requires_single_video": "Instagram: el reel de prueba necesita exactamente un vídeo."
     },
     "errorsX": {
       "daily_limit_exceeded": "Se superaría el límite diario de publicaciones de alguna cuenta.",
@@ -568,7 +569,14 @@
       "forbidden": "No tienes permisos.",
       "not_found": "No encontrado."
     },
-    "aiReview": "Propuesta de la IA: revísala antes de aprobar."
+    "aiReview": "Propuesta de la IA: revísala antes de aprobar.",
+    "instagram": {
+      "trial": "Publicar como reel de prueba",
+      "trialHint": "Instagram lo enseña primero solo a gente que no te sigue. Así ves si funciona antes de que lo vean tus seguidores. Solo para un vídeo.",
+      "graduation": "¿Cuándo pasa a tus seguidores?",
+      "graduationManual": "Lo decido yo en la app de Instagram",
+      "graduationAuto": "Automáticamente si funciona bien"
+    }
   },
   "calendar": {
     "title": "Calendario",

@@ -529,7 +529,8 @@
       "youtube_video_required": "YouTube: add exactly one video.",
       "youtube_title_required": "YouTube: write a title.",
       "caption_too_long": "The caption exceeds the platform maximum.",
-      "youtube_tags_too_long": "YouTube tags exceed 500 characters."
+      "youtube_tags_too_long": "YouTube tags exceed 500 characters.",
+      "instagram_trial_requires_single_video": "Instagram: a trial reel needs exactly one video."
     },
     "errorsX": {
       "daily_limit_exceeded": "An account's daily post limit would be exceeded.",
@@ -568,7 +569,14 @@
       "forbidden": "You don't have permission.",
       "not_found": "Not found."
     },
-    "aiReview": "AI suggestion: review it before approving."
+    "aiReview": "AI suggestion: review it before approving.",
+    "instagram": {
+      "trial": "Post as a trial reel",
+      "trialHint": "Instagram shows it first only to people who don't follow you, so you can see if it works before your followers do. Single video only.",
+      "graduation": "When does it reach your followers?",
+      "graduationManual": "I decide in the Instagram app",
+      "graduationAuto": "Automatically if it performs well"
+    }
   },
   "calendar": {
     "title": "Calendar",

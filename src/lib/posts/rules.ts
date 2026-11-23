@@ -13,6 +13,9 @@ export type PlatformOptions = {
   disable_stitch?: boolean;
   brand_organic_toggle?: boolean; // "Tu marca"
   brand_content_toggle?: boolean; // "Contenido de marca" (colaboración pagada)
+  // Instagram: reel de prueba (Content Publishing API, `trial_params`). Se muestra primero a no seguidores;
+  // con "manual" el usuario decide en la app de Instagram si pasa a sus seguidores; con "auto" Instagram lo hace si funciona bien.
+  ig_trial_reel?: "manual" | "auto";
   // YouTube
   yt_title?: string;
   yt_privacy?: "public" | "unlisted" | "private";
@@ -39,6 +42,7 @@ export type RuleViolation =
   | "tiktok_media_required"
   | "tiktok_branded_private"
   | "instagram_media_required"
+  | "instagram_trial_requires_single_video"
   | "youtube_video_required"
   | "youtube_title_required"
   | "youtube_tags_too_long"
@@ -61,6 +65,8 @@ export function validateTarget(
     if (options.brand_content_toggle && options.privacy_level === "SELF_ONLY") v.push("tiktok_branded_private");
   }
   if (platform === "instagram" && !media.length) v.push("instagram_media_required");
+  // Los reels de prueba son solo para un único vídeo (media_type REELS), no carrusel ni imagen.
+  if (platform === "instagram" && options.ig_trial_reel && (media.length !== 1 || media[0] !== "video")) v.push("instagram_trial_requires_single_video");
   if (platform === "youtube") {
     if (media.filter((m) => m === "video").length !== 1) v.push("youtube_video_required");
     if (!options.yt_title?.trim()) v.push("youtube_title_required");

@@ -18,6 +18,7 @@ const optionsSchema = z
     disable_stitch: z.boolean().optional(),
     brand_organic_toggle: z.boolean().optional(),
     brand_content_toggle: z.boolean().optional(),
+    ig_trial_reel: z.enum(["manual", "auto"]).optional(),
     yt_title: z.string().trim().max(100).optional(),
     yt_privacy: z.enum(["public", "unlisted", "private"]).optional(),
     yt_made_for_kids: z.boolean().optional(),

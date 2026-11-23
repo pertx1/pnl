@@ -35,6 +35,10 @@ async function publishInstagram(tokens: TokenSet, input: PublishInput): Promise<
     const body = new URLSearchParams({
       ...(isVideo ? { media_type: carouselItem ? "VIDEO" : "REELS", video_url: media.url } : { image_url: media.url }),
       ...(carouselItem ? { is_carousel_item: "true" } : { caption }),
+      // Reel de prueba: solo con un único vídeo (REELS). Valores oficiales: MANUAL | SS_PERFORMANCE.
+      ...(isVideo && !carouselItem && input.options.ig_trial_reel
+        ? { trial_params: JSON.stringify({ graduation_strategy: input.options.ig_trial_reel === "auto" ? "SS_PERFORMANCE" : "MANUAL" }) }
+        : {}),
     });
     const res = await platformFetch("instagram", `${graph}/${input.externalId}/media?access_token=${token}`, { method: "POST", body });
     return (await jsonOrThrow<{ id: string }>("instagram", res, "container_failed")).id;

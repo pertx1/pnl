@@ -31,3 +31,13 @@ describe("reglas de publicación por red", () => {
     expect(duplicateCaptionWarning(["", "", ""])).toBe(false);
   });
 });
+
+describe("Instagram · reel de prueba", () => {
+  it("exige exactamente un vídeo", async () => {
+    const { validateTarget } = await import("@/lib/posts/rules");
+    expect(validateTarget("instagram", "hola", ["video"], { ig_trial_reel: "manual" })).toEqual([]);
+    expect(validateTarget("instagram", "hola", ["image"], { ig_trial_reel: "manual" })).toContain("instagram_trial_requires_single_video");
+    expect(validateTarget("instagram", "hola", ["video", "video"], { ig_trial_reel: "auto" })).toContain("instagram_trial_requires_single_video");
+    expect(validateTarget("instagram", "hola", ["image", "image"], {})).toEqual([]);
+  });
+});
