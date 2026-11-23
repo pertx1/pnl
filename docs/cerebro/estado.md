@@ -1,6 +1,6 @@
 # Estado de Kreo
 
-_Última actualización: 2026-11-23_
+_Última actualización: 2026-11-24_
 
 ## Qué es
 SaaS todo-en-uno para creadores, dropshippers, marcas y agencias: crear con IA, programar y publicar en
@@ -33,6 +33,7 @@ Variables de entorno: lista completa en `.env.example`; estado de cada una en Ve
 - Diseño v2, móvil con barra inferior, ordenador con ancho unificado, accesibilidad (HIG).
 
 ## Hecho pero SIN comprobar en real
+- **Inicio general** (`/app`) y **Mi agenda** (`/app/agenda`, + herramientas MCP de agenda): migración `20261124130000_agenda.sql` pendiente de aplicar.
 - **Conector de Claude (MCP + OAuth)**: `https://kreo-nine.vercel.app/api/mcp`; pendiente de que Oier lo añada en claude.ai.
 - **Publicación programada**: Inngest ya llama a la app (cada minuto) desde el 2026-11-23; falta la primera publicación real.
 - Bandeja (DMs de Instagram, Gmail, Outlook), audio (ElevenLabs), Clipper, informes PDF, Shopify, MCP, equipo, planes, afiliados.

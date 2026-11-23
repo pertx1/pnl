@@ -8,7 +8,7 @@ export async function GET() {
   if (!auth.user) return NextResponse.json({ error: "unauthorized" }, { status: 401 });
   const uid = auth.user.id;
 
-  const [profile, memberships, workspaces, projects, brandKits, ledger, socialAccounts, posts, postTargets, aiGenerations, assets, connectedApps, apiKeys] = await Promise.all([
+  const [profile, memberships, workspaces, projects, brandKits, ledger, socialAccounts, posts, postTargets, aiGenerations, assets, connectedApps, apiKeys, agendaBlocks, agendaSettings] = await Promise.all([
     supabase.from("profiles").select("*").eq("id", uid).maybeSingle(),
     supabase.from("workspace_members").select("workspace_id, role, created_at").eq("user_id", uid),
     supabase.from("workspaces").select("id, name, plan_id, created_at"),
@@ -24,6 +24,9 @@ export async function GET() {
     // Apps conectadas por OAuth al MCP (Claude, etc.) y API keys personales: solo metadatos, nunca tokens ni hashes.
     supabase.from("mcp_oauth_grants").select("id, workspace_id, client_id, client_name, client_host, scope, created_at, last_used_at, revoked_at").eq("user_id", uid),
     supabase.from("mcp_api_keys").select("id, name, prefix, created_at, last_used_at, revoked_at").eq("user_id", uid),
+    // Mi agenda (bloques de tiempo personales y jornada): privada, solo del usuario.
+    supabase.from("agenda_blocks").select("*").eq("user_id", uid),
+    supabase.from("agenda_settings").select("*").eq("user_id", uid).maybeSingle(),
   ]);
 
   const body = {
@@ -48,6 +51,8 @@ export async function GET() {
     assets: assets.data ?? [],
     mcp_connected_apps: connectedApps.data ?? [],
     mcp_api_keys: apiKeys.data ?? [],
+    agenda_blocks: agendaBlocks.data ?? [],
+    agenda_settings: agendaSettings.data ?? null,
   };
 
   return new NextResponse(JSON.stringify(body, null, 2), {

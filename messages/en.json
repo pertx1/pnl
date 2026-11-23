@@ -101,6 +101,9 @@
     "noProjectsYet": "Create a project to start posting.",
     "search": "Search",
     "planCredits": "Plan and credits",
+    "home": "Home",
+    "agenda": "My schedule",
+    "newAgendaBlock": "Block in my schedule",
     "palette": {
       "title": "Search for a section or action",
       "description": "Type to filter. Use the arrow keys to move, Enter to open and Escape to close.",

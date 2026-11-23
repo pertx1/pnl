@@ -10,7 +10,10 @@ import { aggregateMetrics, lastDays } from "@/lib/reports/core";
 import { salesSummary, type LineItem } from "@/lib/shopify/core";
 import { defaultFrequency } from "@/lib/strategy/templates";
 import type { Database, WorkspaceRoleT } from "@/lib/supabase/database.types";
-import { addDays, computeFreeSlots, daysBetween, DEFAULT_TZ, isIsoDay, isValidTimeZone, PLANNED_STATUSES, zonedParts, zonedToUtc } from "./calendar";
+import { AGENDA_KINDS, expandBlocks, freeSlotsForRange, planTime, proposalToMinutes } from "@/lib/agenda/core";
+import { blockInputSchema, toBlockRow } from "@/lib/agenda/schema";
+import { loadAgenda, loadAgendaSettings, loadPlanCandidates } from "@/lib/agenda/server";
+import { addDays, computeFreeSlots, daysBetween, DEFAULT_TZ, hhmm, isIsoDay, isValidTimeZone, PLANNED_STATUSES, zonedParts, zonedToUtc } from "./calendar";
 import { draftReply, DRAFT_REPLY_VERSION } from "./reply-agent";
 import { modelsCostText, startStudioGeneration } from "./studio";
 
@@ -148,6 +151,50 @@ function resolveRange(a: { from?: string; to?: string; timezone?: string }, maxD
   return { tz, from, to, today, startUtc: zonedToUtc(from, 0, tz).toISOString(), endUtc: zonedToUtc(addDays(to, 1), 0, tz).toISOString() };
 }
 
+type AgendaDayOut = {
+  blocks: { block_id: string; start: string; end: string; title: string; kind: string; recurring: boolean; note: string; project: string | null; task_id: string | null; post_id: string | null }[];
+  free_time: { start: string; end: string; minutes: number }[];
+  free_minutes: number;
+};
+
+/**
+ * Agenda PERSONAL del usuario autenticado (nunca la de otros miembros) entre `from` y `to`, con su tiempo libre por día
+ * dentro de su jornada. La agenda es del usuario, no del workspace: con OAuth se devuelven igualmente sus bloques, pero
+ * los vínculos a proyectos/tareas/publicaciones fuera del alcance autorizado se omiten. null si la agenda no está activada.
+ */
+async function agendaDays(ctx: McpContext, from: string, to: string, tz: string, pname: Map<string, string>) {
+  const ag = await loadAgenda(ctx.db, { userId: ctx.userId, from: addDays(from, -1), to: addDays(to, 1) });
+  if (!ag.available) return null;
+  const days = daysBetween(from, to);
+  const occ = expandBlocks(ag.blocks, from, to);
+  const free = freeSlotsForRange({ days, settings: { ...ag.settings, timezone: tz }, occurrences: occ, nowMs: Date.now() });
+  const byDay = new Map<string, AgendaDayOut>(days.map((d) => [d, { blocks: [], free_time: [], free_minutes: 0 }]));
+  for (const o of occ) {
+    const inScope = !!o.projectId && pname.has(o.projectId);
+    byDay.get(o.day)?.blocks.push({
+      block_id: o.blockId,
+      start: zonedParts(new Date(o.start), tz).time,
+      end: o.endMinute === 1440 ? "24:00" : zonedParts(new Date(o.end), tz).time,
+      title: o.title,
+      kind: o.kind,
+      recurring: o.recurring,
+      note: o.note.slice(0, 200),
+      project: inScope ? pname.get(o.projectId!)! : null,
+      task_id: inScope ? o.taskId : null,
+      post_id: inScope ? o.postId : null,
+    });
+  }
+  for (const f of free) {
+    const d = byDay.get(f.day)!;
+    d.free_time = f.slots.map((s) => ({ start: s.startTime, end: s.endTime, minutes: s.minutes }));
+    d.free_minutes = f.totalMinutes;
+  }
+  return { settings: ag.settings, byDay, blocks: ag.blocks, occurrences: occ, free };
+}
+
+const AGENDA_UNAVAILABLE = "La agenda personal aún no está activada en este servidor de Kreo.";
+const WEEKDAYS = ["mon", "tue", "wed", "thu", "fri", "sat", "sun"] as const;
+
 const dayField = z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Formato YYYY-MM-DD");
 const tzField = z.string().max(64).optional().describe(`Zona horaria IANA para días y horas (por defecto ${DEFAULT_TZ}).`);
 
@@ -158,6 +205,7 @@ export function createKreoMcpServer(ctx: McpContext) {
       instructions:
         "Kreo es la herramienta de contenido para redes sociales del usuario (TikTok, Instagram, YouTube). Empieza con get_overview para ver espacios, proyectos y cuentas. " +
         "Usa get_calendar y get_free_slots para planificar; list_tasks/create_task/update_task para las tareas del roadmap; create_draft_post para proponer publicaciones; " +
+        "get_agenda, add_agenda_block y plan_my_time para la agenda PERSONAL del usuario (privada; plan_my_time solo propone, y guarda únicamente con confirm: true cuando el usuario acepte en el chat); " +
         "generate_image/generate_video + get_generation para crear medios con IA (cuestan créditos: indícalo antes; solo funcionan si el usuario activó «permitir gastar créditos» para esta conexión en Ajustes, con tope diario). Kreo NUNCA publica ni aprueba desde aquí: " +
         "todo queda como borrador o pendiente de aprobación humana en Kreo. Las fechas y horas se expresan en la zona horaria indicada (por defecto Europe/Madrid).",
     },
@@ -253,23 +301,24 @@ export function createKreoMcpServer(ctx: McpContext) {
     {
       title: "Ver calendario de publicaciones",
       description:
-        "Calendario de publicaciones por día (programadas, aprobadas, pendientes de aprobar, borradores con fecha, publicadas y fallidas) con red, cuenta, estado y hora local; incluye también las tareas del roadmap que vencen cada día y los borradores sin fecha. Por defecto: hoy y los 6 días siguientes. Máximo 62 días.",
+        "Calendario de publicaciones por día (programadas, aprobadas, pendientes de aprobar, borradores con fecha, publicadas y fallidas) con red, cuenta, estado y hora local; incluye también las tareas del roadmap que vencen cada día, los borradores sin fecha y, si include_agenda, la agenda PERSONAL del usuario (sus bloques de tiempo: trabajo, estudio, deporte, creación…) y su tiempo libre de cada día. Por defecto: hoy y los 6 días siguientes. Máximo 62 días.",
       inputSchema: z.object({
         from: dayField.optional().describe("Primer día (YYYY-MM-DD). Por defecto, hoy."),
         to: dayField.optional().describe("Último día incluido (YYYY-MM-DD). Por defecto, from + 6 días."),
         project_id: z.uuid().optional().describe("Solo este proyecto. Sin él: todos los proyectos accesibles."),
         timezone: tzField,
         include_tasks: z.boolean().default(true).describe("Incluir las tareas del roadmap que vencen cada día."),
+        include_agenda: z.boolean().default(true).describe("Incluir la agenda personal del usuario (solo sus bloques) y su tiempo libre."),
       }),
       annotations: { readOnlyHint: true, openWorldHint: false },
     },
-    safe(async (a: { from?: string; to?: string; project_id?: string; timezone?: string; include_tasks: boolean }) => {
+    safe(async (a: { from?: string; to?: string; project_id?: string; timezone?: string; include_tasks: boolean; include_agenda: boolean }) => {
       const r = resolveRange(a, 62, 7);
       const projects = await scopeProjects(ctx, a.project_id);
       if (!projects.length) return json({ days: [], notice: "No hay proyectos." });
       const ids = projects.map((p) => p.id);
       const pname = new Map(projects.map((p) => [p.id, p.name]));
-      const [{ data: posts }, { data: undated }, tasksRes] = await Promise.all([
+      const [{ data: posts }, { data: undated }, tasksRes, agenda] = await Promise.all([
         ctx.db
           .from("posts")
           .select("id, project_id, title, caption, status, scheduled_at, asset_ids, post_targets(status, social_account_id, social_accounts(platform, handle))")
@@ -283,12 +332,14 @@ export function createKreoMcpServer(ctx: McpContext) {
         a.include_tasks
           ? ctx.db.from("roadmap_tasks").select("id, project_id, title, status, due_date, platform").in("project_id", ids).neq("status", "done").gte("due_date", r.from).lte("due_date", r.to).limit(300)
           : Promise.resolve({ data: [] as { id: string; project_id: string; title: string; status: string; due_date: string | null; platform: string | null }[] }),
+        a.include_agenda ? agendaDays(ctx, r.from, r.to, r.tz, pname) : Promise.resolve(null),
       ]);
       const days = daysBetween(r.from, r.to).map((day) => ({
         date: day,
         weekday: zonedParts(zonedToUtc(day, 12 * 60, r.tz), r.tz).weekday,
         posts: [] as unknown[],
         tasks_due: [] as unknown[],
+        ...(agenda ? { your_agenda: agenda.byDay.get(day)!.blocks, your_free_time: agenda.byDay.get(day)!.free_time, your_free_minutes: agenda.byDay.get(day)!.free_minutes } : {}),
       }));
       const byDay = new Map(days.map((d) => [d.date, d]));
       for (const p of posts ?? []) {
@@ -315,6 +366,11 @@ export function createKreoMcpServer(ctx: McpContext) {
         days,
         unscheduled_drafts: (undated ?? []).map((p) => ({ post_id: p.id, project: pname.get(p.project_id), title: p.title, caption_excerpt: p.caption.slice(0, 120) })),
         legend: "draft = borrador; pending_approval = esperando aprobación humana; approved/scheduled = aprobada (se publicará); published/failed = resultado.",
+        ...(agenda
+          ? { agenda_note: `your_agenda = bloques personales del usuario (privados; solo los suyos). your_free_time = huecos libres en su jornada ${hhmm(agenda.settings.startMinute)}–${hhmm(agenda.settings.endMinute)} (hoy, desde ahora).` }
+          : a.include_agenda
+            ? { agenda_note: AGENDA_UNAVAILABLE }
+            : {}),
       });
     }),
   );
@@ -325,7 +381,7 @@ export function createKreoMcpServer(ctx: McpContext) {
     {
       title: "Huecos libres del calendario",
       description:
-        "Huecos libres del calendario de contenido: para cada día, las franjas sin publicaciones (horario 08:00–22:00 con 1 h de margen alrededor de cada publicación) y, por cada cuenta activa, cuántas publicaciones lleva planificadas frente a su límite diario anti-baneo (daily_post_limit), cuántas le quedan y una hora sugerida (según la frecuencia de la estrategia o la hora habitual de la red). Úsala antes de proponer fechas a create_draft_post. Máximo 31 días; los días pasados se omiten.",
+        "Huecos libres del calendario de contenido: para cada día, las franjas sin publicaciones (horario 08:00–22:00 con 1 h de margen alrededor de cada publicación) y, por cada cuenta activa, cuántas publicaciones lleva planificadas frente a su límite diario anti-baneo (daily_post_limit), cuántas le quedan y una hora sugerida (según la frecuencia de la estrategia o la hora habitual de la red). Además, por día, la agenda PERSONAL del usuario (your_agenda: sus bloques de trabajo, estudio, deporte, creación…), su tiempo libre en su jornada (your_free_time, útil para planificar cuándo crear) y, por cuenta, si la hora sugerida cae dentro de un bloque suyo (suggested_time_during). Úsala antes de proponer fechas a create_draft_post. Máximo 31 días; los días pasados se omiten.",
       inputSchema: z.object({
         from: dayField.optional().describe("Primer día (YYYY-MM-DD). Por defecto, hoy."),
         to: dayField.optional().describe("Último día incluido (YYYY-MM-DD). Por defecto, from + 6 días."),
@@ -345,7 +401,7 @@ export function createKreoMcpServer(ctx: McpContext) {
       const ids = projects.map((p) => p.id);
       let accQ = ctx.db.from("social_accounts").select("id, project_id, platform, handle, status, daily_post_limit").in("project_id", ids).eq("status", "active");
       if (a.account_id) accQ = accQ.eq("id", a.account_id);
-      const [{ data: accounts }, { data: strategies }, { data: posts }] = await Promise.all([
+      const [{ data: accounts }, { data: strategies }, { data: posts }, agenda] = await Promise.all([
         accQ,
         ctx.db.from("strategies").select("project_id, social_account_id, frequency").in("project_id", ids),
         ctx.db
@@ -357,6 +413,7 @@ export function createKreoMcpServer(ctx: McpContext) {
           .gte("scheduled_at", new Date(new Date(r.startUtc).getTime() - 86_400_000).toISOString())
           .lt("scheduled_at", new Date(new Date(r.endUtc).getTime() + 86_400_000).toISOString())
           .limit(1000),
+        agendaDays(ctx, r.from, r.to, r.tz, new Map(projects.map((p) => [p.id, p.name]))),
       ]);
       if (a.account_id && !accounts?.length) return fail("not_found", "Cuenta no encontrada o no activa en tus proyectos.");
       const prefHour = (projectId: string, accountId: string, platform: string) => {
@@ -379,14 +436,238 @@ export function createKreoMcpServer(ctx: McpContext) {
         accounts: (accounts ?? []).map((x) => ({ id: x.id, platform: x.platform, handle: handleOf(x.handle), dailyLimit: x.daily_post_limit, preferredHour: prefHour(x.project_id, x.id, x.platform) })),
         posts: (posts ?? []).filter((p) => p.scheduled_at).map((p) => ({ scheduledAt: p.scheduled_at!, status: p.status, accountIds: (p.post_targets ?? []).map((t) => t.social_account_id) })),
       });
+      // Agenda personal: no cambia las franjas para publicar (Kreo publica solo a su hora), pero avisa si la hora sugerida
+      // cae en un bloque del usuario y da su tiempo libre para crear.
+      const withAgenda = days.map((d) => {
+        if (!agenda) return d;
+        const own = agenda.byDay.get(d.date)!;
+        const busyAt = (time: string | null) => {
+          if (!time) return null;
+          return own.blocks.find((b) => b.start <= time && time < b.end)?.title ?? null;
+        };
+        return {
+          ...d,
+          accounts: d.accounts.map((x) => ({ ...x, suggested_time_during: busyAt(x.suggested_time) })),
+          your_agenda: own.blocks.map((b) => ({ start: b.start, end: b.end, title: b.title, kind: b.kind })),
+          your_free_time: own.free_time,
+          your_free_minutes: own.free_minutes,
+        };
+      });
       return json({
         timezone: r.tz,
-        days,
+        days: withAgenda,
         notes: [
+          agenda
+            ? "your_agenda / your_free_time son del usuario autenticado (privados). free_windows son franjas para publicar y no dependen de su agenda; suggested_time_during indica si la hora sugerida coincide con un bloque suyo."
+            : AGENDA_UNAVAILABLE,
           "planned cuenta publicaciones pendientes de aprobar, aprobadas, programadas o publicadas; los borradores con fecha (drafts) ocupan franja pero no límite.",
           "Kreo vuelve a comprobar el límite diario al aprobar (por día UTC): si se supera, la publicación no se programa. remaining y suggested_time ya tienen en cuenta el día UTC de la hora sugerida.",
           (accounts ?? []).length ? "" : "No hay cuentas activas conectadas: conecta una en Kreo › Cuentas.",
         ].filter(Boolean),
+      });
+    }),
+  );
+
+  // =============================================================================================== MI AGENDA
+  // La agenda es del USUARIO (privada), no del workspace: estas herramientas solo leen y escriben sus propios bloques.
+  server.registerTool(
+    "get_agenda",
+    {
+      title: "Ver mi agenda",
+      description:
+        "Agenda PERSONAL del usuario en Kreo: sus bloques de tiempo por día (trabajo, estudio, deporte, personal, creación de contenido u otro; puntuales o recurrentes) y su tiempo libre dentro de su jornada (por defecto 08:00–23:00; hoy, desde ahora). Es privada: solo devuelve los bloques del usuario autenticado. Por defecto: hoy. Máximo 31 días.",
+      inputSchema: z.object({
+        from: dayField.optional().describe("Primer día (YYYY-MM-DD). Por defecto, hoy."),
+        to: dayField.optional().describe("Último día incluido (YYYY-MM-DD). Por defecto, el mismo que from (un solo día)."),
+        timezone: z.string().max(64).optional().describe("Zona horaria IANA. Por defecto, la de la agenda del usuario."),
+      }),
+      annotations: { readOnlyHint: true, openWorldHint: false },
+    },
+    safe(async (a: { from?: string; to?: string; timezone?: string }) => {
+      const st = await loadAgendaSettings(ctx.db, ctx.userId);
+      if (!st.available) throw new ToolError("not_configured");
+      const r = resolveRange({ ...a, timezone: a.timezone ?? st.settings.timezone }, 31, 1);
+      const projects = await scopeProjects(ctx);
+      const ag = await agendaDays(ctx, r.from, r.to, r.tz, new Map(projects.map((p) => [p.id, p.name])));
+      if (!ag) throw new ToolError("not_configured");
+      return json({
+        timezone: r.tz,
+        working_day: { start: hhmm(ag.settings.startMinute), end: hhmm(ag.settings.endMinute) },
+        days: daysBetween(r.from, r.to).map((day) => ({ date: day, weekday: zonedParts(zonedToUtc(day, 12 * 60, r.tz), r.tz).weekday, ...ag.byDay.get(day)! })),
+        notes: ["Bloques privados del usuario: no los ve nadie más del equipo.", "free_time de hoy empieza en la hora actual; los días pasados no tienen huecos."],
+      });
+    }),
+  );
+
+  // ---------------------------------------------------------------------------------------------
+  server.registerTool(
+    "add_agenda_block",
+    {
+      title: "Añadir bloque a mi agenda",
+      description:
+        "Añade un bloque de tiempo a la agenda PERSONAL del usuario (p. ej. «Trabajo L-V 9:00-17:00», «Gimnasio», «Grabar vídeos»). Puntual o recurrente (repeat_days + repeat_until opcional). Un bloque de creación puede vincularse a un proyecto o tarea. Úsala solo cuando el usuario lo pida. No publica ni envía nada.",
+      inputSchema: z.object({
+        title: z.string().min(1).max(120),
+        kind: z.enum(AGENDA_KINDS).describe("work = trabajo, study = estudio, sport = deporte, personal, creation = creación de contenido, other = otro."),
+        date: dayField.describe("Día (YYYY-MM-DD). En los recurrentes, el primer día."),
+        start: z.string().regex(/^\d{2}:\d{2}$/).describe("Hora de inicio HH:MM (hora local de la agenda)."),
+        end: z.string().regex(/^\d{2}:\d{2}$/).describe("Hora de fin HH:MM (24:00 = medianoche). Posterior al inicio."),
+        repeat_days: z.array(z.enum(WEEKDAYS)).max(7).optional().describe("Días en que se repite cada semana (mon…sun). Vacío o ausente = puntual."),
+        repeat_until: dayField.optional().describe("Último día de la repetición (opcional)."),
+        note: z.string().max(1000).optional(),
+        project_id: z.uuid().optional().describe("Proyecto vinculado (opcional)."),
+        task_id: z.uuid().optional().describe("Tarea del roadmap vinculada (opcional)."),
+      }),
+      annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: false, openWorldHint: false },
+    },
+    safe(
+      async (a: {
+        title: string;
+        kind: (typeof AGENDA_KINDS)[number];
+        date: string;
+        start: string;
+        end: string;
+        repeat_days?: (typeof WEEKDAYS)[number][];
+        repeat_until?: string;
+        note?: string;
+        project_id?: string;
+        task_id?: string;
+      }) => {
+        const st = await loadAgendaSettings(ctx.db, ctx.userId);
+        if (!st.available) throw new ToolError("not_configured");
+        let projectId = a.project_id ?? null;
+        if (a.task_id) {
+          const { data: task } = await ctx.db.from("roadmap_tasks").select("id, project_id").eq("id", a.task_id).maybeSingle();
+          if (!task || (projectId && task.project_id !== projectId)) throw new ToolError("not_found");
+          projectId = task.project_id;
+        }
+        if (projectId) await projectFor(ctx, projectId, "viewer");
+        const parsed = blockInputSchema.safeParse({
+          title: a.title,
+          kind: a.kind,
+          note: a.note ?? "",
+          day: a.date,
+          start: a.start,
+          end: a.end,
+          repeatDays: (a.repeat_days ?? []).map((d) => WEEKDAYS.indexOf(d) + 1),
+          repeatUntil: a.repeat_until ?? null,
+          timezone: st.settings.timezone,
+          projectId,
+          taskId: a.task_id ?? null,
+        });
+        if (!parsed.success) return fail("invalid_input", "Revisa el bloque: fecha YYYY-MM-DD, horas HH:MM con fin posterior al inicio y repeat_until posterior a date.");
+        const row = toBlockRow(parsed.data, st.settings.timezone);
+        const { data, error } = await ctx.db.from("agenda_blocks").insert({ ...row, user_id: ctx.userId, source: "mcp" }).select("id").single();
+        if (error || !data) throw new Error("insert_failed");
+        return json({
+          block_id: data.id,
+          title: row.title,
+          kind: row.kind,
+          date: row.start_day,
+          start: hhmm(row.start_minute),
+          end: hhmm(row.end_minute),
+          repeats_on: row.repeat_days.map((d) => WEEKDAYS[d - 1]),
+          repeat_until: row.repeat_days.length ? row.end_day : null,
+          timezone: row.timezone,
+          notice: "Bloque añadido a la agenda personal del usuario en Kreo (privada). Puede editarlo o borrarlo en Kreo › Mi agenda.",
+        });
+      },
+    ),
+  );
+
+  // ---------------------------------------------------------------------------------------------
+  server.registerTool(
+    "plan_my_time",
+    {
+      title: "Planificar mi tiempo",
+      description:
+        "Propone cuándo hacer las tareas pendientes del roadmap y preparar los borradores próximos de los proyectos, colocándolos como bloques de «creación» en los huecos libres de la agenda personal del usuario (primero lo que vence antes; duración estimada: grabar 60 min, editar 45, escribir 20, otras tareas 45, preparar publicación 30). Por defecto NO guarda nada: devuelve una PROPUESTA para enseñársela al usuario. Solo con confirm: true (cuando el usuario la haya aceptado en el chat) la guarda en su agenda, con los mismos parámetros y sus cambios en overrides. Máximo 14 días.",
+      inputSchema: z.object({
+        from: dayField.optional().describe("Primer día (YYYY-MM-DD). Por defecto, hoy."),
+        to: dayField.optional().describe("Último día incluido. Por defecto, el mismo que from (planificar el día)."),
+        project_id: z.uuid().optional().describe("Solo tareas y borradores de este proyecto."),
+        overrides: z
+          .array(z.object({ item_id: z.string().max(60), minutes: z.number().int().min(5).max(480).optional(), exclude: z.boolean().optional() }))
+          .max(100)
+          .optional()
+          .describe("Cambios del usuario a la propuesta: duración en minutos o excluir un elemento (item_id de la propuesta)."),
+        timezone: z.string().max(64).optional().describe("Zona horaria IANA. Por defecto, la de la agenda del usuario."),
+        confirm: z.boolean().default(false).describe("true SOLO si el usuario ha aceptado explícitamente la propuesta en el chat: entonces se guarda."),
+      }),
+      annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: false, openWorldHint: false },
+    },
+    safe(async (a: { from?: string; to?: string; project_id?: string; overrides?: { item_id: string; minutes?: number; exclude?: boolean }[]; timezone?: string; confirm: boolean }) => {
+      const st = await loadAgendaSettings(ctx.db, ctx.userId);
+      if (!st.available) throw new ToolError("not_configured");
+      const r = resolveRange({ ...a, timezone: a.timezone ?? st.settings.timezone }, 14, 1);
+      const projects = await scopeProjects(ctx, a.project_id);
+      const pname = new Map(projects.map((p) => [p.id, p.name]));
+      const ag = await agendaDays(ctx, r.from, r.to, r.tz, pname);
+      if (!ag) throw new ToolError("not_configured");
+      const known = expandBlocks(ag.blocks, addDays(r.from, -1), addDays(r.to, 1));
+      const in7 = addDays(r.today, 6);
+      const candidates = await loadPlanCandidates(ctx.db, {
+        projectIds: projects.map((p) => p.id),
+        projectNames: pname,
+        nowIso: new Date().toISOString(),
+        horizon: r.to > in7 ? r.to : in7,
+        timezone: r.tz,
+        alreadyPlanned: {
+          taskIds: new Set(known.map((o) => o.taskId).filter((x): x is string => !!x)),
+          postIds: new Set(known.map((o) => o.postId).filter((x): x is string => !!x)),
+        },
+      });
+      const ov = new Map((a.overrides ?? []).map((o) => [o.item_id, o]));
+      const items = candidates.filter((c) => !ov.get(c.id)?.exclude).map((c) => ({ ...c, minutes: ov.get(c.id)?.minutes ?? c.minutes }));
+      const { proposals, unplaced } = planTime({ items, slots: ag.free.flatMap((f) => f.slots), timezone: r.tz });
+      const byId = new Map(items.map((c) => [c.id, c]));
+      const titleOf = (c: (typeof items)[number]) => (c.type === "post" ? `Preparar: ${c.title}` : c.title).slice(0, 120);
+      const out = proposals.map((p) => {
+        const c = byId.get(p.itemId)!;
+        return { item_id: c.id, type: c.type, title: titleOf(c), project: c.projectName, due: c.due, minutes: p.minutes, date: p.day, start: p.startTime, end: p.endTime, after_deadline: p.late };
+      });
+
+      let saved = 0;
+      if (a.confirm && proposals.length) {
+        const rows = proposals.map((p) => {
+          const c = byId.get(p.itemId)!;
+          const m = proposalToMinutes(p, r.tz);
+          return {
+            user_id: ctx.userId,
+            title: titleOf(c),
+            kind: "creation" as const,
+            start_day: p.day,
+            end_day: p.day,
+            start_minute: m.startMinute,
+            end_minute: m.endMinute,
+            repeat_days: [],
+            timezone: r.tz,
+            project_id: c.projectId,
+            task_id: c.taskId ?? null,
+            post_id: c.postId ?? null,
+            source: "mcp" as const,
+          };
+        });
+        const { error } = await ctx.db.from("agenda_blocks").insert(rows);
+        if (error) throw new Error("insert_failed");
+        saved = rows.length;
+      }
+      return json({
+        status: a.confirm ? "saved" : "proposal",
+        saved_blocks: saved,
+        timezone: r.tz,
+        from: r.from,
+        to: r.to,
+        free_minutes: ag.free.reduce((s, f) => s + f.totalMinutes, 0),
+        proposal: out,
+        not_placed: unplaced.map((id) => {
+          const c = byId.get(id)!;
+          return { item_id: id, title: titleOf(c), minutes: c.minutes, reason: "No cabe en los huecos libres del periodo." };
+        }),
+        excluded: candidates.filter((c) => ov.get(c.id)?.exclude).map((c) => c.id),
+        next_step: a.confirm
+          ? "Guardado en la agenda personal del usuario (bloques de creación). Puede moverlos o borrarlos en Kreo › Mi agenda."
+          : "Es solo una propuesta: no se ha guardado nada. Enséñasela al usuario; si la acepta (o pide cambios), vuelve a llamar con los mismos from/to/project_id, sus cambios en overrides y confirm: true.",
       });
     }),
   );

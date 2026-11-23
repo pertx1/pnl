@@ -2,6 +2,11 @@
 
 Una entrada por sesión, lo más reciente arriba. 3-6 líneas: qué se hizo, qué quedó a medias, qué toca después.
 
+## 2026-11-24
+- **Inicio general** (`/app`): Hoy (agenda + salen hoy, por aprobar, fallidas, tareas, con desglose por proyecto), una tarjeta por proyecto (cuentas, seguidores y variación 7 días sin sumar YouTube, próxima publicación, pendientes), semana (agenda + publicaciones) y créditos. La lista de proyectos pasa a `/app/projects`.
+- **Mi agenda** (`/app/agenda`): bloques personales puntuales o recurrentes, vista día/semana, huecos libres, «Planificar mi día/semana» (propuesta que se acepta). MCP: `get_agenda`, `add_agenda_block`, `plan_my_time`; `get_calendar` y `get_free_slots` incluyen la agenda.
+- Migración `20261124130000_agenda.sql` escrita **sin aplicar**: hasta aplicarla, la agenda se ve en solo lectura con un aviso.
+
 ## 2026-11-23
 - Panel del proyecto rediseñado: primeros pasos, «Hoy» con cifras clicables, tarjetas por cuenta (seguidores, variación, sparkline), semana, rendimiento 30 días y créditos. Logos oficiales de las redes. Estadísticas al conectar/abrir Analíticas.
 - **Inngest conectado** (PUT a `/api/inngest` → «Successfully registered»; primera llamada POST de Inngest comprobada). La publicación programada ya puede funcionar.

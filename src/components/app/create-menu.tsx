@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useTranslations } from "next-intl";
-import { FilePlus2, FolderPlus, Plus, Sparkles } from "lucide-react";
+import { CalendarClock, FilePlus2, FolderPlus, Plus, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -82,6 +82,12 @@ export function CreateMenu({ projects, currentProject }: { projects: Project[]; 
         {!currentProject && projects.length === 0 && (
           <p className="px-1.5 py-1 text-xs text-muted-foreground">{t("noProjectsYet")}</p>
         )}
+        <DropdownMenuItem asChild>
+          <Link href={createHrefs.agendaBlock}>
+            <CalendarClock strokeWidth={1.5} aria-hidden />
+            {t("newAgendaBlock")}
+          </Link>
+        </DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem asChild>
           <Link href={createHrefs.newProject}>
