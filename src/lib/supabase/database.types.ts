@@ -1,3 +1,4 @@
+import type { AgendaBlockKindT, AgendaTables } from "./types/agenda";
 import type { CommerceFunctions, CommerceTables } from "./types/commerce";
 import type { InboxFunctions, InboxTables } from "./types/inbox";
 import type { McpOAuthFunctions, McpOAuthTables } from "./types/mcp-oauth";
@@ -140,7 +141,7 @@ export type Database = {
           { foreignKeyName: "workspaces_plan_id_fkey"; columns: ["plan_id"]; isOneToOne: false; referencedRelation: "plans"; referencedColumns: ["id"] },
         ];
       };
-    } & ResearchTables & StrategyTables & InboxTables & TeamTables & CommerceTables & McpOAuthTables & TemplatesTables & NotificationsTables;
+    } & ResearchTables & StrategyTables & InboxTables & TeamTables & CommerceTables & McpOAuthTables & TemplatesTables & NotificationsTables & AgendaTables;
     Views: { [_ in never]: never };
     Functions: {
       consume_credits: {
@@ -179,7 +180,7 @@ export type Database = {
       waitlist_unsubscribe: { Args: { p_token: string }; Returns: boolean };
       waitlist_status: { Args: { p_code: string }; Returns: { rank_position: number; total: number; referrals: number }[] };
     } & ResearchFunctions & StrategyFunctions & InboxFunctions & TeamFunctions & CommerceFunctions & McpOAuthFunctions & TemplatesFunctions & NotificationsFunctions;
-    Enums: { workspace_role: WorkspaceRole; social_platform: SocialPlatform; connection_status: ConnectionStatus; post_status: PostStatus };
+    Enums: { workspace_role: WorkspaceRole; social_platform: SocialPlatform; connection_status: ConnectionStatus; post_status: PostStatus; agenda_block_kind: AgendaBlockKindT };
     CompositeTypes: { [_ in never]: never };
   };
 };

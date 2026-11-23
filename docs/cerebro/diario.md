@@ -11,6 +11,10 @@ Una entrada por sesión, lo más reciente arriba. 3-6 líneas: qué se hizo, qu�
 - **Clipper v2** (sin fusionar): viralidad 0-100 desglosada (gancho, ritmo, valor, tendencia), formatos 9:16/1:1/16:9 con recorte centrado o encajado y vista previa del encuadre, 5 plantillas de subtítulos con vista previa, editar inicio/fin con la transcripción y volver a renderizar, descarga MP4 y ZIP del lote (sin marca de agua, con test), «Programar clips» en huecos libres con textos por red y `.srt` guardado por clip.
 - Arreglado: doble clic en «Generar» ya no cobra dos veces (reclamo atómico antes del cobro); el ajuste de un momento fallido no se podía guardar.
 - Migración `20261124100000_clipper_v2.sql` pendiente de aplicar. Seguimiento: reencuadre que sigue a la persona y título-gancho (decisiones de Oier).
+## 2026-11-24
+- **Inicio general** (`/app`): Hoy (agenda + salen hoy, por aprobar, fallidas, tareas, con desglose por proyecto), una tarjeta por proyecto (cuentas, seguidores y variación 7 días sin sumar YouTube, próxima publicación, pendientes), semana (agenda + publicaciones) y créditos. La lista de proyectos pasa a `/app/projects`.
+- **Mi agenda** (`/app/agenda`): bloques personales puntuales o recurrentes, vista día/semana, huecos libres, «Planificar mi día/semana» (propuesta que se acepta). MCP: `get_agenda`, `add_agenda_block`, `plan_my_time`; `get_calendar` y `get_free_slots` incluyen la agenda.
+- Migración `20261124130000_agenda.sql` escrita **sin aplicar**: hasta aplicarla, la agenda se ve en solo lectura con un aviso.
 
 ## 2026-11-23
 - Instagram: opción «reel de prueba» en el editor (`trial_params`, MANUAL o SS_PERFORMANCE). Sin probar en real.

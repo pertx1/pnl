@@ -8,7 +8,7 @@ export async function GET() {
   if (!auth.user) return NextResponse.json({ error: "unauthorized" }, { status: 401 });
   const uid = auth.user.id;
 
-  const [profile, memberships, workspaces, projects, brandKits, ledger, socialAccounts, posts, postTargets, aiGenerations, assets, connectedApps, apiKeys, notifications, notificationPrefs] = await Promise.all([
+  const [profile, memberships, workspaces, projects, brandKits, ledger, socialAccounts, posts, postTargets, aiGenerations, assets, connectedApps, apiKeys, notifications, notificationPrefs, agendaBlocks, agendaSettings] = await Promise.all([
     supabase.from("profiles").select("*").eq("id", uid).maybeSingle(),
     supabase.from("workspace_members").select("workspace_id, role, created_at").eq("user_id", uid),
     supabase.from("workspaces").select("id, name, plan_id, created_at"),
@@ -27,6 +27,9 @@ export async function GET() {
     // Centro de avisos (los suyos) y preferencias.
     supabase.from("notifications").select("id, workspace_id, project_id, type, title, body, link, read_at, created_at").eq("user_id", uid),
     supabase.from("notification_preferences").select("disabled_types, updated_at").eq("user_id", uid).maybeSingle(),
+    // Mi agenda (bloques de tiempo personales y jornada): privada, solo del usuario.
+    supabase.from("agenda_blocks").select("*").eq("user_id", uid),
+    supabase.from("agenda_settings").select("*").eq("user_id", uid).maybeSingle(),
   ]);
 
   const body = {
@@ -53,6 +56,8 @@ export async function GET() {
     mcp_api_keys: apiKeys.data ?? [],
     notifications: notifications.data ?? [],
     notification_preferences: notificationPrefs.data,
+    agenda_blocks: agendaBlocks.data ?? [],
+    agenda_settings: agendaSettings.data ?? null,
   };
 
   return new NextResponse(JSON.stringify(body, null, 2), {

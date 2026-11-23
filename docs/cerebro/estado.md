@@ -33,6 +33,7 @@ Variables de entorno: lista completa en `.env.example`; estado de cada una en Ve
 - Diseño v2, móvil con barra inferior, ordenador con ancho unificado, accesibilidad (HIG).
 
 ## Hecho pero SIN comprobar en real
+- **Inicio general** (`/app`) y **Mi agenda** (`/app/agenda`, + herramientas MCP de agenda): migración `20261124130000_agenda.sql` pendiente de aplicar.
 - **Conector de Claude (MCP + OAuth)**: `https://kreo-nine.vercel.app/api/mcp`; pendiente de que Oier lo añada en claude.ai.
 - **Publicación programada**: Inngest ya llama a la app (cada minuto) desde el 2026-11-23; falta la primera publicación real.
 - **Centro de avisos, mejores horas, resumen semanal y subtítulos de YouTube** (2026-11-24, rama del agente): migración

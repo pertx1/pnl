@@ -5,10 +5,12 @@ import { usePathname } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { useState, useTransition } from "react";
 import {
+  CalendarClock,
   CalendarDays,
   Coins,
   FolderKanban,
   HandCoins,
+  House,
   Inbox,
   LayoutDashboard,
   LogOut,
@@ -104,10 +106,10 @@ export function AppSidebar({ workspace, workspaces, projects, credits, monthlyCr
           { key: "inbox", href: `${base}/inbox`, icon: Inbox, label: t("inbox"), active: pathname.startsWith(`${base}/inbox`) },
         ]
       : [
-          { key: "projects", href: "/app", icon: FolderKanban, label: t("projects"), active: pathname === "/app" },
+          { key: "home", href: "/app", icon: House, label: t("home"), active: pathname === "/app" },
+          { key: "agenda", href: "/app/agenda", icon: CalendarClock, label: t("agenda"), active: pathname.startsWith("/app/agenda") },
           { key: "calendar", href: "/app/calendar", icon: CalendarDays, label: t("calendar"), active: pathname === "/app/calendar" },
-          { key: "team", href: "/app/team", icon: Users, label: t("team"), active: pathname.startsWith("/app/team") },
-          { key: "settings", href: "/app/settings", icon: Settings, label: t("settings"), active: pathname.startsWith("/app/settings") },
+          { key: "projects", href: "/app/projects", icon: FolderKanban, label: t("projects"), active: pathname === "/app/projects" },
         ]
   ) satisfies { key: string; href: string; icon: typeof LayoutDashboard; label: string; active: boolean }[];
   const moreActive = !tabs.some((tab) => tab.active);
@@ -166,7 +168,9 @@ export function AppSidebar({ workspace, workspaces, projects, credits, monthlyCr
       </div>
 
       <nav className="space-y-0.5" aria-label={t("projects")}>
-        <NavItem href="/app" icon={FolderKanban} label={t("projects")} active={pathname === "/app"} />
+        <NavItem href="/app" icon={House} label={t("home")} active={pathname === "/app"} />
+        <NavItem href="/app/agenda" icon={CalendarClock} label={t("agenda")} active={pathname.startsWith("/app/agenda")} />
+        <NavItem href="/app/projects" icon={FolderKanban} label={t("projects")} active={pathname === "/app/projects"} />
         <NavItem href="/app/calendar" icon={CalendarDays} label={t("globalCalendar")} active={pathname === "/app/calendar"} />
       </nav>
 

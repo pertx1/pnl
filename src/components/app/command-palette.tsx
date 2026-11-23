@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { useCallback, useEffect, useId, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import { Dialog as DialogPrimitive } from "radix-ui";
-import { CornerDownLeft, FilePlus2, FolderKanban, FolderPlus, LayoutDashboard, LayoutTemplate, Search, Sparkles } from "lucide-react";
+import { CalendarClock, CornerDownLeft, FilePlus2, FolderKanban, FolderPlus, LayoutDashboard, LayoutTemplate, Search, Sparkles } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { GLOBAL_NAV, PROJECT_NAV, createHrefs, matchesQuery, type NavIcon } from "./nav-config";
 
@@ -82,6 +82,7 @@ export function CommandPalette({
         );
       }
     }
+    list.push({ id: "c-agenda", group: gCreate, label: t("newAgendaBlock"), keywords: t("agenda"), href: createHrefs.agendaBlock, icon: CalendarClock });
     list.push({ id: "c-project", group: gCreate, label: t("newProject"), href: createHrefs.newProject, icon: FolderPlus });
 
     if (currentProject) {

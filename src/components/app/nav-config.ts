@@ -1,5 +1,7 @@
 import {
   BarChart3,
+  CalendarClock,
+  House,
   CalendarDays,
   FileBarChart,
   Flame,
@@ -65,7 +67,9 @@ export const PROJECT_NAV: { label: string; items: { path: string; icon: NavIcon;
 
 /** Secciones fuera de un proyecto (las de la cuenta / workspace). `label` es una clave de `nav`. */
 export const GLOBAL_NAV: { href: string; icon: NavIcon; label: string }[] = [
-  { href: "/app", icon: FolderKanban, label: "projects" },
+  { href: "/app", icon: House, label: "home" },
+  { href: "/app/agenda", icon: CalendarClock, label: "agenda" },
+  { href: "/app/projects", icon: FolderKanban, label: "projects" },
   { href: "/app/calendar", icon: CalendarDays, label: "globalCalendar" },
   { href: "/app/team", icon: Users, label: "team" },
   { href: "/app/affiliates", icon: HandCoins, label: "affiliates" },
@@ -79,6 +83,7 @@ export const createHrefs = {
   generate: (projectId: string) => `/app/p/${projectId}/studio`,
   fromTemplate: (projectId: string) => `/app/p/${projectId}/templates`,
   newProject: "/app/projects/new",
+  agendaBlock: "/app/agenda?new=1",
 };
 
 /** Normaliza para buscar: minúsculas y sin acentos ("Análisis" → "analisis"). */

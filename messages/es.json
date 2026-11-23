@@ -104,6 +104,9 @@
     "noProjectsYet": "Crea un proyecto para empezar a publicar.",
     "search": "Buscar",
     "planCredits": "Plan y créditos",
+    "home": "Inicio",
+    "agenda": "Mi agenda",
+    "newAgendaBlock": "Bloque en mi agenda",
     "palette": {
       "title": "Buscar sección o acción",
       "description": "Escribe para filtrar. Usa las flechas para moverte, Enter para abrir y Escape para cerrar.",

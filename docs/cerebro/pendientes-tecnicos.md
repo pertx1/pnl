@@ -47,3 +47,5 @@ Por prioridad. Claude: tacha `[x]` al terminar y anota el commit.
   - [ ] Variable `MCP_OAUTH_RATE_SALT` propia en Vercel.
   - [x] Limpieza diaria de tokens/códigos caducados en `data-retention` (necesita Inngest).
 - [ ] Gmail en un proyecto de Google Cloud aparte (para no atar la verificación de YouTube a CASA).
+- [ ] Aplicar la migración `20261124130000_agenda.sql` en producción y probar Mi agenda + `plan_my_time` con datos reales.
+- [ ] Revisión `seguridad-legal` de Mi agenda (datos personales nuevos: horarios del usuario) y nota en `docs/compliance.md`.
