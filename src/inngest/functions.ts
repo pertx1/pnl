@@ -73,10 +73,13 @@ export const dispatchDuePosts = inngest.createFunction(
       return data?.length ?? 0;
     });
     if (due.length) {
-      // id del evento = id del destino → Inngest descarta duplicados (no se publica dos veces).
+      // id del evento = destino + ventana de 10 min: Inngest descarta duplicados dentro de la ventana, pero un destino que
+      // vuelve a estar pendiente (p. ej. reprogramado o saltado) puede despacharse otra vez. Publicar dos veces lo impide
+      // el "claim" atómico (scheduled → publishing) de publish-target.
+      const bucket = Math.floor(Date.now() / 600_000);
       await step.sendEvent(
         "publish",
-        due.map((d) => ({ id: `publish-${d.id}`, name: "post/target.publish", data: { postTargetId: d.id, socialAccountId: d.accountId } })),
+        due.map((d) => ({ id: `publish-${d.id}-${bucket}`, name: "post/target.publish", data: { postTargetId: d.id, socialAccountId: d.accountId } })),
       );
     }
     return { dispatched: due.length };
