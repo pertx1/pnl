@@ -204,10 +204,18 @@ export const publishTarget = inngest.createFunction(
 // 3) Cada 6 h: refrescar estadísticas de las cuentas propias (datos autorizados por el usuario).
 // -----------------------------------------------------------------------------------------------
 export const refreshMetrics = inngest.createFunction(
-  { id: "refresh-account-metrics", triggers: [{ cron: "TZ=Europe/Madrid 7 */6 * * *" }], concurrency: 1 },
-  async ({ step }) => {
+  {
+    id: "refresh-account-metrics",
+    // Cada 6 h para todas; y al momento (evento) para un proyecto: al conectar una cuenta o al abrir Analíticas sin datos.
+    triggers: [{ cron: "TZ=Europe/Madrid 7 */6 * * *" }, { event: "social/metrics.refresh" }],
+    concurrency: 1,
+  },
+  async ({ step, event }) => {
+    const projectId = (event?.data as { projectId?: string } | undefined)?.projectId;
     const accounts = await step.run("list", async () => {
-      const { data } = await admin().from("social_accounts").select("id, workspace_id, platform, external_id, metadata").eq("status", "active").limit(1000);
+      let q = admin().from("social_accounts").select("id, workspace_id, platform, external_id, metadata").eq("status", "active");
+      if (projectId) q = q.eq("project_id", projectId);
+      const { data } = await q.limit(1000);
       return data ?? [];
     });
     let ok = 0;
@@ -223,8 +231,11 @@ export const refreshMetrics = inngest.createFunction(
             .upsert({ social_account_id: a.id, workspace_id: a.workspace_id, day, followers: s.followers ?? null, views: s.views ?? null, likes: s.likes ?? null, posts_count: s.posts ?? null });
           await admin().from("social_accounts").update({ last_synced_at: new Date().toISOString() }).eq("id", a.id);
           return true;
-        } catch {
-          return false; // una cuenta caída no bloquea a las demás
+        } catch (e) {
+          // Una cuenta caída no bloquea a las demás. Solo se registra el tipo de error (sin tokens ni datos personales).
+          const err = e as { code?: string; status?: number; message?: string };
+          console.error("[metrics] fallo al leer estadísticas", { platform: a.platform, code: err.code ?? null, status: err.status ?? null, msg: (err.message ?? "").slice(0, 120) });
+          return false;
         }
       });
       if (done) ok++;

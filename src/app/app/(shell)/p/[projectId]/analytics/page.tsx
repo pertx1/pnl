@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { getProject } from "@/lib/server/dal";
 import { createClient } from "@/lib/supabase/server";
+import { requestMetricsIfStale } from "@/lib/analytics/refresh";
 
 export async function generateMetadata() {
   const t = await getTranslations("analytics");
@@ -52,6 +53,9 @@ export default async function AnalyticsPage({ params }: { params: Promise<{ proj
       .eq("status", "published")
       .gte("published_at", mid),
   ]);
+
+  // Cuentas sin estadísticas o con más de 6 h: se piden al momento.
+  await requestMetricsIfStale(projectId, accounts ?? []);
 
   // Sumas por día de las cuentas del proyecto. YouTube queda FUERA de totales y comparativas: sus Developer
   // Policies (III.E.2 y III.E.4.h) prohíben combinar sus datos con otros y crear métricas derivadas.

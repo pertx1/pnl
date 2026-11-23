@@ -5,6 +5,7 @@ import { readState, stateCookie } from "@/lib/social/oauth-state";
 import { saveTokens } from "@/lib/social/token-store";
 import { PlatformError } from "@/lib/social/types";
 import { createClient } from "@/lib/supabase/server";
+import { inngest } from "@/inngest/client";
 
 /** Vuelta del OAuth: valida el estado (anti-CSRF), obtiene tokens, guarda la cuenta y los tokens cifrados. */
 export async function GET(request: NextRequest, { params }: { params: Promise<{ platform: string }> }) {
@@ -59,6 +60,8 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
       await saveTokens(accountId, p.tokens ?? tokens);
       connected++;
     }
+    // Primeras estadísticas al momento (sin esperar al ciclo de 6 h).
+    if (connected) await inngest.send({ name: "social/metrics.refresh", data: { projectId: saved.projectId } }).catch(() => undefined);
     return finish(`connected=${connected}${missing.length ? "&missing=1" : ""}`);
   } catch (e) {
     const code = e instanceof PlatformError ? e.code : "unknown";
