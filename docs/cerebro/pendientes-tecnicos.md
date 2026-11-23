@@ -22,7 +22,9 @@ Por prioridad. Claude: tacha `[x]` al terminar y anota el commit.
 ## Usabilidad (sugerencias de la revisión del 2026-11-23)
 - [ ] Barra lateral móvil cerrada: añadir `inert` para que no se pueda llegar con Tab.
 - [ ] Calendario: pestañas Mes/Semana/Lista como botones con `aria-pressed`; revisar el aviso de reprogramar (mismo texto en las dos ramas).
-- [ ] Panel: que las cifras sean enlaces (p. ej. «Por aprobar» → lista filtrada).
+- [x] Panel: cifras como enlaces (calendario con `?status=`) — 2026-11-23.
+- [ ] Revisión seguridad-legal: ¿variación 7/30 d dentro de la tarjeta de YouTube está permitida? (hoy oculta por prudencia).
+- [ ] Comprobar el panel con datos reales cuando haya métricas de Akerra.
 - [ ] Estudio: botón «Usar en una publicación» en cada pieza generada.
 - [ ] Traducir el «Workspace» del selector y el «Close» del diálogo de shadcn.
 

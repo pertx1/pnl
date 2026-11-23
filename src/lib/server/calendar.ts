@@ -31,3 +31,33 @@ export async function getCalendarPosts(filter: { projectId?: string; workspaceId
     platforms: (p.post_targets ?? []).map((t) => t.social_accounts?.platform).filter(Boolean) as string[],
   }));
 }
+
+/** Estados por los que se puede filtrar la lista del calendario (enlaces del panel del proyecto). */
+export const FILTERABLE_STATUSES = ["pending_approval", "draft", "failed"] as const;
+export type FilterableStatus = (typeof FILTERABLE_STATUSES)[number];
+export function isFilterableStatus(s: string | undefined): s is FilterableStatus {
+  return !!s && (FILTERABLE_STATUSES as readonly string[]).includes(s);
+}
+
+/** Publicaciones de un proyecto con un estado, sin límite de fechas (las más recientes primero si no tienen fecha). */
+export async function getPostsByStatus(projectId: string, status: FilterableStatus): Promise<CalendarPost[]> {
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("posts")
+    .select("id, project_id, title, caption, status, scheduled_at, ai_generated, post_targets(social_accounts(platform))")
+    .eq("project_id", projectId)
+    .eq("status", status)
+    .order("scheduled_at", { ascending: true, nullsFirst: false })
+    .order("updated_at", { ascending: false })
+    .limit(200);
+  return (data ?? []).map((p) => ({
+    id: p.id,
+    projectId: p.project_id,
+    title: p.title,
+    caption: p.caption,
+    status: p.status,
+    scheduledAt: p.scheduled_at,
+    aiGenerated: p.ai_generated,
+    platforms: [...new Set((p.post_targets ?? []).map((t) => t.social_accounts?.platform).filter(Boolean) as string[])],
+  }));
+}
