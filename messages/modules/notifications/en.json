@@ -32,17 +32,51 @@
       }
     },
     "tpl": {
-      "post_published": { "title": "Published on {platform}", "body": "{post} · {account}" },
-      "post_published_warn": { "title": "Published on {platform} (with warnings)", "body": "{post} · {account}. An optional step was not completed: {warnings}." },
-      "post_failed": { "title": "Could not publish on {platform}", "body": "{reason} · {post}" },
-      "account_issue": { "title": "Reconnect {platform}", "body": "The connection with {account} has expired or has an error. Go to Accounts and reconnect it to keep publishing." },
-      "inbox_issue": { "title": "Inbox: reconnect {channel}", "body": "The inbox connection with {channel} has expired. Reconnect it in the Inbox." },
-      "youtube_consent_expiring": { "title": "YouTube permission expires soon", "body": "While Google keeps Kreo \"In testing\", the permission lasts 7 days. The one for {account} expires on {date}: disconnect and reconnect it in Accounts before then." },
-      "ai_done": { "title": "Your {kind} is ready", "body": "It's already in the Studio library." },
-      "ai_failed": { "title": "The AI generation failed", "body": "Your {kind} could not be created. {credits} credits have been refunded." },
-      "weekly_summary": { "title": "Weekly summary · {project}", "body": "{published} published · {failed} failed · {scheduled} scheduled this week · {overdue} overdue tasks" }
+      "post_published": {
+        "title": "Published on {platform}",
+        "body": "{post} · {account}"
+      },
+      "post_published_warn": {
+        "title": "Published on {platform} (with warnings)",
+        "body": "{post} · {account}. An optional step was not completed: {warnings}."
+      },
+      "post_failed": {
+        "title": "Could not publish on {platform}",
+        "body": "{reason} · {post}"
+      },
+      "account_issue": {
+        "title": "Reconnect {platform}",
+        "body": "The connection with {account} has expired or has an error. Go to Accounts and reconnect it to keep publishing."
+      },
+      "inbox_issue": {
+        "title": "Inbox: reconnect {channel}",
+        "body": "The inbox connection with {channel} has expired. Reconnect it in the Inbox."
+      },
+      "youtube_consent_expiring": {
+        "title": "YouTube permission expires soon",
+        "body": "While Google keeps Kreo \"In testing\", the permission lasts 7 days. The one for {account} expires on {date}: disconnect and reconnect it in Accounts before then."
+      },
+      "ai_done": {
+        "title": "Your {kind} is ready",
+        "body": "It's already in the Studio library."
+      },
+      "ai_failed": {
+        "title": "The AI generation failed",
+        "body": "Your {kind} could not be created. {credits} credits have been refunded."
+      },
+      "weekly_summary": {
+        "title": "Weekly summary · {project}",
+        "body": "{published} published · {failed} failed · {scheduled} scheduled this week · {overdue} overdue tasks"
+      }
     },
-    "kinds": { "image": "image", "video": "video", "audio": "audio", "music": "music", "text": "text", "other": "content" },
+    "kinds": {
+      "image": "image",
+      "video": "video",
+      "audio": "audio",
+      "music": "music",
+      "text": "text",
+      "other": "content"
+    },
     "warnings": {
       "thumbnail": "thumbnail",
       "playlist": "playlist",
@@ -64,7 +98,8 @@
       "upload_failed": "The file could not be uploaded to the network.",
       "upload_init_failed": "The network refused to start the upload. Check the account permissions.",
       "quota": "The network's daily API quota is used up. It can be retried tomorrow.",
-      "unknown": "The network rejected the post. Check the file and the account permissions."
+      "unknown": "The network rejected the post. Check the file and the account permissions.",
+      "tiktok_private_account": "TikTok: until the app is audited, posting only works if your TikTok ACCOUNT is private (a «Only me» video is not enough). Make the account private or upload it from the TikTok app."
     },
     "weekly": {
       "pageTitle": "Weekly summary",

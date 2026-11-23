@@ -40,6 +40,7 @@ export function failureReason(code: string | null | undefined, locale: NotifyLoc
   const c = (code ?? "").toLowerCase().replace(/^(tiktok|instagram|youtube):/, "");
   if (!c) return r.unknown;
   if (Object.hasOwn(r, c)) return r[c as keyof typeof r];
+  if (c.includes("private_accounts") && Object.hasOwn(r, "tiktok_private_account")) return r["tiktok_private_account" as keyof typeof r];
   if (c.includes("quota")) return r.quota;
   if (c.includes("token") || c.includes("auth") || c.includes("scope")) return r.token_expired;
   if (c.includes("rate") || c.includes("spam") || c.includes("frequency")) return r.rate_limited;

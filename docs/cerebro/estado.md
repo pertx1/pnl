@@ -30,6 +30,7 @@ Variables de entorno: lista completa en `.env.example`; estado de cada una en Ve
 - Estudio de IA: imágenes (FLUX 2 Flash comprobado en producción), con cobro de créditos y reembolso automático.
 - Cuentas conectadas: **Instagram**, **TikTok** (sandbox) y **YouTube** (canal Akerra).
 - Editor de publicaciones con reglas por red, aprobación y calendario; YouTube con miniatura, etiquetas, categoría y listas.
+- **Publicación programada** a varias redes (Instagram y YouTube comprobados el 2026-11-23, tras arreglar que solo salía la primera red).
 - **Subida directa a YouTube** de vídeos grandes (265 MB probado, programado con `publishAt`).
 - Diseño v2, móvil con barra inferior, ordenador con ancho unificado, accesibilidad (HIG).
 
@@ -37,14 +38,13 @@ Variables de entorno: lista completa en `.env.example`; estado de cada una en Ve
 (Todas las migraciones hasta `20261124150000_security_fixes.sql` están aplicadas en producción.)
 - **Inicio general** (`/app`) y **Mi agenda** (`/app/agenda`, + herramientas MCP de agenda).
 - **Conector de Claude (MCP + OAuth)**: conectado por Oier; herramientas nuevas (opciones por red, `update_draft_post`, subir archivos ≤ 50 MB) solo en conversaciones nuevas.
-- **Publicación programada**: Inngest llama a la app cada minuto; falta la primera publicación real.
 - **Centro de avisos, mejores horas, resumen semanal y subtítulos de YouTube**.
 - **Clipper v2** (viralidad, formatos, 5 plantillas de subtítulos, editar, ZIP sin marca de agua, «Programar clips»).
 - **Plantillas, series y textos guardados**; **reel de prueba** de Instagram.
 - Bandeja (DMs de Instagram, Gmail, Outlook), audio (ElevenLabs), informes PDF, Shopify, equipo, planes, afiliados.
 
 ## Límites actuales
-- TikTok publica en **privado** hasta pasar su auditoría.
+- TikTok sin auditar: solo publica si la **cuenta de TikTok es privada** (error `unaudited_client_can_only_post_to_private_accounts`, comprobado el 2026-11-23); no basta con el vídeo en «Solo yo».
 - YouTube ya publica en **público** (cambio de YouTube del 2026-11-02); el token caduca cada 7 días mientras Google esté «En prueba».
 - Instagram/Meta en modo desarrollo: funciona para las cuentas con rol en la app (la de Oier).
 - Revisiones de apps bloqueadas por: dominio propio, textos legales sin rellenar ni revisar, y (Meta/Microsoft) empresa registrada. Detalle en `docs/app-review/README.md`.

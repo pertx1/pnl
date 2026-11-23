@@ -8,7 +8,7 @@ Lo que solo puedes hacer tú (consolas, pagos, decisiones). En orden. Tacha con 
   URL `https://kreo-nine.vercel.app/api/mcp` → Conectar → iniciar sesión en Kreo → elegir workspace → Permitir.
 - [x] ~~Conectar Inngest~~ — hecho por Claude el 2026-11-23 (sincronizado con un PUT a `/api/inngest`).
 - [ ] **Reconectar YouTube** (Cuentas → desconectar y conectar) para dar el permiso de listas de reproducción.
-- [ ] **Probar una publicación real**: programar una en Instagram para dentro de 5 min y avisar a Claude.
+- [x] Publicación real probada (Instagram + YouTube, 2026-11-23). TikTok: hay que poner la cuenta en privado mientras no esté auditada.
 - [ ] **Conectar Gmail u Outlook** en la Bandeja (opcional).
 
 ## Limpieza de consolas (5 min)

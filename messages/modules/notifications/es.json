@@ -32,17 +32,51 @@
       }
     },
     "tpl": {
-      "post_published": { "title": "Publicado en {platform}", "body": "{post} · {account}" },
-      "post_published_warn": { "title": "Publicado en {platform} (con avisos)", "body": "{post} · {account}. Algún paso opcional no se completó: {warnings}." },
-      "post_failed": { "title": "No se pudo publicar en {platform}", "body": "{reason} · {post}" },
-      "account_issue": { "title": "Reconecta {platform}", "body": "La conexión con {account} ha caducado o tiene un error. Ve a Cuentas y vuelve a conectarla para seguir publicando." },
-      "inbox_issue": { "title": "Bandeja: reconecta {channel}", "body": "La conexión de la bandeja con {channel} ha caducado. Vuelve a conectarla en la Bandeja." },
-      "youtube_consent_expiring": { "title": "El permiso de YouTube caduca pronto", "body": "Mientras Google tenga Kreo «En prueba», el permiso dura 7 días. El de {account} caduca el {date}: desconéctala y vuelve a conectarla en Cuentas antes de esa fecha." },
-      "ai_done": { "title": "Tu {kind} está listo", "body": "Ya está en la biblioteca del Estudio." },
-      "ai_failed": { "title": "La generación de IA ha fallado", "body": "No se ha podido crear tu {kind}. Se han devuelto {credits} créditos." },
-      "weekly_summary": { "title": "Resumen semanal · {project}", "body": "{published} publicadas · {failed} fallidas · {scheduled} programadas para esta semana · {overdue} tareas vencidas" }
+      "post_published": {
+        "title": "Publicado en {platform}",
+        "body": "{post} · {account}"
+      },
+      "post_published_warn": {
+        "title": "Publicado en {platform} (con avisos)",
+        "body": "{post} · {account}. Algún paso opcional no se completó: {warnings}."
+      },
+      "post_failed": {
+        "title": "No se pudo publicar en {platform}",
+        "body": "{reason} · {post}"
+      },
+      "account_issue": {
+        "title": "Reconecta {platform}",
+        "body": "La conexión con {account} ha caducado o tiene un error. Ve a Cuentas y vuelve a conectarla para seguir publicando."
+      },
+      "inbox_issue": {
+        "title": "Bandeja: reconecta {channel}",
+        "body": "La conexión de la bandeja con {channel} ha caducado. Vuelve a conectarla en la Bandeja."
+      },
+      "youtube_consent_expiring": {
+        "title": "El permiso de YouTube caduca pronto",
+        "body": "Mientras Google tenga Kreo «En prueba», el permiso dura 7 días. El de {account} caduca el {date}: desconéctala y vuelve a conectarla en Cuentas antes de esa fecha."
+      },
+      "ai_done": {
+        "title": "Tu {kind} está listo",
+        "body": "Ya está en la biblioteca del Estudio."
+      },
+      "ai_failed": {
+        "title": "La generación de IA ha fallado",
+        "body": "No se ha podido crear tu {kind}. Se han devuelto {credits} créditos."
+      },
+      "weekly_summary": {
+        "title": "Resumen semanal · {project}",
+        "body": "{published} publicadas · {failed} fallidas · {scheduled} programadas para esta semana · {overdue} tareas vencidas"
+      }
     },
-    "kinds": { "image": "imagen", "video": "vídeo", "audio": "audio", "music": "música", "text": "texto", "other": "contenido" },
+    "kinds": {
+      "image": "imagen",
+      "video": "vídeo",
+      "audio": "audio",
+      "music": "música",
+      "text": "texto",
+      "other": "contenido"
+    },
     "warnings": {
       "thumbnail": "miniatura",
       "playlist": "lista de reproducción",
@@ -64,7 +98,8 @@
       "upload_failed": "No se pudo subir el archivo a la red.",
       "upload_init_failed": "La red rechazó iniciar la subida. Revisa los permisos de la cuenta.",
       "quota": "Se ha agotado la cuota diaria de la API de la red. Se podrá reintentar mañana.",
-      "unknown": "La red rechazó la publicación. Revisa el archivo y los permisos de la cuenta."
+      "unknown": "La red rechazó la publicación. Revisa el archivo y los permisos de la cuenta.",
+      "tiktok_private_account": "TikTok: mientras la app no esté auditada, solo se puede publicar si tu CUENTA de TikTok es privada (no basta con el vídeo en «Solo yo»). Pon la cuenta en privado o súbelo desde la app de TikTok."
     },
     "weekly": {
       "pageTitle": "Resumen semanal",
