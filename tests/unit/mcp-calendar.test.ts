@@ -71,3 +71,31 @@ describe("huecos libres", () => {
     expect(["18:00", "20:00"]).toContain(d.accounts[0].suggested_time);
   });
 });
+
+describe("huecos libres ordenados por mejores horas", () => {
+  const now = new Date("2026-11-23T07:00:00Z"); // lunes 08:00 en Madrid
+  const acc = { id: "a1", platform: "instagram", handle: "@kreo", dailyLimit: 2, preferredHour: 19 };
+  // Rejilla 7×24: el martes (índice 1) puntúa más a las 10:00, luego a las 15:00.
+  const grid = Array.from({ length: 7 }, () => Array.from({ length: 24 }, () => 10));
+  grid[1][10] = 100;
+  grid[1][15] = 80;
+
+  it("sin puntuación se comporta igual que antes (sin ranked_times)", () => {
+    const [d] = computeFreeSlots({ days: ["2026-11-24"], tz: "Europe/Madrid", now, accounts: [acc], posts: [] });
+    expect(d.accounts[0].suggested_time).toBe("19:00");
+    expect(d.accounts[0].ranked_times).toBeUndefined();
+  });
+
+  it("con puntuación sugiere la hora libre con mejor puntuación y ordena las alternativas", () => {
+    const [d] = computeFreeSlots({ days: ["2026-11-24"], tz: "Europe/Madrid", now, accounts: [{ ...acc, hourScores: grid }], posts: [] });
+    expect(d.accounts[0].suggested_time).toBe("10:30"); // empate 10:00/10:30 → la más cercana a las 19:00
+    expect(d.accounts[0].ranked_times?.slice(0, 2)).toEqual(["10:30", "15:30"]);
+    expect(d.accounts[0].best_time_score).toBe(100);
+  });
+
+  it("respeta las franjas ocupadas: si la mejor hora está ocupada, pasa a la siguiente", () => {
+    const posts = [{ scheduledAt: "2026-11-24T09:30:00Z", status: "scheduled", accountIds: ["otra"] }]; // 10:30 en Madrid
+    const [d] = computeFreeSlots({ days: ["2026-11-24"], tz: "Europe/Madrid", now, accounts: [{ ...acc, hourScores: grid }], posts });
+    expect(d.accounts[0].suggested_time).toBe("15:30");
+  });
+});

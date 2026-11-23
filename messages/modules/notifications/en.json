@@ -1,0 +1,108 @@
+{
+  "notifications": {
+    "title": "Notifications",
+    "subtitle": "What happened in your projects: posts, approvals, accounts and AI.",
+    "bell": "Notifications",
+    "bellUnread": "Notifications ({count} unread)",
+    "markAllRead": "Mark all as read",
+    "markRead": "Mark as read",
+    "viewAll": "See all notifications",
+    "empty": "No notifications. We'll let you know here when something is published, fails or needs your approval.",
+    "delete": "Delete",
+    "unread": "Unread",
+    "open": "Open",
+    "loading": "Loading…",
+    "error": "Notifications could not be loaded.",
+    "retention": "Read notifications are deleted automatically after 90 days.",
+    "back": "Back to notifications",
+    "prefs": {
+      "title": "Notifications",
+      "body": "Choose which notifications you want to see inside Kreo. We don't send emails yet.",
+      "saved": "Preferences saved",
+      "error": "Preferences could not be saved",
+      "types": {
+        "post_published": "Post published",
+        "post_failed": "Post failed (with the reason)",
+        "approval_pending": "Posts waiting for approval (admins and owners)",
+        "account_issue": "Account expired or in error",
+        "youtube_consent_expiring": "YouTube permission expiring soon",
+        "ai_done": "AI generation or Clipper finished",
+        "ai_failed": "AI generation or Clipper failed",
+        "weekly_summary": "Weekly summary (Mondays at 8:00)"
+      }
+    },
+    "tpl": {
+      "post_published": { "title": "Published on {platform}", "body": "{post} · {account}" },
+      "post_published_warn": { "title": "Published on {platform} (with warnings)", "body": "{post} · {account}. An optional step was not completed: {warnings}." },
+      "post_failed": { "title": "Could not publish on {platform}", "body": "{reason} · {post}" },
+      "account_issue": { "title": "Reconnect {platform}", "body": "The connection with {account} has expired or has an error. Go to Accounts and reconnect it to keep publishing." },
+      "inbox_issue": { "title": "Inbox: reconnect {channel}", "body": "The inbox connection with {channel} has expired. Reconnect it in the Inbox." },
+      "youtube_consent_expiring": { "title": "YouTube permission expires soon", "body": "While Google keeps Kreo \"In testing\", the permission lasts 7 days. The one for {account} expires on {date}: disconnect and reconnect it in Accounts before then." },
+      "ai_done": { "title": "Your {kind} is ready", "body": "It's already in the Studio library." },
+      "ai_failed": { "title": "The AI generation failed", "body": "Your {kind} could not be created. {credits} credits have been refunded." },
+      "weekly_summary": { "title": "Weekly summary · {project}", "body": "{published} published · {failed} failed · {scheduled} scheduled this week · {overdue} overdue tasks" }
+    },
+    "kinds": { "image": "image", "video": "video", "audio": "audio", "music": "music", "text": "text", "other": "content" },
+    "warnings": {
+      "thumbnail": "thumbnail",
+      "playlist": "playlist",
+      "captions": "captions"
+    },
+    "reasons": {
+      "token_expired": "The account connection has expired: reconnect it in Accounts.",
+      "missing_tokens": "The account has no saved permission: reconnect it in Accounts.",
+      "account_not_active": "The account is disconnected or expired: reconnect it in Accounts.",
+      "post_not_found": "The post was deleted before it was published.",
+      "video_required": "This network needs a video and the post has none.",
+      "unsupported_media": "The file format is not supported by this network.",
+      "privacy_not_allowed": "The chosen visibility is not allowed for this account (unaudited TikTok apps can only post privately).",
+      "rate_limited": "The network is limiting posts right now. Try rescheduling it later.",
+      "unavailable": "The network did not respond. Try rescheduling it in a while.",
+      "media_processing_failed": "The network could not process the file. Check the format and duration.",
+      "media_processing_timeout": "The network took too long to process the file.",
+      "publish_timeout": "The network took too long to confirm the post. Check your profile before posting it again.",
+      "upload_failed": "The file could not be uploaded to the network.",
+      "upload_init_failed": "The network refused to start the upload. Check the account permissions.",
+      "quota": "The network's daily API quota is used up. It can be retried tomorrow.",
+      "unknown": "The network rejected the post. Check the file and the account permissions."
+    },
+    "weekly": {
+      "pageTitle": "Weekly summary",
+      "period": "Week from {from} to {to}",
+      "followers": "Followers by account",
+      "followersNote": "Change over the last 7 days. YouTube is shown separately and never added up (its API rules).",
+      "account": "Account",
+      "current": "Now",
+      "change": "Change",
+      "noMetrics": "No data yet",
+      "youtube": "YouTube (per channel, no comparisons)",
+      "subscribers": "Subscribers",
+      "posts": "Posts this week",
+      "published": "Published",
+      "failed": "Failed",
+      "nextWeek": "Scheduled for this week",
+      "nothingScheduled": "Nothing scheduled. Check the free slots in the calendar.",
+      "overdue": "Overdue tasks",
+      "noOverdue": "No overdue tasks.",
+      "due": "Due {date}",
+      "untitled": "Untitled",
+      "openProject": "Open the project"
+    }
+  },
+  "bestTimes": {
+    "title": "Best times",
+    "subtitle": "When to post on each network. Madrid time.",
+    "source": {
+      "default": "Indicative",
+      "blended": "Indicative + your history ({samples})",
+      "history": "Your history ({samples})"
+    },
+    "defaultNote": "Indicative pattern based on public industry studies. With {min} posts with metrics we start using your own data.",
+    "youtubeNote": "YouTube: indicative pattern only (its rules don't allow combining its data with other sources to create metrics).",
+    "noAccounts": "Connect an account to see its best times.",
+    "hintGood": "Good time for {platform}",
+    "hintBetter": "Best times for {platform}: {slots}",
+    "hintGeneric": "Best times for {platform}: {slots}",
+    "orientative": "indicative"
+  }
+}

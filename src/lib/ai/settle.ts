@@ -1,6 +1,7 @@
 import "server-only";
 import { getModel, type AiModel } from "@/lib/ai/catalog";
 import { downloadFalFile, falResult, falStatus, type FalFile } from "@/lib/ai/providers/fal";
+import { notifyGeneration } from "@/lib/notifications/notify";
 import type { createAdminClient } from "@/lib/supabase/admin";
 
 /**
@@ -45,6 +46,8 @@ export async function refundGeneration(admin: Admin, generationId: string, works
     });
     if (grantError) console.error("[ai] no se pudieron devolver los créditos", grantError.code ?? "", grantError.message?.slice(0, 80) ?? "");
   }
+  // Aviso de fallo con créditos devueltos (nunca lanza).
+  await notifyGeneration(admin, generationId, "failed");
 }
 
 /** Guarda el archivo generado en Storage privado y lo registra como asset "generado con IA". */
@@ -75,6 +78,8 @@ export async function storeOutput(admin: Admin, gen: Pick<StudioGen, "id" | "wor
     .single();
   if (error) throw error;
   await admin.from("ai_generations").update({ status: "succeeded", completed_at: new Date().toISOString() }).eq("id", gen.id);
+  // Aviso de «listo» solo para vídeo (tarda minutos y el usuario suele irse); las imágenes salen al momento en pantalla.
+  if (model.kind === "video") await notifyGeneration(admin, gen.id, "done");
   return asset.id;
 }
 

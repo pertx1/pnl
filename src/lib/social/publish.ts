@@ -18,6 +18,8 @@ export type PublishInput = {
   aiDisclosure: string; // texto de divulgación para redes sin etiqueta nativa
   /** Miniatura personalizada de YouTube (ya validada como imagen del mismo proyecto). */
   thumbnail?: PublishMedia;
+  /** Subtítulos .srt para YouTube (captions.insert). Ver la convención en src/lib/social/captions.ts. */
+  captions?: { srt: string; language: string };
 };
 /** `warnings`: pasos opcionales que fallaron sin impedir la publicación (p. ej. la miniatura). */
 export type PublishResult = { externalPostId: string; url?: string; warnings?: string[] };
@@ -210,6 +212,27 @@ async function publishYouTube(tokens: TokenSet, input: PublishInput): Promise<Pu
     }).catch(() => null);
     // 403 típico: la conexión es anterior al permiso de listas → reconectar YouTube.
     if (!pl?.ok) warnings.push(`playlist_${pl?.status ?? "failed"}`);
+  }
+  if (input.captions?.srt) {
+    // captions.insert (scope youtube.force-ssl; 400 unidades de cuota). Sin reintentos: un POST repetido duplicaría la pista.
+    try {
+      const boundary = `kreo${crypto.randomUUID().replace(/-/g, "")}`;
+      const meta = JSON.stringify({ snippet: { videoId: json.id, language: input.captions.language, name: "", isDraft: false } });
+      const body =
+        `--${boundary}\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n${meta}\r\n` +
+        `--${boundary}\r\nContent-Type: application/x-subrip; charset=UTF-8\r\n\r\n${input.captions.srt}\r\n--${boundary}--\r\n`;
+      const cap = await fetch("https://www.googleapis.com/upload/youtube/v3/captions?part=snippet&uploadType=multipart", {
+        method: "POST",
+        headers: { ...auth, "Content-Type": `multipart/related; boundary=${boundary}` },
+        body,
+        signal: AbortSignal.timeout(30_000),
+        cache: "no-store",
+      });
+      // 403 típico: la conexión es anterior al permiso youtube.force-ssl → reconectar YouTube.
+      if (!cap.ok) warnings.push(`captions_${cap.status}`);
+    } catch {
+      warnings.push("captions_failed");
+    }
   }
   return { externalPostId: json.id, url: `https://www.youtube.com/watch?v=${json.id}`, warnings };
 }

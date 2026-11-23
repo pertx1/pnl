@@ -441,3 +441,17 @@ de cada módulo en `docs/compliance/{research,strategy,inbox,commerce,team}.md`)
   5. Abogado: revisar el apartado 6.1 de la política de privacidad y el punto 15 de los términos.
 
 - **2026-11-23 · MCP — gasto de créditos**: resuelto el hallazgo 4 de la revisión del conector. Las herramientas que gastan créditos (generate_image, generate_video, draft_reply) exigen el interruptor «permitir gastar créditos» de cada conexión (apagado por defecto) y un tope diario atómico (`mcp_credit_reserve`, migración `20261123180000_mcp_credit_policy.sql`).
+
+## Centro de avisos, mejores horas, resumen semanal y subtítulos de YouTube — 2026-11-24 — Estado: ⏳ pendiente de revisión `seguridad-legal`
+- APIs usadas: YouTube Data API `captions.insert` (scope `youtube.force-ssl`, ya pedido; 400 unidades de cuota por subida). Nada nuevo en Meta/TikTok.
+- Datos guardados: `notifications` (por usuario: tipo, título y cuerpo cortos con el título propio de la publicación y el @ de la
+  cuenta propia, enlace interno, IDs; el resumen semanal guarda contadores, @ propios, títulos de publicaciones y tareas del proyecto).
+  Sin tokens, mensajes ni datos de terceros. `notification_preferences` (tipos desactivados). RLS: cada usuario ve/borra solo los suyos
+  y solo mientras sea miembro del workspace; al salir del workspace se borran. Leídos > 90 días y cualquiera > 1 año: borrado diario.
+  Incluidos en la exportación RGPD.
+- YouTube: «Mejores horas» NO usa datos de la API de YouTube (solo patrón orientativo); el resumen semanal muestra los suscriptores
+  por canal tal cual, sin variación ni sumas con otras redes (Developer Policies III.E.4).
+- Patrón por defecto de mejores horas marcado como «orientativo» con fuentes citadas en `src/lib/analytics/best-time.ts`.
+- Email: no se envía nada (falta dominio y proveedor UE con DPA).
+- Para revisar: base legal del resumen semanal a todos los miembros del workspace (incluidos lectores); texto de la política de
+  privacidad (avisos dentro de la app y plazos 90 días / 1 año).

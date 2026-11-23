@@ -8,7 +8,7 @@ export async function GET() {
   if (!auth.user) return NextResponse.json({ error: "unauthorized" }, { status: 401 });
   const uid = auth.user.id;
 
-  const [profile, memberships, workspaces, projects, brandKits, ledger, socialAccounts, posts, postTargets, aiGenerations, assets, connectedApps, apiKeys] = await Promise.all([
+  const [profile, memberships, workspaces, projects, brandKits, ledger, socialAccounts, posts, postTargets, aiGenerations, assets, connectedApps, apiKeys, notifications, notificationPrefs] = await Promise.all([
     supabase.from("profiles").select("*").eq("id", uid).maybeSingle(),
     supabase.from("workspace_members").select("workspace_id, role, created_at").eq("user_id", uid),
     supabase.from("workspaces").select("id, name, plan_id, created_at"),
@@ -24,6 +24,9 @@ export async function GET() {
     // Apps conectadas por OAuth al MCP (Claude, etc.) y API keys personales: solo metadatos, nunca tokens ni hashes.
     supabase.from("mcp_oauth_grants").select("id, workspace_id, client_id, client_name, client_host, scope, created_at, last_used_at, revoked_at").eq("user_id", uid),
     supabase.from("mcp_api_keys").select("id, name, prefix, created_at, last_used_at, revoked_at").eq("user_id", uid),
+    // Centro de avisos (los suyos) y preferencias.
+    supabase.from("notifications").select("id, workspace_id, project_id, type, title, body, link, read_at, created_at").eq("user_id", uid),
+    supabase.from("notification_preferences").select("disabled_types, updated_at").eq("user_id", uid).maybeSingle(),
   ]);
 
   const body = {
@@ -48,6 +51,8 @@ export async function GET() {
     assets: assets.data ?? [],
     mcp_connected_apps: connectedApps.data ?? [],
     mcp_api_keys: apiKeys.data ?? [],
+    notifications: notifications.data ?? [],
+    notification_preferences: notificationPrefs.data,
   };
 
   return new NextResponse(JSON.stringify(body, null, 2), {

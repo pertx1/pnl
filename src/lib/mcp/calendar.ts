@@ -63,14 +63,35 @@ export const hhmm = (min: number) => `${String(Math.floor(min / 60)).padStart(2,
 /** Estados que ocupan el límite diario de una cuenta (mismos que comprueba la aprobación, más los pendientes de aprobar). */
 export const PLANNED_STATUSES = ["pending_approval", "approved", "scheduled", "publishing", "published"] as const;
 
-export type SlotAccount = { id: string; platform: string; handle: string | null; dailyLimit: number; preferredHour: number };
+export type SlotAccount = {
+  id: string;
+  platform: string;
+  handle: string | null;
+  dailyLimit: number;
+  preferredHour: number;
+  /** Puntuación 0–100 por [día 0=lunes][hora local] (src/lib/analytics/best-time.ts). Si está, ordena las horas sugeridas. */
+  hourScores?: number[][];
+};
+const WEEKDAY_IDX: Record<string, number> = { Mon: 0, Tue: 1, Wed: 2, Thu: 3, Fri: 4, Sat: 5, Sun: 6 };
 export type SlotPost = { scheduledAt: string; status: string; accountIds: string[] };
 export type FreeDay = {
   date: string;
   weekday: string;
   busy_times: string[];
   free_windows: { start: string; end: string }[];
-  accounts: { account_id: string; platform: string; handle: string | null; daily_limit: number; planned: number; drafts: number; remaining: number; suggested_time: string | null }[];
+  accounts: {
+    account_id: string;
+    platform: string;
+    handle: string | null;
+    daily_limit: number;
+    planned: number;
+    drafts: number;
+    remaining: number;
+    suggested_time: string | null;
+    /** Solo con puntuación de mejores horas: horas libres de mejor a peor y la puntuación (0–100) de la sugerida. */
+    ranked_times?: string[];
+    best_time_score?: number;
+  }[];
   completely_free: boolean;
 };
 
@@ -121,6 +142,8 @@ export function computeFreeSlots(o: {
     }
     if (cursor < endMin) windows.push({ start: cursor, end: endMin });
     const free = windows.filter((w) => w.end - w.start >= minWindow);
+    const weekday = zonedParts(zonedToUtc(day, 12 * 60, o.tz), o.tz).weekday;
+    const weekdayIdx = WEEKDAY_IDX[weekday] ?? 0;
 
     const accounts = o.accounts.map((a) => {
       const mine = posts.filter((p) => p.accountIds.includes(a.id));
@@ -128,7 +151,27 @@ export function computeFreeSlots(o: {
       const drafts = mine.filter((p) => p.status === "draft").length;
       let remaining = Math.max(0, a.dailyLimit - planned);
       let suggested: string | null = null;
-      if (remaining > 0 && free.length) {
+      let ranked: { at: number; score: number }[] | null = null;
+      if (remaining > 0 && free.length && a.hourScores) {
+        // Con datos de mejores horas: candidatas cada 30 min dentro de las franjas libres, por puntuación
+        // (empate → la más cercana a la hora preferida).
+        const row = a.hourScores[weekdayIdx] ?? [];
+        const pref = a.preferredHour * 60;
+        const cands: { at: number; score: number; dist: number }[] = [];
+        for (const w of free) {
+          for (let at = Math.ceil(w.start / 30) * 30; at <= w.end - minWindow; at += 30) {
+            cands.push({ at, score: row[Math.floor(at / 60)] ?? 0, dist: Math.abs(at - pref) });
+          }
+        }
+        cands.sort((x, y) => y.score - x.score || x.dist - y.dist || x.at - y.at);
+        ranked = [];
+        for (const c of cands) {
+          if (ranked.length >= 3) break;
+          if (ranked.some((r) => Math.abs(r.at - c.at) < 60)) continue;
+          ranked.push(c);
+        }
+        if (ranked.length) suggested = hhmm(ranked[0].at);
+      } else if (remaining > 0 && free.length) {
         const pref = a.preferredHour * 60;
         let best: { at: number; dist: number } | null = null;
         for (const w of free) {
@@ -149,12 +192,14 @@ export function computeFreeSlots(o: {
         remaining = Math.min(remaining, Math.max(0, a.dailyLimit - plannedUtc));
         if (remaining === 0) suggested = null;
       }
-      return { account_id: a.id, platform: a.platform, handle: a.handle, daily_limit: a.dailyLimit, planned, drafts, remaining, suggested_time: suggested };
+      const base = { account_id: a.id, platform: a.platform, handle: a.handle, daily_limit: a.dailyLimit, planned, drafts, remaining, suggested_time: suggested };
+      if (!ranked) return base;
+      return { ...base, ranked_times: suggested ? ranked.map((r) => hhmm(r.at)) : [], best_time_score: suggested ? ranked[0].score : undefined };
     });
 
     out.push({
       date: day,
-      weekday: zonedParts(zonedToUtc(day, 12 * 60, o.tz), o.tz).weekday,
+      weekday,
       busy_times: posts.map((p) => hhmm(p.minutes)),
       free_windows: free.map((w) => ({ start: hhmm(w.start), end: hhmm(w.end) })),
       accounts,

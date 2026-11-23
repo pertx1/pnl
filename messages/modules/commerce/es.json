@@ -249,6 +249,8 @@
         "get_overview": "Resumen: proyectos, cuentas, próximas publicaciones, pendientes, tareas y créditos.",
         "get_calendar": "Calendario de publicaciones por día, con red, cuenta, estado y hora.",
         "get_free_slots": "Huecos libres por día y cuenta, respetando el límite diario anti-baneo.",
+        "get_best_times": "Mejores días y horas para publicar por red (orientativo + tu historial).",
+        "get_weekly_summary": "Resumen de la semana: seguidores, publicaciones, lo programado y tareas vencidas.",
         "list_tasks": "Tareas pendientes del roadmap y del calentamiento.",
         "create_task": "Crea una tarea en el roadmap del proyecto.",
         "update_task": "Cambia estado, fecha o texto de una tarea.",

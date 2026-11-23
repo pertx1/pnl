@@ -169,6 +169,8 @@ export default async function ApiKeysPage() {
                   "get_overview",
                   "get_calendar",
                   "get_free_slots",
+                  "get_best_times",
+                  "get_weekly_summary",
                   "list_tasks",
                   "create_task",
                   "update_task",

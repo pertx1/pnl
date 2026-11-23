@@ -1,0 +1,108 @@
+{
+  "notifications": {
+    "title": "Avisos",
+    "subtitle": "Lo que ha pasado en tus proyectos: publicaciones, aprobaciones, cuentas e IA.",
+    "bell": "Avisos",
+    "bellUnread": "Avisos ({count} sin leer)",
+    "markAllRead": "Marcar todo como leído",
+    "markRead": "Marcar como leído",
+    "viewAll": "Ver todos los avisos",
+    "empty": "No tienes avisos. Te contaremos aquí cuando se publique algo, falle o necesite tu aprobación.",
+    "delete": "Borrar",
+    "unread": "Sin leer",
+    "open": "Abrir",
+    "loading": "Cargando…",
+    "error": "No se han podido cargar los avisos.",
+    "retention": "Los avisos leídos se borran solos a los 90 días.",
+    "back": "Volver a los avisos",
+    "prefs": {
+      "title": "Avisos",
+      "body": "Elige qué avisos quieres ver dentro de Kreo. Por ahora no enviamos emails.",
+      "saved": "Preferencias guardadas",
+      "error": "No se han podido guardar las preferencias",
+      "types": {
+        "post_published": "Publicación publicada",
+        "post_failed": "Publicación fallida (con el motivo)",
+        "approval_pending": "Publicaciones pendientes de aprobar (admins y propietarios)",
+        "account_issue": "Cuenta caducada o con error",
+        "youtube_consent_expiring": "El permiso de YouTube caduca pronto",
+        "ai_done": "Generación de IA o Clipper terminada",
+        "ai_failed": "Generación de IA o Clipper fallida",
+        "weekly_summary": "Resumen semanal (lunes a las 8:00)"
+      }
+    },
+    "tpl": {
+      "post_published": { "title": "Publicado en {platform}", "body": "{post} · {account}" },
+      "post_published_warn": { "title": "Publicado en {platform} (con avisos)", "body": "{post} · {account}. Algún paso opcional no se completó: {warnings}." },
+      "post_failed": { "title": "No se pudo publicar en {platform}", "body": "{reason} · {post}" },
+      "account_issue": { "title": "Reconecta {platform}", "body": "La conexión con {account} ha caducado o tiene un error. Ve a Cuentas y vuelve a conectarla para seguir publicando." },
+      "inbox_issue": { "title": "Bandeja: reconecta {channel}", "body": "La conexión de la bandeja con {channel} ha caducado. Vuelve a conectarla en la Bandeja." },
+      "youtube_consent_expiring": { "title": "El permiso de YouTube caduca pronto", "body": "Mientras Google tenga Kreo «En prueba», el permiso dura 7 días. El de {account} caduca el {date}: desconéctala y vuelve a conectarla en Cuentas antes de esa fecha." },
+      "ai_done": { "title": "Tu {kind} está listo", "body": "Ya está en la biblioteca del Estudio." },
+      "ai_failed": { "title": "La generación de IA ha fallado", "body": "No se ha podido crear tu {kind}. Se han devuelto {credits} créditos." },
+      "weekly_summary": { "title": "Resumen semanal · {project}", "body": "{published} publicadas · {failed} fallidas · {scheduled} programadas para esta semana · {overdue} tareas vencidas" }
+    },
+    "kinds": { "image": "imagen", "video": "vídeo", "audio": "audio", "music": "música", "text": "texto", "other": "contenido" },
+    "warnings": {
+      "thumbnail": "miniatura",
+      "playlist": "lista de reproducción",
+      "captions": "subtítulos"
+    },
+    "reasons": {
+      "token_expired": "La conexión con la cuenta ha caducado: vuelve a conectarla en Cuentas.",
+      "missing_tokens": "La cuenta no tiene permiso guardado: vuelve a conectarla en Cuentas.",
+      "account_not_active": "La cuenta está desconectada o caducada: reconéctala en Cuentas.",
+      "post_not_found": "La publicación se borró antes de publicarse.",
+      "video_required": "Esta red necesita un vídeo y la publicación no tiene ninguno.",
+      "unsupported_media": "El formato del archivo no es compatible con esta red.",
+      "privacy_not_allowed": "La visibilidad elegida no está permitida para esta cuenta (en TikTok sin auditar solo se puede publicar en privado).",
+      "rate_limited": "La red ha limitado las publicaciones por ahora. Prueba a reprogramarla más tarde.",
+      "unavailable": "La red no respondió. Prueba a reprogramarla dentro de un rato.",
+      "media_processing_failed": "La red no pudo procesar el archivo. Revisa el formato y la duración.",
+      "media_processing_timeout": "La red tardó demasiado en procesar el archivo.",
+      "publish_timeout": "La red tardó demasiado en confirmar la publicación. Revisa si aparece en tu perfil antes de repetirla.",
+      "upload_failed": "No se pudo subir el archivo a la red.",
+      "upload_init_failed": "La red rechazó iniciar la subida. Revisa los permisos de la cuenta.",
+      "quota": "Se ha agotado la cuota diaria de la API de la red. Se podrá reintentar mañana.",
+      "unknown": "La red rechazó la publicación. Revisa el archivo y los permisos de la cuenta."
+    },
+    "weekly": {
+      "pageTitle": "Resumen semanal",
+      "period": "Semana del {from} al {to}",
+      "followers": "Seguidores por cuenta",
+      "followersNote": "Variación de los últimos 7 días. YouTube se muestra aparte y sin sumar (normas de su API).",
+      "account": "Cuenta",
+      "current": "Ahora",
+      "change": "Variación",
+      "noMetrics": "Sin datos todavía",
+      "youtube": "YouTube (por canal, sin comparativas)",
+      "subscribers": "Suscriptores",
+      "posts": "Publicaciones de la semana",
+      "published": "Publicadas",
+      "failed": "Fallidas",
+      "nextWeek": "Programado para esta semana",
+      "nothingScheduled": "No hay nada programado. Mira los huecos libres en el calendario.",
+      "overdue": "Tareas vencidas",
+      "noOverdue": "Ninguna tarea vencida.",
+      "due": "Vencía el {date}",
+      "untitled": "Sin título",
+      "openProject": "Abrir el proyecto"
+    }
+  },
+  "bestTimes": {
+    "title": "Mejores horas",
+    "subtitle": "Cuándo publicar en cada red. Hora de Madrid.",
+    "source": {
+      "default": "Orientativo",
+      "blended": "Orientativo + tu historial ({samples})",
+      "history": "Tu historial ({samples})"
+    },
+    "defaultNote": "Patrón orientativo basado en estudios públicos del sector. Con {min} publicaciones con métricas empezamos a usar tus datos.",
+    "youtubeNote": "YouTube: solo el patrón orientativo (sus normas no permiten combinar sus datos con otros para crear métricas).",
+    "noAccounts": "Conecta una cuenta para ver sus mejores horas.",
+    "hintGood": "Buena hora para {platform}",
+    "hintBetter": "Mejores horas para {platform}: {slots}",
+    "hintGeneric": "Mejores horas para {platform}: {slots}",
+    "orientative": "orientativo"
+  }
+}

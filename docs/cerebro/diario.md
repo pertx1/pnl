@@ -2,6 +2,12 @@
 
 Una entrada por sesión, lo más reciente arriba. 3-6 líneas: qué se hizo, qué quedó a medias, qué toca después.
 
+## 2026-11-24 (rama de trabajo del agente, sin desplegar)
+- **Centro de avisos**: campana con contador (barra lateral y cabecera móvil), panel, página `/app/notifications` y preferencias por tipo en Ajustes. Avisos de publicado/fallido (motivo claro), pendientes de aprobar (admins/owners, trigger en BD), cuenta caducada (redes y bandeja), permiso de YouTube que caduca (7 días «En prueba»), IA/Clipper terminada o fallida. Limpieza: leídos > 90 días. Sin email (falta dominio; punto de extensión en `src/lib/notifications/notify.ts`).
+- **Mejores horas**: `bestTimes()` (patrón orientativo citado + historial propio con umbral de 12), tarjeta en Analíticas, `BestTimeHint` para el editor, MCP `get_best_times`; `get_free_slots` ordena por puntuación si hay historial. YouTube solo orientativo.
+- **Resumen semanal** (lunes 8:00) como aviso con página propia + MCP `get_weekly_summary`. **Subtítulos de YouTube** con captions.insert si el vídeo tiene `.srt` (convención en `src/lib/social/captions.ts`).
+- Migración `20261124120000_notifications.sql` **sin aplicar** (la aplica el dueño). Falta revisión `seguridad-legal` y `qa-tester`.
+
 ## 2026-11-23
 - Instagram: opción «reel de prueba» en el editor (`trial_params`, MANUAL o SS_PERFORMANCE). Sin probar en real.
 - Panel del proyecto rediseñado: primeros pasos, «Hoy» con cifras clicables, tarjetas por cuenta (seguidores, variación, sparkline), semana, rendimiento 30 días y créditos. Logos oficiales de las redes. Estadísticas al conectar/abrir Analíticas.

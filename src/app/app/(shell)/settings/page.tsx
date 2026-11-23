@@ -3,6 +3,8 @@ import Link from "next/link";
 import { Download, KeyRound } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { NotificationPrefsForm } from "@/components/notifications/notification-prefs-form";
+import { getMyDisabledTypes } from "@/lib/notifications/queries";
 import { requireUser } from "@/lib/server/dal";
 import { createClient } from "@/lib/supabase/server";
 import { DeleteAccountForm, MfaSection, PasswordForm, ProfileForm } from "./settings-forms";
@@ -16,7 +18,11 @@ export default async function SettingsPage() {
   const t = await getTranslations("settings");
   const user = await requireUser();
   const supabase = await createClient();
-  const { data: profile } = await supabase.from("profiles").select("full_name").eq("id", user.id).single();
+  const [{ data: profile }, disabledTypes, tn] = await Promise.all([
+    supabase.from("profiles").select("full_name").eq("id", user.id).single(),
+    getMyDisabledTypes().catch(() => []),
+    getTranslations("notifications.prefs"),
+  ]);
 
   return (
     <div className="mx-auto w-full max-w-[1360px] [&>*]:max-w-3xl space-y-6">
@@ -39,6 +45,16 @@ export default async function SettingsPage() {
         <CardContent className="space-y-8">
           <PasswordForm />
           <MfaSection />
+        </CardContent>
+      </Card>
+
+      <Card id="notifications" className="scroll-mt-20">
+        <CardHeader>
+          <CardTitle>{tn("title")}</CardTitle>
+          <CardDescription>{tn("body")}</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <NotificationPrefsForm disabled={disabledTypes} />
         </CardContent>
       </Card>
 
