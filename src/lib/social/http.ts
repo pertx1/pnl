@@ -24,6 +24,20 @@ export async function platformFetch(platform: Platform, url: string, init: Reque
 
 export async function jsonOrThrow<T>(platform: Platform, res: Response, code = "bad_response"): Promise<T> {
   const body = (await res.json().catch(() => null)) as T | null;
-  if (!res.ok || body === null) throw new PlatformError(platform, code, res.status);
+  if (!res.ok || body === null) {
+    const detail = platformErrorDetail(body);
+    // Solo el código de error de la plataforma (nunca tokens ni datos del usuario), para poder diagnosticar.
+    console.error(`[${platform}] ${code} http=${res.status}${detail ? ` detail=${detail}` : ""}`);
+    throw new PlatformError(platform, detail ? `${code}:${detail}` : code, res.status);
+  }
   return body;
+}
+
+/** Código de error que devuelve la plataforma (TikTok `error.code`, Google `error.errors[0].reason`, Meta `error.code/subcode`). */
+export function platformErrorDetail(body: unknown): string | null {
+  const e = (body as { error?: { code?: unknown; error_subcode?: unknown; errors?: { reason?: unknown }[]; status?: unknown } } | null)?.error;
+  if (!e) return null;
+  const raw = e.errors?.[0]?.reason ?? (typeof e.code === "string" ? e.code : e.error_subcode ? `${e.code}_${e.error_subcode}` : (e.status ?? e.code));
+  const clean = String(raw ?? "").replace(/[^A-Za-z0-9_.-]/g, "").slice(0, 80);
+  return clean && clean !== "ok" ? clean : null;
 }

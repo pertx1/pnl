@@ -41,3 +41,14 @@ describe("Instagram · reel de prueba", () => {
     expect(validateTarget("instagram", "hola", ["image", "image"], {})).toEqual([]);
   });
 });
+
+describe("platformErrorDetail", () => {
+  it("extrae el código de TikTok, Google y Meta", async () => {
+    const { platformErrorDetail } = await import("@/lib/social/http");
+    expect(platformErrorDetail({ error: { code: "unaudited_client_can_only_post_to_private_accounts", message: "x" } })).toBe("unaudited_client_can_only_post_to_private_accounts");
+    expect(platformErrorDetail({ error: { code: 403, errors: [{ reason: "quotaExceeded" }] } })).toBe("quotaExceeded");
+    expect(platformErrorDetail({ error: { code: 100, error_subcode: 2207026 } })).toBe("100_2207026");
+    expect(platformErrorDetail({ error: { code: "ok" } })).toBeNull();
+    expect(platformErrorDetail(null)).toBeNull();
+  });
+});

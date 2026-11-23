@@ -65,8 +65,18 @@ async function handle(request: NextRequest) {
     return unauthorized("Invalid access token.", true);
   }
 
-  const handler = createMcpHandler(() => createKreoMcpServer(ctx), { onerror: () => console.error("[mcp] request error") });
-  return handler.fetch(request, { authInfo: { token: ctx.keyId, clientId: ctx.keyId, scopes: [OAUTH_SCOPE], extra: { userId: ctx.userId } } });
+  // Diagnóstico mínimo: solo el método JSON-RPC y el nombre de la herramienta (nunca argumentos ni resultados).
+  const started = Date.now();
+  let label = request.method;
+  if (request.method === "POST") {
+    const peek = (await request.clone().json().catch(() => null)) as { method?: unknown; params?: { name?: unknown } } | null;
+    const m = typeof peek?.method === "string" ? peek.method : "?";
+    label = m === "tools/call" && typeof peek?.params?.name === "string" ? `tools/call:${peek.params.name}` : m;
+  }
+  const handler = createMcpHandler(() => createKreoMcpServer(ctx), { onerror: (e) => console.error(`[mcp] ${label} error: ${e.message.slice(0, 120)}`) });
+  const res = await handler.fetch(request, { authInfo: { token: ctx.keyId, clientId: ctx.keyId, scopes: [OAUTH_SCOPE], extra: { userId: ctx.userId } } });
+  console.log(`[mcp] ${label.slice(0, 80)} → ${res.status} ${res.headers.get("content-type")?.split(";")[0] ?? ""} ${Date.now() - started}ms`);
+  return res;
 }
 
 export const GET = handle;
