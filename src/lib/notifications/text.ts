@@ -78,3 +78,20 @@ export function accountLabel(a: { handle?: string | null; display_name?: string 
   if (a.handle) return `@${a.handle.replace(/^@/, "")}`;
   return a.display_name?.slice(0, 80) || PLATFORM_LABEL[a.platform ?? ""] || "";
 }
+
+/**
+ * Aviso «termina tu publicación en TikTok» (borradores o subida a mano). Si la publicación lleva IA, recuerda
+ * activar la etiqueta en TikTok: la API de borradores no permite ponerla desde Kreo.
+ */
+export function tiktokHandoffText(
+  handoff: { mode: "inbox" | "manual"; reason: string | null },
+  params: { platform: string; account: string; post: string },
+  aiGenerated: boolean,
+  locale: NotifyLocale,
+) {
+  const m = MESSAGES[locale];
+  const reasons = m.tiktokReasons;
+  const reason = handoff.reason && Object.hasOwn(reasons, handoff.reason) ? reasons[handoff.reason as keyof typeof reasons] : reasons.inbox_unavailable;
+  const out = composeText(handoff.mode === "inbox" ? "tiktok_inbox" : "tiktok_manual", { ...params, reason }, locale);
+  return aiGenerated ? { ...out, body: `${out.body}${m.tiktokAi}`.slice(0, 1000) } : out;
+}

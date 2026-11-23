@@ -2,6 +2,13 @@
 
 Una entrada por sesión, lo más reciente arriba. 3-6 líneas: qué se hizo, qué quedó a medias, qué toca después.
 
+## 2026-11-25 (rama de trabajo del agente, sin desplegar)
+- **TikTok sin auditar**: modo «Enviar a mis borradores de TikTok» (API oficial inbox, scope `video.upload`), por defecto mientras `TIKTOK_DIRECT_POST_AUDITED` ≠ `true`. Estado nuevo `awaiting_user_publish` («Termínala en TikTok»), aviso en la campana y página `/posts/<id>/tiktok` con pasos, texto, hashtags, descarga del vídeo y «Ya lo he publicado». Sondeo de `status/fetch` cada 15 min (7 días).
+- Si no se puede usar la API (sin el scope, 5 pendientes en 24 h, token caducado…) → «Listo para subir a mano». Direct Post rechazado por cliente sin auditar → pasa solo a borradores. Nunca «fallido» por la auditoría.
+- **Content Sharing Guidelines en el editor**: `creator_info` al abrir (avatar, nickname, privacidades permitidas, interacciones en gris, duración máxima, parar si no puede publicar), divulgación comercial con los textos exactos, declaración con enlaces, consentimiento expreso, vista previa y aviso de procesado.
+- Migración `20261125100000_tiktok_inbox.sql` SIN aplicar (aplicar antes de desplegar). Dosier `docs/app-review/tiktok.md` reescrito (checklist, guion del vídeo plano a plano, textos del formulario).
+- Toca: Oier activa `video.upload` en la consola de TikTok y reconecta; `seguridad-legal` + `qa-tester`; prueba real.
+
 ## 2026-11-24
 - Fusionados y en producción: Clipper v2, plantillas/series, avisos/mejores horas/resumen/subtítulos YT, subida directa a YouTube, inicio general y Mi agenda. 5 migraciones aplicadas.
 - Revisión seguridad-legal: sin vetos; arreglos aplicados (TikTok privacidad fuera del MCP, datos de YouTube en avisos, subtítulos en borrador, update_draft_post seguro).

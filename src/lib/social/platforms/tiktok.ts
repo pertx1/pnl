@@ -5,7 +5,8 @@ import { PlatformError, type PlatformAdapter, type TokenSet } from "../types";
 /**
  * TikTok — Login Kit v2 + Display API + Content Posting API (oficiales).
  * Docs: https://developers.tiktok.com/doc/login-kit-web · /doc/oauth-user-access-token-management
- * Sin la auditoría de Direct Post, lo publicado queda PRIVADO (solo lo ve el creador).
+ * Sin la auditoría de Direct Post, Direct Post solo funciona con cuentas privadas: por defecto se usa la subida a
+ * borradores (inbox). Ver src/lib/social/tiktok-core.ts.
  */
 const AUTH = "https://www.tiktok.com/v2/auth/authorize/";
 const API = "https://open.tiktokapis.com/v2";
@@ -54,7 +55,9 @@ async function tokenRequest(body: Record<string, string>): Promise<TokenSet> {
 
 export const tiktok: PlatformAdapter = {
   id: "tiktok",
-  scopes: ["user.info.basic", "user.info.profile", "user.info.stats", "video.publish"],
+  // video.publish: Direct Post + creator_info. video.upload: «Enviar a mis borradores de TikTok» (inbox), el modo por
+  // defecto mientras no haya auditoría. Hay que activarlo también en la consola de TikTok y reconectar la cuenta.
+  scopes: ["user.info.basic", "user.info.profile", "user.info.stats", "video.publish", "video.upload"],
   usesPkce: false,
   isConfigured: () => Boolean(creds().key && creds().secret),
 

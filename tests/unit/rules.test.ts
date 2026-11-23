@@ -3,8 +3,29 @@ import { duplicateCaptionWarning, validateTarget } from "@/lib/posts/rules";
 
 describe("reglas de publicación por red", () => {
   it("TikTok exige elegir privacidad (sin valor por defecto) y un medio", () => {
-    expect(validateTarget("tiktok", "hola", [], {})).toEqual(["tiktok_privacy_required", "tiktok_media_required"]);
-    expect(validateTarget("tiktok", "hola", ["video"], { privacy_level: "PUBLIC_TO_EVERYONE" })).toEqual([]);
+    expect(validateTarget("tiktok", "hola", [], {})).toEqual(["tiktok_privacy_required", "tiktok_media_required", "tiktok_consent_required"]);
+    expect(validateTarget("tiktok", "hola", ["video"], { privacy_level: "PUBLIC_TO_EVERYONE", tiktok_consent: true })).toEqual([]);
+  });
+
+  it("TikTok solo admite vídeo (Kreo no envía fotos a TikTok)", () => {
+    expect(validateTarget("tiktok", "x", ["image"], { privacy_level: "PUBLIC_TO_EVERYONE", tiktok_consent: true })).toEqual(["tiktok_media_required"]);
+  });
+
+  it("TikTok exige consentimiento expreso también en borradores, pero ahí la privacidad la elige el creador en TikTok", () => {
+    expect(validateTarget("tiktok", "x", ["video"], { tiktok_mode: "inbox" })).toEqual(["tiktok_consent_required"]);
+    expect(validateTarget("tiktok", "x", ["video"], { tiktok_mode: "inbox", tiktok_consent: true })).toEqual([]);
+  });
+
+  it("TikTok: divulgación comercial activada sin elegir opción → no se puede aprobar", () => {
+    const base = { privacy_level: "PUBLIC_TO_EVERYONE" as const, tiktok_consent: true, tiktok_disclose: true };
+    expect(validateTarget("tiktok", "x", ["video"], base)).toEqual(["tiktok_disclosure_incomplete"]);
+    expect(validateTarget("tiktok", "x", ["video"], { ...base, brand_organic_toggle: true })).toEqual([]);
+  });
+
+  it("TikTok: el contenido de marca solo puede ser público o para amigos", () => {
+    const o = { tiktok_consent: true, brand_content_toggle: true, tiktok_disclose: true };
+    expect(validateTarget("tiktok", "x", ["video"], { ...o, privacy_level: "FOLLOWER_OF_CREATOR" })).toContain("tiktok_branded_private");
+    expect(validateTarget("tiktok", "x", ["video"], { ...o, privacy_level: "MUTUAL_FOLLOW_FRIENDS" })).toEqual([]);
   });
 
   it("TikTok: el contenido de marca no puede ser privado", () => {

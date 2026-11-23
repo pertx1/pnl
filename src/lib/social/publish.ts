@@ -1,6 +1,8 @@
 import "server-only";
 import type { PlatformOptions } from "@/lib/posts/rules";
 import { jsonOrThrow, platformFetch } from "./http";
+import { fetchTikTokPublishStatus, queryCreatorInfo, uploadTikTokInbox } from "./tiktok-api";
+import { directFallsBackToInbox, inboxFallsBackToManual, manualReason, platformCode, type TikTokHandoff, type TikTokMode } from "./tiktok-core";
 import { PlatformError, type Platform, type TokenSet } from "./types";
 import { buildYouTubeVideoResource, youtubeInsertUrl } from "./youtube-upload-core";
 
@@ -89,14 +91,9 @@ async function publishTikTok(tokens: TokenSet, input: PublishInput): Promise<Pub
   const video = input.media.find((m) => m.mime.startsWith("video/"));
   if (!video?.bytes) throw new PlatformError("tiktok", "unsupported_media"); // fotos: requieren dominio verificado (PULL_FROM_URL)
 
-  // 1) Consultar las opciones del creador (obligatorio según las guías de TikTok).
-  const infoRes = await platformFetch("tiktok", `${API}/post/publish/creator_info/query/`, { method: "POST", headers });
-  const info = await jsonOrThrow<{ data: { privacy_level_options: string[]; comment_disabled: boolean; duet_disabled: boolean; stitch_disabled: boolean } }>(
-    "tiktok",
-    infoRes,
-    "creator_info_failed",
-  );
-  if (!input.options.privacy_level || !info.data.privacy_level_options.includes(input.options.privacy_level)) {
+  // 1) Consultar las opciones del creador justo antes de publicar (obligatorio según las guías de TikTok).
+  const info = await queryCreatorInfo(tokens);
+  if (!input.options.privacy_level || !info.privacyOptions.includes(input.options.privacy_level)) {
     throw new PlatformError("tiktok", "privacy_not_allowed");
   }
 
@@ -111,9 +108,9 @@ async function publishTikTok(tokens: TokenSet, input: PublishInput): Promise<Pub
         title: input.caption.slice(0, 2200),
         privacy_level: input.options.privacy_level,
         // Interacciones desactivadas salvo que el usuario las active expresamente (`disable_* === false`).
-        disable_comment: input.options.disable_comment !== false || info.data.comment_disabled,
-        disable_duet: input.options.disable_duet !== false || info.data.duet_disabled,
-        disable_stitch: input.options.disable_stitch !== false || info.data.stitch_disabled,
+        disable_comment: input.options.disable_comment !== false || info.commentDisabled,
+        disable_duet: input.options.disable_duet !== false || info.duetDisabled,
+        disable_stitch: input.options.disable_stitch !== false || info.stitchDisabled,
         brand_content_toggle: Boolean(input.options.brand_content_toggle),
         brand_organic_toggle: Boolean(input.options.brand_organic_toggle),
         is_aigc: input.aiGenerated,
@@ -134,18 +131,41 @@ async function publishTikTok(tokens: TokenSet, input: PublishInput): Promise<Pub
   // 4) Consultar el estado hasta que termine.
   for (let i = 0; i < 40; i++) {
     await sleep(5000);
-    const st = await platformFetch("tiktok", `${API}/post/publish/status/fetch/`, {
-      method: "POST",
-      headers,
-      body: JSON.stringify({ publish_id: init.data.publish_id }),
-    });
-    const s = await jsonOrThrow<{ data: { status: string; fail_reason?: string; publicaly_available_post_id?: number[] } }>("tiktok", st, "status_failed");
-    if (s.data.status === "PUBLISH_COMPLETE") {
-      return { externalPostId: String(s.data.publicaly_available_post_id?.[0] ?? init.data.publish_id) };
-    }
-    if (s.data.status === "FAILED") throw new PlatformError("tiktok", s.data.fail_reason ?? "publish_failed");
+    const s = await fetchTikTokPublishStatus(tokens, init.data.publish_id);
+    if (s.status === "PUBLISH_COMPLETE") return { externalPostId: s.postId ?? init.data.publish_id };
+    if (s.status === "FAILED") throw new PlatformError("tiktok", s.failReason ?? "publish_failed");
   }
   throw new PlatformError("tiktok", "publish_timeout");
+}
+
+/**
+ * Entrega a TikTok según el modo, sin dejar nunca el destino «fallido» por la falta de auditoría:
+ * 1. "direct": Direct Post. Si TikTok lo rechaza por cliente sin auditar (cuenta pública, cupo…) → paso 2.
+ * 2. "inbox": sube el vídeo a los borradores del creador (scope video.upload); él lo publica en la app de TikTok.
+ *    Si no se puede (sin scope, 5 pendientes en 24 h, sin vídeo…) → paso 3. Los errores transitorios se reintentan.
+ * 3. "manual": no se llama a ninguna API; Kreo prepara el vídeo y el texto para que el creador lo suba a mano.
+ */
+export type TikTokDelivery = { kind: "published"; result: PublishResult } | { kind: "handoff"; handoff: TikTokHandoff; publishId: string | null };
+
+export async function deliverTikTok(tokens: TokenSet, input: PublishInput, mode: TikTokMode): Promise<TikTokDelivery> {
+  if (mode === "direct") {
+    try {
+      return { kind: "published", result: await publishTikTok(tokens, input) };
+    } catch (e) {
+      if (!(e instanceof PlatformError) || !directFallsBackToInbox(e.code)) throw e;
+      console.warn(`[publish] tiktok direct → inbox: ${platformCode(e.code).slice(0, 80)}`);
+    }
+  }
+  const video = input.media.find((m) => m.mime.startsWith("video/"));
+  if (!video?.bytes) return { kind: "handoff", handoff: { mode: "manual", reason: "video_required" }, publishId: null };
+  try {
+    const { publishId } = await uploadTikTokInbox(tokens, { mime: video.mime, bytes: video.bytes });
+    return { kind: "handoff", handoff: { mode: "inbox", reason: null }, publishId };
+  } catch (e) {
+    if (!(e instanceof PlatformError) || !inboxFallsBackToManual(e.code)) throw e;
+    console.warn(`[publish] tiktok inbox → manual: ${platformCode(e.code).slice(0, 80)}`);
+    return { kind: "handoff", handoff: { mode: "manual", reason: manualReason(e.code) }, publishId: null };
+  }
 }
 
 // ------------------------------------------------------------------- YouTube (Data API v3 · subida reanudable)

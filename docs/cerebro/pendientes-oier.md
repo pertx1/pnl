@@ -14,7 +14,8 @@ Lo que solo puedes hacer tú (consolas, pagos, decisiones). En orden. Tacha con 
 ## Limpieza de consolas (5 min)
 - [ ] Google: añadir el scope `youtube.force-ssl` en [Data access](https://console.cloud.google.com/auth/scopes?project=kreo-515218) y quitar `yt-analytics.readonly`.
 - [ ] Google: inhabilitar el secreto viejo del cliente «Kreo web» (el que termina en …MyfB).
-- [ ] TikTok (Kreo Sandbox): desmarcar los scopes `video.list` y `video.upload` (el código ya no los pide).
+- [ ] TikTok (Kreo Sandbox → Scopes): **marcar `video.upload`** (ahora sí se usa: «Enviar a mis borradores de TikTok») y **desmarcar `video.list`**. Después **reconectar TikTok** en Cuentas.
+- [ ] Cuando se despliegue lo de borradores de TikTok: aplicar antes la migración `20261125100000_tiktok_inbox.sql` (Claude lo hace con tu confirmación) y dejar `TIKTOK_DIRECT_POST_AUDITED` sin poner o en `false` en Vercel.
 - [ ] Meta: en la configuración de login `29290673200559330`, quitar `instagram_manage_insights`.
 - [ ] Supabase: borrar la clave secreta antigua que no funcionaba (dejar solo `kreo_vercel`) en [API keys](https://supabase.com/dashboard/project/qowvtzqqrmccuavqtsgr/settings/api-keys).
 - [ ] Supabase: aceptar la confirmación cuando Claude borre la cuenta de prueba `qa@kreo-qa.invalid`.

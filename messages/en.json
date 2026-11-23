@@ -530,14 +530,16 @@
     "rules": {
       "too_many_hashtags": "Too many hashtags for this network (Instagram: max 30; YouTube: max 60).",
       "tiktok_privacy_required": "TikTok: choose who can view the post.",
-      "tiktok_media_required": "TikTok: add a video or photos.",
-      "tiktok_branded_private": "TikTok: branded content can't be private.",
+      "tiktok_media_required": "TikTok: add a video (Kreo doesn't send photos to TikTok).",
+      "tiktok_branded_private": "TikTok: branded content can only be public or friends-only.",
       "instagram_media_required": "Instagram: add at least one image or video.",
       "youtube_video_required": "YouTube: add exactly one video or choose “Large video: upload straight to YouTube”.",
       "youtube_title_required": "YouTube: write a title.",
       "caption_too_long": "The caption exceeds the platform maximum.",
       "youtube_tags_too_long": "YouTube tags exceed 500 characters.",
-      "instagram_trial_requires_single_video": "Instagram: a trial reel needs exactly one video."
+      "instagram_trial_requires_single_video": "Instagram: a trial reel needs exactly one video.",
+      "tiktok_disclosure_incomplete": "TikTok: you need to indicate if your content promotes yourself, a third party, or both.",
+      "tiktok_consent_required": "TikTok: tick the consent box to send the video to your TikTok account."
     },
     "errorsX": {
       "daily_limit_exceeded": "An account's daily post limit would be exceeded.",
@@ -560,6 +562,7 @@
       "approved": "Approved",
       "scheduled": "Scheduled",
       "scheduled_on_platform": "Scheduled on YouTube",
+      "awaiting_user_publish": "Finish it in TikTok",
       "publishing": "Publishing",
       "published": "Published",
       "failed": "Failed",

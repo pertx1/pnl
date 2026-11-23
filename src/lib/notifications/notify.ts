@@ -1,7 +1,8 @@
 import "server-only";
 import type { createAdminClient } from "@/lib/supabase/admin";
 import type { Json } from "@/lib/supabase/database.types";
-import { accountLabel, composeText, failureReason, kindLabel, normalizeLocale, PLATFORM_LABEL, postLabel, warningsText, type NotifyLocale } from "./text";
+import { accountLabel, composeText, failureReason, kindLabel, normalizeLocale, PLATFORM_LABEL, postLabel, tiktokHandoffText, warningsText, type NotifyLocale } from "./text";
+import { parseHandoff } from "@/lib/social/tiktok-core";
 import type { NotificationType } from "./types";
 
 /**
@@ -107,6 +108,40 @@ export async function notifyPostTarget(db: Admin, postTargetId: string, outcome:
     );
   } catch (e) {
     logFail("post_target", e);
+  }
+}
+
+/**
+ * Destino de TikTok entregado al creador (en sus borradores de TikTok o listo para subir a mano) → a quien creó y
+ * aprobó la publicación, con enlace a la página de Kreo con el vídeo, el texto y «Ya lo he publicado».
+ */
+export async function notifyTikTokHandoff(db: Admin, postTargetId: string) {
+  try {
+    const { data: t } = await db.from("post_targets").select("id, post_id, social_account_id, error_code").eq("id", postTargetId).maybeSingle();
+    const handoff = parseHandoff(t?.error_code);
+    if (!t || !handoff) return;
+    const [{ data: post }, { data: acc }] = await Promise.all([
+      db.from("posts").select("id, title, project_id, workspace_id, created_by, approved_by, ai_generated").eq("id", t.post_id).maybeSingle(),
+      db.from("social_accounts").select("platform, handle, display_name").eq("id", t.social_account_id).maybeSingle(),
+    ]);
+    if (!post) return;
+    let users: (string | null)[] = [post.created_by, post.approved_by];
+    if (!users.some(Boolean)) users = await admins(db, post.workspace_id);
+    await notifyUsers(
+      db,
+      users,
+      {
+        workspaceId: post.workspace_id,
+        projectId: post.project_id,
+        type: "post_action_needed",
+        link: `/app/p/${post.project_id}/posts/${post.id}/tiktok`,
+        data: { post_id: post.id, post_target_id: t.id, platform: "tiktok", mode: handoff.mode },
+        dedupeKey: `post_target:${t.id}:handoff:${handoff.mode}`,
+      },
+      (l) => tiktokHandoffText(handoff, { platform: PLATFORM_LABEL.tiktok, account: acc ? accountLabel(acc) : "", post: postLabel(post.title, l) }, post.ai_generated, l),
+    );
+  } catch (e) {
+    logFail("tiktok_handoff", e);
   }
 }
 

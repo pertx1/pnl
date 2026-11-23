@@ -14,7 +14,7 @@ export type Json = string | number | boolean | null | { [key: string]: Json | un
 type WorkspaceRole = "viewer" | "editor" | "admin" | "owner";
 type SocialPlatform = "tiktok" | "instagram" | "youtube";
 type ConnectionStatus = "active" | "expired" | "missing_scopes" | "revoked" | "error";
-export type PostStatus = "draft" | "pending_approval" | "approved" | "scheduled" | "scheduled_on_platform" | "publishing" | "published" | "failed" | "cancelled";
+export type PostStatus = "draft" | "pending_approval" | "approved" | "scheduled" | "scheduled_on_platform" | "awaiting_user_publish" | "publishing" | "published" | "failed" | "cancelled";
 
 export type Database = {
   __InternalSupabase: { PostgrestVersion: "14.18" };
