@@ -2,6 +2,10 @@
 
 Una entrada por sesión, lo más reciente arriba. 3-6 líneas: qué se hizo, qué quedó a medias, qué toca después.
 
+## 2026-11-26
+- Rediseño «Creador» en producción (selector de proyectos, botón Crear, miniaturas).
+- Instagram Login (publicar + DMs sin página de Facebook) desplegado; se activa al poner `INSTAGRAM_APP_ID`/`INSTAGRAM_APP_SECRET` en Vercel. Sin probar en real.
+
 ## 2026-11-25 · Dirección «Creador» (rama del agente, sin desplegar)
 - Rediseño de UI con la paleta actual: títulos en Bricolage Grotesque, radios grandes, botones píldora (principal 48 px), iconos con fondo suave, estados vacíos ilustrados, `lift`/`animate-pop`. Cambiado en los componentes base (button, card, badge, input, textarea, select, tabs, dialog, dropdown) para toda la app.
 - Selector de proyectos (barra lateral y cabecera móvil como hoja inferior): buscar, recientes (cookie `kreo_recent_projects`), punto de estado, Alt+1…9, «G P» y «Cambiar a X» en Ctrl+K, manteniendo la sección. Color/avatar del proyecto derivado del id.

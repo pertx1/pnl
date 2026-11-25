@@ -11,6 +11,12 @@ Lo que solo puedes hacer tú (consolas, pagos, decisiones). En orden. Tacha con 
 - [x] Publicación real probada (Instagram + YouTube, 2026-11-23). TikTok: hay que poner la cuenta en privado mientras no esté auditada.
 - [ ] **Conectar Gmail u Outlook** en la Bandeja (opcional).
 
+## Instagram con inicio de sesión de Instagram (2026-11-26)
+- [ ] Meta → caso de uso Instagram con «Instagram login»: permisos `instagram_business_basic`, `_content_publish`, `_manage_messages` (NO `_manage_comments`), las 2 URI de redirección, webhook `messages`.
+- [ ] Vercel: `INSTAGRAM_APP_SECRET` (lo pega Oier) e `INSTAGRAM_APP_ID` (se lo pasa a Claude).
+- [ ] Aceptar la invitación de tester en Instagram y permitir el acceso a los mensajes (Herramientas conectadas).
+- [ ] Reconectar Instagram en Cuentas y pulsar «Activar mensajes» en la Bandeja (proyecto Akerra).
+
 ## Limpieza de consolas (5 min)
 - [ ] Google: añadir el scope `youtube.force-ssl` en [Data access](https://console.cloud.google.com/auth/scopes?project=kreo-515218) y quitar `yt-analytics.readonly`.
 - [ ] Google: inhabilitar el secreto viejo del cliente «Kreo web» (el que termina en …MyfB).
