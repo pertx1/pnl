@@ -19,7 +19,7 @@ Lo que solo puedes hacer tú (consolas, pagos, decisiones). En orden. Tacha con 
   (la Bandeja no los usa; dejarlos complica la revisión). Mantener `instagram_basic`, `instagram_manage_messages` e `instagram_manage_comments`.
   No hace falta añadir `pages_show_list` ni `pages_manage_metadata`.
 - [ ] Meta → *Webhooks* → objeto **Instagram**: suscribir los campos `messages` y **`comments`** (mismo callback y verify token).
-- [ ] Aplicar la migración `20261126110000_inbox_comments.sql` (o decirle a Claude que la aplique) antes de desplegar la rama.
+- [x] Migración `20261126110000_inbox_comments.sql` aplicada (2026-11-26).
 - [ ] En la Bandeja (proyecto Akerra): **Reconectar** Instagram, entrar con `akerra.nortasuna`, elegir el portfolio «Akerra» y la
   cuenta, aceptar todo y activar «Permitir acceso a los mensajes» en Instagram si lo pide.
 - [ ] No poner `INSTAGRAM_APP_ID` en Vercel: si se pone, la Bandeja vuelve a Instagram Login (que la app no tiene).

@@ -33,19 +33,19 @@ Variables de entorno: lista completa en `.env.example`; estado de cada una en Ve
 - **Publicación programada** a varias redes (Instagram y YouTube comprobados el 2026-11-23, tras arreglar que solo salía la primera red).
 - **Subida directa a YouTube** de vídeos grandes (265 MB probado, programado con `publishAt`).
 - Diseño v2, móvil con barra inferior, ordenador con ancho unificado, accesibilidad (HIG).
-- (Rama del agente, sin fusionar) **Dirección «Creador»**: selector de proyectos, «Crear» siempre visible, miniaturas de publicaciones. Ver `docs/brand.md`.
+- **Dirección «Creador»** (en producción 2026-11-26): selector de proyectos, «Crear» siempre visible, miniaturas de publicaciones. Ver `docs/brand.md`.
 
 ## Hecho pero SIN comprobar en real
-(Todas las migraciones hasta `20261125100000_tiktok_inbox.sql` están aplicadas en producción.)
+(Todas las migraciones hasta `20261126110000_inbox_comments.sql` están aplicadas en producción.)
 - **Inicio general** (`/app`) y **Mi agenda** (`/app/agenda`, + herramientas MCP de agenda).
 - **Conector de Claude (MCP + OAuth)**: conectado por Oier; herramientas nuevas (opciones por red, `update_draft_post`, subir archivos ≤ 50 MB) solo en conversaciones nuevas.
 - **Centro de avisos, mejores horas, resumen semanal y subtítulos de YouTube**.
 - **Clipper v2** (viralidad, formatos, 5 plantillas de subtítulos, editar, ZIP sin marca de agua, «Programar clips»).
 - **Plantillas, series y textos guardados**; **reel de prueba** de Instagram.
 - Bandeja (DMs de Instagram, Gmail, Outlook), audio (ElevenLabs), informes PDF, Shopify, equipo, planes, afiliados.
-- (Rama del agente, sin fusionar) **Bandeja con Instagram API with Unified Login** (config `1203482298883759`, token BISU, sin
+- (Desplegado 2026-11-26) **Bandeja con Instagram API with Unified Login** (config `1203482298883759`, token BISU, sin
   página de Facebook), **Comentarios de Instagram** (pestaña «Comentarios»: responder, ocultar/mostrar, borrador con IA) y
-  **«Marcar como leído»** (todo, por canal y por conversación). Migración `20261126110000_inbox_comments.sql` SIN aplicar.
+  **«Marcar como leído»** (todo, por canal y por conversación). Migración aplicada.
 
 ## Límites actuales
 - TikTok sin auditar: Direct Post solo publica si la **cuenta de TikTok es privada** (error `unaudited_client_can_only_post_to_private_accounts`, comprobado el 2026-11-23). Desplegado (2026-11-24): por defecto **se envía a los borradores de TikTok** y Oier lo publica desde la app de TikTok (o «subir a mano» si no se puede); necesita `video.upload` en la consola y reconectar.
