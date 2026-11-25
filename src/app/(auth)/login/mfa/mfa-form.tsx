@@ -43,7 +43,7 @@ export function MfaForm({ next = "/app" }: { next?: string }) {
     <form onSubmit={submit} className="space-y-6">
       <div className="space-y-1">
         <ShieldCheck className="size-8 text-success" aria-hidden />
-        <h1 className="text-[28px] leading-tight font-medium">{t("mfaTitle")}</h1>
+        <h1 className="page-title">{t("mfaTitle")}</h1>
         <p className="text-sm text-muted-foreground">{t("mfaSubtitle")}</p>
       </div>
       <div className="space-y-2">

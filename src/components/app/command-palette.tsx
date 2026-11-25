@@ -1,10 +1,11 @@
 "use client";
 
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { useCallback, useEffect, useId, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import { Dialog as DialogPrimitive } from "radix-ui";
-import { CalendarClock, CornerDownLeft, FilePlus2, FolderKanban, FolderPlus, LayoutDashboard, LayoutTemplate, Search, Sparkles } from "lucide-react";
+import { ArrowLeftRight, CalendarClock, CornerDownLeft, FilePlus2, FolderPlus, LayoutDashboard, LayoutTemplate, Scissors, Search, Sparkles } from "lucide-react";
+import { sameSectionHref } from "@/lib/projects/identity";
 import { cn } from "@/lib/utils";
 import { GLOBAL_NAV, PROJECT_NAV, createHrefs, matchesQuery, type NavIcon } from "./nav-config";
 
@@ -35,14 +36,21 @@ export function CommandPalette({
   onOpenChange,
   projects,
   currentProject,
+  inProject = true,
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   projects: Project[];
+  /** Proyecto actual (el de la URL o, fuera de un proyecto, el último usado). */
   currentProject?: Project;
+  /** ¿Estamos dentro de `currentProject`? (si no, «Cambiar a» también lo ofrece). */
+  inProject?: boolean;
 }) {
   const t = useTranslations("nav");
+  const tc = useTranslations("shell.create");
+  const tsw = useTranslations("shell.palette");
   const router = useRouter();
+  const pathname = usePathname();
   const uid = useId();
   const [query, setQuery] = useState("");
   const [active, setActive] = useState(0);
@@ -65,13 +73,14 @@ export function CommandPalette({
     const list: Command[] = [];
     const gCreate = t("groupCreate");
     const gGo = t("palette.groupGo");
-    const gProjects = t("palette.groupProjects");
+    const gProjects = tsw("switchGroup");
 
     if (currentProject) {
       list.push(
         { id: "c-post", group: gCreate, label: t("newPost"), hint: currentProject.name, href: createHrefs.newPost(currentProject.id), icon: FilePlus2 },
         { id: "c-tpl", group: gCreate, label: t("fromTemplate"), hint: currentProject.name, keywords: t("templatesKeywords"), href: createHrefs.fromTemplate(currentProject.id), icon: LayoutTemplate },
         { id: "c-ai", group: gCreate, label: t("generateAI"), hint: currentProject.name, keywords: t("studio"), href: createHrefs.generate(currentProject.id), icon: Sparkles },
+        { id: "c-clip", group: gCreate, label: tc("clip"), hint: currentProject.name, keywords: t("clipper"), href: createHrefs.clipper(currentProject.id), icon: Scissors },
       );
     } else {
       for (const p of projects) {
@@ -105,12 +114,13 @@ export function CommandPalette({
     for (const it of GLOBAL_NAV) {
       list.push({ id: `go-${it.href}`, group: gGo, label: t(it.label), href: it.href, icon: it.icon });
     }
+    // «Cambiar a X»: mantiene la sección actual (del Calendario de A al Calendario de B).
     for (const p of projects) {
-      if (p.id === currentProject?.id) continue;
-      list.push({ id: `p-${p.id}`, group: gProjects, label: p.name, keywords: t("project"), href: `/app/p/${p.id}`, icon: FolderKanban });
+      if (inProject && p.id === currentProject?.id) continue;
+      list.push({ id: `p-${p.id}`, group: gProjects, label: tsw("switchTo", { name: p.name }), keywords: `${t("project")} ${t("palette.groupProjects")}`, href: sameSectionHref(pathname, "", p.id), icon: ArrowLeftRight });
     }
     return list;
-  }, [t, projects, currentProject]);
+  }, [t, tc, tsw, projects, currentProject, inProject, pathname]);
 
   const results = useMemo(
     () => commands.filter((c) => matchesQuery(`${c.label} ${c.hint ?? ""} ${c.keywords ?? ""} ${c.group}`, query)),
@@ -202,11 +212,11 @@ export function CommandPalette({
             // Segundo intento: un menú que se acaba de cerrar puede devolver el foco a su botón un instante después.
 
           }}
-          className="fixed top-[10vh] left-1/2 z-50 flex max-h-[min(32rem,80vh)] w-[calc(100%-2rem)] max-w-lg -translate-x-1/2 flex-col overflow-hidden rounded-lg border border-border bg-popover text-popover-foreground shadow-lg outline-none data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 motion-reduce:animate-none"
+          className="fixed top-[10vh] left-1/2 z-50 flex max-h-[min(32rem,80vh)] w-[calc(100%-2rem)] max-w-lg -translate-x-1/2 flex-col overflow-hidden rounded-3xl border border-border bg-popover text-popover-foreground shadow-2xl outline-none data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 motion-reduce:animate-none"
         >
           <DialogPrimitive.Title className="sr-only">{t("palette.title")}</DialogPrimitive.Title>
           <DialogPrimitive.Description className="sr-only">{t("palette.description")}</DialogPrimitive.Description>
-          <div className="flex items-center gap-2 border-b border-border px-3">
+          <div className="flex items-center gap-2 border-b border-border px-4">
             <Search className="size-4 shrink-0 text-muted-foreground" strokeWidth={1.5} aria-hidden />
             <input
               ref={inputRef}
@@ -224,12 +234,12 @@ export function CommandPalette({
                 setActive(0);
               }}
               onKeyDown={onKeyDown}
-              className="h-12 min-w-0 flex-1 bg-transparent text-base outline-none placeholder:text-muted-foreground sm:text-sm"
+              className="h-14 min-w-0 flex-1 bg-transparent text-base outline-none placeholder:text-muted-foreground sm:text-sm"
             />
             <kbd className="hidden rounded-sm border border-border px-1.5 py-0.5 font-mono text-[10px] text-muted-foreground sm:inline">Esc</kbd>
           </div>
 
-          <div id={listId} role="listbox" aria-label={t("palette.results")} className="min-h-0 flex-1 overflow-y-auto p-1">
+          <div id={listId} role="listbox" aria-label={t("palette.results")} className="min-h-0 flex-1 overflow-y-auto p-2">
             {groups.map((g, gi) => (
               <div key={g.name} role="group" aria-labelledby={`${uid}-g-${gi}`} className="py-1">
                 <p id={`${uid}-g-${gi}`} aria-hidden className="label-mono px-2 pb-1 !text-[10px]">
@@ -250,7 +260,7 @@ export function CommandPalette({
                       onMouseDown={(e) => e.preventDefault()}
                       onClick={() => go(cmd)}
                       className={cn(
-                        "flex min-h-10 cursor-pointer items-center gap-2.5 rounded-md px-2 text-sm",
+                        "flex min-h-11 cursor-pointer items-center gap-3 rounded-xl px-2.5 text-sm",
                         selected ? "bg-accent text-foreground" : "text-muted-foreground",
                       )}
                     >

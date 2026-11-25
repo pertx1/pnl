@@ -42,7 +42,7 @@ export default async function ApiKeysPage() {
           <ArrowLeft className="size-3.5" aria-hidden /> {t("back")}
         </Link>
         <p className="label-mono">{t("eyebrow")}</p>
-        <h1 className="text-[28px] leading-tight font-medium">{t("title")}</h1>
+        <h1 className="page-title">{t("title")}</h1>
         <p className="text-sm text-muted-foreground">{t("subtitle")}</p>
       </div>
 

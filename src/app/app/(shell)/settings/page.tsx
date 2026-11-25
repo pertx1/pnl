@@ -26,7 +26,7 @@ export default async function SettingsPage() {
 
   return (
     <div className="mx-auto w-full max-w-[1360px] [&>*]:max-w-3xl space-y-6">
-      <h1 className="text-[28px] leading-tight font-medium">{t("title")}</h1>
+      <h1 className="page-title">{t("title")}</h1>
 
       <Card>
         <CardHeader>

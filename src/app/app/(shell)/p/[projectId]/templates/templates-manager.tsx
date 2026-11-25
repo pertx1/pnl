@@ -28,7 +28,6 @@ const STATUSES: PostStatus[] = ["draft", "pending_approval", "approved", "schedu
 
 export function TemplatesManager({
   projectId,
-  projectName,
   canEdit,
   templates,
   snippets,
@@ -81,8 +80,7 @@ export function TemplatesManager({
     <div className="mx-auto w-full max-w-[1360px] space-y-8">
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div className="space-y-1">
-          <p className="label-mono">{projectName}</p>
-          <h1 className="text-[28px] leading-tight font-medium">{t("title")}</h1>
+          <h1 className="page-title">{t("title")}</h1>
           <p className="max-w-2xl text-sm text-muted-foreground">{t("intro")}</p>
         </div>
         {canEdit && (

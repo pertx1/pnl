@@ -151,7 +151,7 @@ export function StudioWorkspace({
       {/* Cabecera compacta: título a la izquierda, tipo de contenido a la derecha. */}
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <h1 className="text-[28px] leading-tight font-medium">{t("title")}</h1>
+          <h1 className="page-title">{t("title")}</h1>
           <p className="text-sm text-muted-foreground">{t("subtitle")}</p>
         </div>
         <div role="tablist" aria-label={t("filterLabel")} className="flex gap-1 rounded-full border bg-secondary/40 p-1">

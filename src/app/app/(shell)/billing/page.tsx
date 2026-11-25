@@ -40,7 +40,7 @@ export default async function BillingPage({ searchParams }: { searchParams: Prom
     <div className="mx-auto w-full max-w-[1360px] space-y-6">
       <div>
         <p className="label-mono">{workspace.name}</p>
-        <h1 className="text-[28px] leading-tight font-medium">{tp("pageTitle")}</h1>
+        <h1 className="page-title">{tp("pageTitle")}</h1>
         <p className="text-sm text-muted-foreground">{tp("pageSubtitle")}</p>
       </div>
 
@@ -53,7 +53,7 @@ export default async function BillingPage({ searchParams }: { searchParams: Prom
         <Card>
           <CardContent className="grid gap-6 md:grid-cols-[minmax(0,1fr)_minmax(0,1.4fr)]">
             <div className="space-y-2">
-              <p className="text-[28px] leading-tight font-medium">{usage?.planName ?? currentPlan?.name ?? workspace.planId}</p>
+              <p className="page-title">{usage?.planName ?? currentPlan?.name ?? workspace.planId}</p>
               {subscription?.status && subscription.subscription_id ? (
                 <p className="text-sm text-muted-foreground">
                   {tp.has(`subStatus.${subscription.status}`) ? tp(`subStatus.${subscription.status}`) : subscription.status}

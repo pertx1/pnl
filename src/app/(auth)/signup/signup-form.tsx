@@ -19,7 +19,7 @@ export function SignupForm({ referral }: { referral?: string }) {
     return (
       <div className="space-y-3 text-center">
         <MailCheck className="mx-auto size-10 text-success" aria-hidden />
-        <h1 className="text-[28px] leading-tight font-medium">{t("checkEmailTitle")}</h1>
+        <h1 className="page-title">{t("checkEmailTitle")}</h1>
         <p className="text-sm text-muted-foreground">{t("checkEmailBody", { email: state.message ?? "" })}</p>
       </div>
     );
@@ -37,7 +37,7 @@ export function SignupForm({ referral }: { referral?: string }) {
   return (
     <div className="space-y-6">
       <div className="space-y-1">
-        <h1 className="text-[28px] leading-tight font-medium">{t("signupTitle")}</h1>
+        <h1 className="page-title">{t("signupTitle")}</h1>
         <p className="text-sm text-muted-foreground">{t("signupSubtitle")}</p>
       </div>
       <form action={action} className="space-y-4">

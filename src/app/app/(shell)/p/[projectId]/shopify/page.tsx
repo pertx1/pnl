@@ -38,8 +38,7 @@ export default async function ShopifyPage({ params, searchParams }: { params: Pr
 
   const header = (
     <div>
-      <p className="label-mono">{project.name}</p>
-      <h1 className="text-[28px] leading-tight font-medium">{t("title")}</h1>
+      <h1 className="page-title">{t("title")}</h1>
       <p className="text-sm text-muted-foreground">{t("subtitle")}</p>
     </div>
   );

@@ -61,7 +61,7 @@ export default async function NotificationPage({ params }: { params: Promise<{ i
       </Button>
       <div>
         {weekly && <p className="label-mono">{weekly.project.name}</p>}
-        <h1 className="text-[28px] leading-tight font-medium">{weekly ? t("weekly.pageTitle") : n.title}</h1>
+        <h1 className="page-title">{weekly ? t("weekly.pageTitle") : n.title}</h1>
         <p className="text-xs text-muted-foreground">
           <time dateTime={n.createdAt}>{format.dateTime(new Date(n.createdAt), { dateStyle: "medium", timeStyle: "short" })}</time>
         </p>

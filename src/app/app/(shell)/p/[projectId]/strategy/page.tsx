@@ -50,8 +50,7 @@ export default async function StrategyPage({ params, searchParams }: { params: P
     <div className="mx-auto w-full max-w-[1360px] space-y-6">
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <p className="label-mono">{project.name}</p>
-          <h1 className="text-[28px] leading-tight font-medium">{t("title")}</h1>
+          <h1 className="page-title">{t("title")}</h1>
           <p className="text-sm text-muted-foreground">{t("subtitle")}</p>
         </div>
         <Link href={`/app/p/${projectId}/warmup`} className="link inline-flex items-center gap-1.5 text-sm">

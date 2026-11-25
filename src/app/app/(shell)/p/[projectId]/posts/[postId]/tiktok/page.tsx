@@ -68,8 +68,7 @@ export default async function TikTokHandoffPage({ params }: { params: Promise<{ 
         <Link href={`/app/p/${projectId}/posts/${postId}`} className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground">
           <ArrowLeft className="size-4" aria-hidden /> {t("back")}
         </Link>
-        <p className="label-mono">{project.name}</p>
-        <h1 className="text-[28px] leading-tight font-medium">{t("title")}</h1>
+        <h1 className="page-title">{t("title")}</h1>
         {post.title && <p className="text-sm text-muted-foreground">{post.title}</p>}
       </div>
       {views.length === 0 ? (

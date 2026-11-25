@@ -17,7 +17,7 @@ export default async function OAuthErrorPage({ searchParams }: { searchParams: P
   return (
     <div className="space-y-5">
       <ShieldAlert className="size-8 text-destructive" strokeWidth={1.5} aria-hidden />
-      <h1 className="text-[28px] leading-tight font-medium">{t("title")}</h1>
+      <h1 className="page-title">{t("title")}</h1>
       <p className="text-sm text-muted-foreground">{t(`reasons.${reason}`)}</p>
       <Button asChild variant="outline">
         <Link href="/app">{t("back")}</Link>

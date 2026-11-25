@@ -36,7 +36,7 @@ export default async function AnalyticsPage({ params }: { params: Promise<{ proj
   const { projectId } = await params;
   const t = await getTranslations("analytics");
   const format = await getFormatter();
-  const project = await getProject(projectId);
+  await getProject(projectId); // 404 si no existe o no hay acceso
   const supabase = await createClient();
 
   const { since, mid } = periodBounds(DAYS);
@@ -94,8 +94,7 @@ export default async function AnalyticsPage({ params }: { params: Promise<{ proj
     <div className="mx-auto w-full max-w-[1360px] space-y-6">
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <p className="label-mono">{project.name}</p>
-          <h1 className="text-[28px] leading-tight font-medium">{t("title")}</h1>
+          <h1 className="page-title">{t("title")}</h1>
           <p className="text-sm text-muted-foreground">{t("subtitle")}</p>
         </div>
         <Button asChild variant="outline">

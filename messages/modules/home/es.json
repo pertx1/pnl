@@ -50,6 +50,9 @@
     "creditsBalance": "Saldo",
     "creditsSpent": "Gastados · 30 días",
     "creditsNote": "Créditos del espacio de trabajo, compartidos por todos los proyectos ({monthly} al mes con tu plan). Cada acción de pago muestra su coste antes.",
-    "buyCredits": "Plan y créditos"
+    "buyCredits": "Plan y créditos",
+    "upcomingTitle": "Próximas publicaciones",
+    "upcomingEmpty": "No tienes nada programado. Crea una publicación, apruébala y saldrá a su hora.",
+    "aiLabel": "Generado con IA"
   }
 }

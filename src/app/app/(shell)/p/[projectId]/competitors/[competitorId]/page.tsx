@@ -70,8 +70,7 @@ export default async function CompetitorDetailPage({ params }: Params) {
             <PlatformIcon platform={c.platform} className="size-14" />
           )}
           <div className="min-w-0">
-            <p className="label-mono">{project.name}</p>
-            <h1 className="truncate text-[28px] leading-tight font-medium">{c.display_name ?? c.handle}</h1>
+            <h1 className="truncate page-title">{c.display_name ?? c.handle}</h1>
             <p className="flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
               <PlatformIcon platform={c.platform} className="size-5 text-[8px]" />
               {c.handle}

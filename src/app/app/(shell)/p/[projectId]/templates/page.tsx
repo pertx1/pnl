@@ -25,8 +25,7 @@ export default async function TemplatesPage({ params }: { params: Promise<{ proj
     return (
       <div className="mx-auto w-full max-w-[1360px] space-y-4">
         <div>
-          <p className="label-mono">{project.name}</p>
-          <h1 className="text-[28px] leading-tight font-medium">{t("title")}</h1>
+          <h1 className="page-title">{t("title")}</h1>
         </div>
         <p role="note" className="rounded-md border border-warning/40 bg-warning/10 px-3 py-2 text-sm text-warning">
           {t("notConfigured")}

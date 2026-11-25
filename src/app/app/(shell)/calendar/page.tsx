@@ -18,8 +18,8 @@ export default async function GlobalCalendarPage({ searchParams }: { searchParam
   return (
     <div className="mx-auto w-full max-w-[1360px] space-y-6">
       <div>
-        <p className="label-mono">{workspace.name}</p>
-        <h1 className="text-[28px] leading-tight font-medium">{t("globalTitle")}</h1>
+        <p className="text-sm font-medium text-muted-foreground">{workspace.name}</p>
+        <h1 className="page-title">{t("globalTitle")}</h1>
       </div>
       <CalendarView key={`${v}-${d ?? ""}`} posts={posts} view={v} day={d} reschedule={reschedulePost} showProject />
     </div>

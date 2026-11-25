@@ -50,6 +50,9 @@
     "creditsBalance": "Balance",
     "creditsSpent": "Spent · 30 days",
     "creditsNote": "Workspace credits, shared by all projects ({monthly} a month on your plan). Every paid action shows its cost first.",
-    "buyCredits": "Plan & credits"
+    "buyCredits": "Plan & credits",
+    "upcomingTitle": "Coming up",
+    "upcomingEmpty": "Nothing scheduled yet. Create a post, approve it and it goes out on time.",
+    "aiLabel": "AI-generated"
   }
 }

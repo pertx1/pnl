@@ -17,7 +17,7 @@ export function LoginForm({ next, callbackError }: { next?: string; callbackErro
   return (
     <div className="space-y-6">
       <div className="space-y-1">
-        <h1 className="text-[28px] leading-tight font-medium">{t("loginTitle")}</h1>
+        <h1 className="page-title">{t("loginTitle")}</h1>
         <p className="text-sm text-muted-foreground">{t("loginSubtitle")}</p>
       </div>
       {callbackError && (

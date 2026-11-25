@@ -4,13 +4,15 @@ import Link from "next/link";
 import { useSyncExternalStore } from "react";
 import { useFormatter, useTranslations } from "next-intl";
 import { CalendarDays, Plus } from "lucide-react";
+import { EmptyState } from "@/components/kreo/empty-state";
+import { PostThumb, type ThumbCover } from "@/components/kreo/post-thumb";
 import { StatusBadge, type PostStatus } from "@/components/kreo/status-badge";
 import { PlatformIcon } from "@/components/social/platform-icon";
 import { Button } from "@/components/ui/button";
 import { DEFAULT_TZ, weekStrip } from "@/lib/dashboard/stats";
 import { cn } from "@/lib/utils";
 
-export type WeekPost = { id: string; title: string | null; caption: string; status: string; scheduledAt: string; platforms: string[] };
+export type WeekPost = { id: string; title: string | null; caption: string; status: string; scheduledAt: string; platforms: string[]; cover?: ThumbCover | null };
 
 const noop = () => () => {};
 /** Zona horaria del navegador; en el servidor (y al hidratar) se usa la de Kreo para que no haya desajustes. */
@@ -51,7 +53,7 @@ export function WeekAhead({ posts, nowIso, base, canCreate }: { posts: WeekPost[
                 aria-label={`${full}: ${t("postsCount", { count: d.count })}`}
                 aria-current={d.isToday ? "date" : undefined}
                 className={cn(
-                  "flex min-h-16 flex-col items-center justify-center gap-0.5 rounded-lg border px-0.5 py-2 text-center transition-colors hover:border-border-strong hover:bg-accent/40",
+                  "flex min-h-16 flex-col items-center justify-center gap-0.5 rounded-2xl border px-0.5 py-2 text-center transition-colors hover:border-border-strong hover:bg-accent/40",
                   d.isToday && "border-selected",
                 )}
               >
@@ -67,22 +69,21 @@ export function WeekAhead({ posts, nowIso, base, canCreate }: { posts: WeekPost[
       </ol>
 
       {shown.length === 0 ? (
-        <div className="bg-dots flex flex-col items-center gap-3 rounded-lg border border-dashed px-6 py-8 text-center">
-          <CalendarDays className="size-6 text-muted-foreground" strokeWidth={1.5} aria-hidden />
-          <p className="max-w-sm text-sm text-muted-foreground">{t("weekEmpty")}</p>
+        <EmptyState icon={CalendarDays} body={t("weekEmpty")} compact>
           {canCreate && (
-            <Button asChild size="sm" variant="outline">
+            <Button asChild variant="outline">
               <Link href={`${base}/posts/new`}>
                 <Plus /> {tp("newPost")}
               </Link>
             </Button>
           )}
-        </div>
+        </EmptyState>
       ) : (
         <ul className="-mx-2 divide-y">
           {shown.map((p) => (
             <li key={p.id}>
-              <Link href={`${base}/posts/${p.id}`} className="flex min-h-11 flex-wrap items-center gap-x-3 gap-y-1 rounded-md px-2 py-2.5 hover:bg-accent/40 sm:flex-nowrap">
+              <Link href={`${base}/posts/${p.id}`} className="flex min-h-11 flex-wrap items-center gap-x-3 gap-y-1 rounded-xl px-2 py-2 hover:bg-accent/40 sm:flex-nowrap">
+                <PostThumb cover={p.cover} className="size-11 shrink-0 rounded-xl" />
                 <time dateTime={p.scheduledAt} className="w-24 shrink-0 font-mono text-xs text-muted-foreground tabular-nums sm:w-28">
                   {format.dateTime(new Date(p.scheduledAt), { weekday: "short", day: "numeric", hour: "2-digit", minute: "2-digit", timeZone })}
                 </time>

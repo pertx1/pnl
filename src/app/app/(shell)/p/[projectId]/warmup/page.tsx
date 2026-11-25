@@ -62,8 +62,7 @@ export default async function WarmupPage({ params, searchParams }: { params: Pro
     <div className="mx-auto w-full max-w-[1360px] space-y-6">
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <p className="label-mono">{project.name}</p>
-          <h1 className="text-[28px] leading-tight font-medium">{t("title")}</h1>
+          <h1 className="page-title">{t("title")}</h1>
           <p className="max-w-2xl text-sm text-muted-foreground">{t("subtitle")}</p>
         </div>
         {canEdit && selected && !sp.new && (

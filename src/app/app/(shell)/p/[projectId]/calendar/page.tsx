@@ -2,11 +2,13 @@ import Link from "next/link";
 import { getFormatter, getTranslations } from "next-intl/server";
 import { LayoutTemplate, Plus, Sparkles, X } from "lucide-react";
 import { CalendarView } from "@/components/calendar/calendar-view";
+import { PostThumb } from "@/components/kreo/post-thumb";
 import { StatusBadge } from "@/components/kreo/status-badge";
 import { PlatformIcon } from "@/components/social/platform-icon";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { getCalendarPosts, getPostsByStatus, isFilterableStatus } from "@/lib/server/calendar";
+import { FILTERABLE_STATUSES, getCalendarPosts, getPostsByStatus, isFilterableStatus } from "@/lib/server/calendar";
+import { cn } from "@/lib/utils";
 import { getProject, roleAtLeast } from "@/lib/server/dal";
 import { reschedulePost } from "../posts/actions";
 
@@ -33,17 +35,16 @@ export default async function ProjectCalendarPage({ params, searchParams }: { pa
     <div className="mx-auto w-full max-w-[1360px] space-y-6">
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <p className="label-mono">{project.name}</p>
-          <h1 className="text-[28px] leading-tight font-medium">{t("title")}</h1>
+          <h1 className="page-title">{t("title")}</h1>
         </div>
         {canEdit && (
           <div className="flex flex-wrap gap-2">
-            <Button asChild variant="outline">
+            <Button asChild variant="outline" size="lg">
               <Link href={`/app/p/${projectId}/templates`}>
                 <LayoutTemplate aria-hidden /> {ttpl("metaTitle")}
               </Link>
             </Button>
-            <Button asChild>
+            <Button asChild size="lg">
               <Link href={`/app/p/${projectId}/posts/new`}>
                 <Plus /> {tp("new")}
               </Link>
@@ -51,11 +52,32 @@ export default async function ProjectCalendarPage({ params, searchParams }: { pa
           </div>
         )}
       </div>
+      {/* Filtros rápidos: lo que necesita tu atención, a un toque. */}
+      <nav aria-label={t("quickFilters")} className="flex flex-wrap items-center gap-2">
+        <span className="text-sm text-muted-foreground">{t("quickFilters")}</span>
+        {FILTERABLE_STATUSES.map((st) => {
+          const on = filter === st;
+          return (
+            <Link
+              key={st}
+              href={on ? `/app/p/${projectId}/calendar` : `/app/p/${projectId}/calendar?status=${st}`}
+              aria-current={on ? "page" : undefined}
+              className={cn(
+                "inline-flex min-h-9 items-center gap-1.5 rounded-full border px-3.5 text-sm font-medium transition-colors pointer-coarse:min-h-11",
+                on ? "border-selected bg-primary/15 text-foreground" : "text-muted-foreground hover:border-border-strong hover:text-foreground",
+              )}
+            >
+              {tp(`status.${st}`)}
+              {on && <X className="size-3.5" aria-hidden />}
+            </Link>
+          );
+        })}
+      </nav>
       {filter ? (
         <section aria-labelledby="filter-title" className="space-y-3">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div>
-              <h2 id="filter-title" className="font-medium">
+              <h2 id="filter-title" className="section-title">
                 {t("filterTitle", { status: tp(`status.${filter}`) })}
               </h2>
               <p className="text-sm text-muted-foreground">
@@ -70,10 +92,11 @@ export default async function ProjectCalendarPage({ params, searchParams }: { pa
             </Button>
           </div>
           {filtered.length > 0 && (
-            <ul className="divide-y rounded-lg border">
+            <ul className="divide-y rounded-2xl border">
               {filtered.map((p) => (
                 <li key={p.id}>
-                  <Link href={`/app/p/${projectId}/posts/${p.id}`} className="flex min-h-11 flex-wrap items-center gap-3 px-3 py-2.5 hover:bg-secondary/50">
+                  <Link href={`/app/p/${projectId}/posts/${p.id}`} className="flex min-h-11 flex-wrap items-center gap-3 px-3 py-2 hover:bg-secondary/50">
+                    <PostThumb cover={p.cover} className="h-14 w-10 shrink-0 rounded-lg" />
                     <span className="w-36 font-mono text-xs text-muted-foreground tabular-nums">
                       {p.scheduledAt ? format.dateTime(new Date(p.scheduledAt), { dateStyle: "medium", timeStyle: "short" }) : t("filterNoDate")}
                     </span>

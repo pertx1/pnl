@@ -2,6 +2,13 @@
 
 Una entrada por sesión, lo más reciente arriba. 3-6 líneas: qué se hizo, qué quedó a medias, qué toca después.
 
+## 2026-11-25 · Dirección «Creador» (rama del agente, sin desplegar)
+- Rediseño de UI con la paleta actual: títulos en Bricolage Grotesque, radios grandes, botones píldora (principal 48 px), iconos con fondo suave, estados vacíos ilustrados, `lift`/`animate-pop`. Cambiado en los componentes base (button, card, badge, input, textarea, select, tabs, dialog, dropdown) para toda la app.
+- Selector de proyectos (barra lateral y cabecera móvil como hoja inferior): buscar, recientes (cookie `kreo_recent_projects`), punto de estado, Alt+1…9, «G P» y «Cambiar a X» en Ctrl+K, manteniendo la sección. Color/avatar del proyecto derivado del id.
+- Botón «Crear» siempre visible (FAB central en móvil) con Publicación, IA, Clips, Agenda, Plantilla. Barra lateral: día a día arriba, resto en «Más». Contadores por aprobar/sin leer.
+- Miniaturas de las publicaciones (imagen, póster o primer fotograma) en Inicio, panel y calendario, firmadas por lotes (`getPostCovers`); tira «Próximas publicaciones» 9:16.
+- Toca: revisión `seguridad-legal` (cookie de preferencia nueva) y `qa-tester`; que Oier lo vea antes de fusionar.
+
 ## 2026-11-25 (rama de trabajo del agente, sin desplegar)
 - **TikTok sin auditar**: modo «Enviar a mis borradores de TikTok» (API oficial inbox, scope `video.upload`), por defecto mientras `TIKTOK_DIRECT_POST_AUDITED` ≠ `true`. Estado nuevo `awaiting_user_publish` («Termínala en TikTok»), aviso en la campana y página `/posts/<id>/tiktok` con pasos, texto, hashtags, descarga del vídeo y «Ya lo he publicado». Sondeo de `status/fetch` cada 15 min (7 días).
 - Si no se puede usar la API (sin el scope, 5 pendientes en 24 h, token caducado…) → «Listo para subir a mano». Direct Post rechazado por cliente sin auditar → pasa solo a borradores. Nunca «fallido» por la auditoría.

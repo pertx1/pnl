@@ -65,6 +65,12 @@ export const PROJECT_NAV: { label: string; items: { path: string; icon: NavIcon;
   },
 ];
 
+/** Secciones del día a día (van arriba en la barra lateral, con iconos grandes). El resto va a «Más». */
+export const DAILY_PROJECT_PATHS = ["calendar", "inbox", "studio", "clipper"] as const;
+
+/** Herramientas del proyecto que van en «Más», en el orden de PROJECT_NAV. */
+export const MORE_PROJECT_NAV = PROJECT_NAV.flatMap((g) => g.items).filter((it) => !(DAILY_PROJECT_PATHS as readonly string[]).includes(it.path));
+
 /** Secciones fuera de un proyecto (las de la cuenta / workspace). `label` es una clave de `nav`. */
 export const GLOBAL_NAV: { href: string; icon: NavIcon; label: string }[] = [
   { href: "/app", icon: House, label: "home" },
@@ -81,6 +87,7 @@ export const GLOBAL_NAV: { href: string; icon: NavIcon; label: string }[] = [
 export const createHrefs = {
   newPost: (projectId: string) => `/app/p/${projectId}/posts/new`,
   generate: (projectId: string) => `/app/p/${projectId}/studio`,
+  clipper: (projectId: string) => `/app/p/${projectId}/clipper`,
   fromTemplate: (projectId: string) => `/app/p/${projectId}/templates`,
   newProject: "/app/projects/new",
   agendaBlock: "/app/agenda?new=1",

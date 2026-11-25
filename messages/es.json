@@ -617,7 +617,9 @@
     "filterCount": "{count, plural, =0 {No hay ninguna.} one {# publicación} other {# publicaciones}}",
     "filterClear": "Ver el calendario completo",
     "filterNoDate": "Sin fecha",
-    "filterFailedHint": "Abre cada una para ver qué falló y volver a intentarlo."
+    "filterFailedHint": "Abre cada una para ver qué falló y volver a intentarlo.",
+    "viewLabel": "Vista",
+    "quickFilters": "Ver solo"
   },
   "analytics": {
     "title": "Analíticas",

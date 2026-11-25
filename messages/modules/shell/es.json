@@ -1,0 +1,65 @@
+{
+  "shell": {
+    "nav": {
+      "main": "Navegación",
+      "home": "Inicio",
+      "panel": "Resumen",
+      "calendar": "Calendario",
+      "inbox": "Bandeja",
+      "studio": "Estudio",
+      "clipper": "Clipper",
+      "agenda": "Mi agenda",
+      "more": "Más",
+      "moreTools": "Más herramientas",
+      "account": "Tu cuenta",
+      "pendingBadge": "{count, plural, one {# por aprobar} other {# por aprobar}}",
+      "unreadBadge": "{count, plural, one {# sin leer} other {# sin leer}}",
+      "post": "Publicación"
+    },
+    "create": {
+      "button": "Crear",
+      "title": "¿Qué quieres crear?",
+      "inProject": "En {name}",
+      "noProject": "Crea un proyecto para empezar.",
+      "post": "Publicación",
+      "postHint": "Texto, foto o vídeo para tus redes",
+      "ai": "Generar con IA",
+      "aiHint": "Imagen, vídeo o voz · gasta créditos",
+      "clip": "Clips de un vídeo",
+      "clipHint": "Sube un vídeo y saca clips cortos",
+      "agenda": "Bloque en mi agenda",
+      "agendaHint": "Reserva tiempo para crear",
+      "template": "Desde plantilla",
+      "templateHint": "Reutiliza un formato guardado",
+      "project": "Nuevo proyecto"
+    },
+    "switcher": {
+      "trigger": "Cambiar de proyecto. Ahora: {name}",
+      "triggerEmpty": "Crear tu primer proyecto",
+      "title": "Cambiar de proyecto",
+      "description": "Escribe para filtrar. Flechas para moverte, Enter para abrir, Escape para cerrar.",
+      "search": "Buscar proyecto…",
+      "recent": "Recientes",
+      "all": "Todos",
+      "empty": "Ningún proyecto se llama «{query}».",
+      "current": "Actual",
+      "newProject": "Nuevo proyecto",
+      "manage": "Ver todos",
+      "workspace": "Espacio de trabajo",
+      "attention": "Tiene cosas pendientes",
+      "allClear": "Al día",
+      "hint": "Alt + 1…9 cambia de proyecto · G y luego P abre este selector",
+      "label": "Proyecto"
+    },
+    "crumb": {
+      "label": "Estás en"
+    },
+    "palette": {
+      "switchGroup": "Cambiar de proyecto",
+      "switchTo": "Cambiar a {name}"
+    },
+    "mobile": {
+      "search": "Buscar"
+    }
+  }
+}

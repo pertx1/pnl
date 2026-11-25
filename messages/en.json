@@ -617,7 +617,9 @@
     "filterCount": "{count, plural, =0 {None.} one {# post} other {# posts}}",
     "filterClear": "See the full calendar",
     "filterNoDate": "No date",
-    "filterFailedHint": "Open each one to see what went wrong and try again."
+    "filterFailedHint": "Open each one to see what went wrong and try again.",
+    "viewLabel": "View",
+    "quickFilters": "Show only"
   },
   "analytics": {
     "title": "Analytics",

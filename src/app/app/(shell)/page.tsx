@@ -3,10 +3,14 @@ import { getFormatter, getTranslations } from "next-intl/server";
 import type { LucideIcon } from "lucide-react";
 import { AlertTriangle, ArrowRight, CalendarDays, CalendarPlus, Clock, Coins, FolderPlus, LayoutDashboard, ListTodo, Plug, Plus, Send, TriangleAlert, UserCheck } from "lucide-react";
 import { KIND_STYLE } from "@/components/agenda/kinds";
-import { ProjectDot } from "@/components/dashboard/project-dot";
+import { ProjectAvatar, ProjectDot } from "@/components/dashboard/project-dot";
 import { QuickCreatePost } from "@/components/dashboard/quick-create";
 import { Sparkline } from "@/components/dashboard/sparkline";
+import { EmptyState } from "@/components/kreo/empty-state";
+import { IconBubble } from "@/components/kreo/icon-bubble";
+import { PostThumb } from "@/components/kreo/post-thumb";
 import { StatusBadge, type PostStatus } from "@/components/kreo/status-badge";
+import { UpcomingStrip } from "@/components/kreo/upcoming-strip";
 import { PlatformIcon } from "@/components/social/platform-icon";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -17,6 +21,7 @@ import { breakdown, countByProject, firstByProject, homeBounds, tasksDue } from 
 import { addDaysToKey, creditsSpent, dayIn, statsByAccount } from "@/lib/dashboard/stats";
 import { zonedParts } from "@/lib/mcp/calendar";
 import { getCreditBalance, getCurrentWorkspace, getPlan, getProjects, requireUser, roleAtLeast } from "@/lib/server/dal";
+import { getPostCovers } from "@/lib/server/post-media";
 import { createClient } from "@/lib/supabase/server";
 import { cn } from "@/lib/utils";
 
@@ -26,6 +31,7 @@ export async function generateMetadata() {
 }
 
 const NEXT_STATUSES = ["pending_approval", "approved", "scheduled", "publishing"] as const;
+const STRIP_STATUSES = [...NEXT_STATUSES, "scheduled_on_platform", "awaiting_user_publish"] as const;
 
 /**
  * Inicio: el panel general de TODOS los proyectos del workspace activo y la agenda personal del usuario.
@@ -61,6 +67,7 @@ export default async function HomePage() {
     { data: failedRows },
     { data: taskRows },
     { data: ledger },
+    { data: stripData },
   ] = await Promise.all([
     getProjects(ws),
     getCreditBalance(ws),
@@ -76,7 +83,7 @@ export default async function HomePage() {
       .limit(5000),
     supabase
       .from("posts")
-      .select("id, project_id, title, caption, status, scheduled_at, post_targets(social_accounts(platform))")
+      .select("id, project_id, title, caption, status, scheduled_at, asset_ids, post_targets(platform_options, social_accounts(platform))")
       .eq("workspace_id", ws)
       .neq("status", "cancelled")
       .gte("scheduled_at", b.todayStartIso)
@@ -101,6 +108,15 @@ export default async function HomePage() {
       .limit(1000),
     supabase.from("roadmap_tasks").select("project_id, due_date").eq("workspace_id", ws).neq("status", "done").lte("due_date", b.today).limit(1000),
     supabase.from("credit_ledger").select("delta, reason").eq("workspace_id", ws).gte("created_at", b.since30Iso).limit(5000),
+    // Tira «Próximas publicaciones»: también los borradores con fecha (como el panel del proyecto).
+    supabase
+      .from("posts")
+      .select("id, project_id, title, caption, status, scheduled_at, asset_ids, ai_generated, post_targets(platform_options, social_accounts(platform))")
+      .eq("workspace_id", ws)
+      .in("status", ["draft", ...STRIP_STATUSES])
+      .gte("scheduled_at", b.nowIso)
+      .order("scheduled_at")
+      .limit(12),
   ]);
 
   const accs = accounts ?? [];
@@ -110,7 +126,9 @@ export default async function HomePage() {
   await Promise.all([...activeByProject.entries()].map(([pid, list]) => requestMetricsIfStale(pid, list)));
 
   const stats = statsByAccount(accs, metrics ?? []);
-  const colorOf = new Map(projects.map((p, i) => [p.id, i]));
+  // Portadas de las publicaciones (próximas + de hoy) firmadas en un solo lote.
+  const stripRows = stripData ?? [];
+  const covers = await getPostCovers(supabase, [...stripRows, ...(weekPosts ?? [])]);
   const nameOf = new Map(projects.map((p) => [p.id, p.name]));
   const posts = (weekPosts ?? []).map((p) => ({
     ...p,
@@ -165,8 +183,20 @@ export default async function HomePage() {
   for (const tile of tiles) if (!tile.totalHref && tile.rows.length === 1) tile.totalHref = tile.href(tile.rows[0].id);
   const kreoTodo = tiles.slice(1).reduce((a, x) => a + x.total, 0);
 
+  const stripPosts = stripRows.map((p) => ({
+    id: p.id,
+    projectId: p.project_id,
+    title: p.title?.trim() || p.caption.trim() || tp("noCaption"),
+    status: p.status,
+    aiGenerated: p.ai_generated,
+    platforms: (p.post_targets ?? []).map((x) => x.social_accounts?.platform).filter((x): x is NonNullable<typeof x> => !!x),
+    cover: covers.get(p.id) ?? null,
+    whenIso: p.scheduled_at,
+    projectName: projects.length > 1 ? nameOf.get(p.project_id) : undefined,
+  }));
+
   const weekDays = Array.from({ length: 7 }, (_, i) => addDaysToKey(b.today, i));
-  const projectChoices = canEdit ? projects.map((p, i) => ({ id: p.id, name: p.name, color: i })) : [];
+  const projectChoices = canEdit ? projects.map((p) => ({ id: p.id, name: p.name })) : [];
 
   const occItem = (o: Occurrence, compact = false) => {
     const S = KIND_STYLE[o.kind];
@@ -188,15 +218,15 @@ export default async function HomePage() {
       {/* Cabecera */}
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div className="min-w-0">
-          <p className="label-mono">{workspace.name}</p>
-          <h1 className="text-[28px] leading-tight font-medium first-letter:uppercase">{todayLabel}</h1>
-          <p className="text-sm text-muted-foreground">
+          <p className="text-sm font-medium text-muted-foreground">{workspace.name}</p>
+          <h1 className="page-title first-letter:uppercase">{todayLabel}</h1>
+          <p className="mt-1 text-sm text-muted-foreground">
             {kreoTodo ? t("summaryTodo", { count: kreoTodo }) : t("summaryClear")}
             {agenda.available && ` · ${freeToday.totalMinutes ? t("summaryFree", { time: dur(freeToday.totalMinutes) }) : t("summaryNoFree")}`}
           </p>
         </div>
         <div className="flex flex-wrap gap-2">
-          <Button asChild variant="outline">
+          <Button asChild variant="outline" size="lg">
             <Link href="/app/agenda?new=1">
               <CalendarPlus /> {t("newAgendaBlock")}
             </Link>
@@ -206,22 +236,36 @@ export default async function HomePage() {
       </div>
 
       {projects.length === 0 && (
-        <section className="bg-dots flex flex-col items-center gap-3 rounded-xl border border-dashed px-6 py-10 text-center">
-          <FolderPlus className="size-8 text-muted-foreground" strokeWidth={1.5} aria-hidden />
-          <p className="max-w-md text-sm text-muted-foreground">{t("noProjects")}</p>
+        <EmptyState icon={FolderPlus} tone="primary" body={t("noProjects")}>
           {roleAtLeast(workspace.role, "admin") && (
-            <Button asChild>
+            <Button asChild size="lg">
               <Link href="/app/projects/new">
                 <Plus /> {tp("new")}
               </Link>
             </Button>
           )}
-        </section>
+        </EmptyState>
+      )}
+
+      {/* PRÓXIMAS PUBLICACIONES: tarjetas 9:16 con la miniatura del medio */}
+      {projects.length > 0 && (
+        <UpcomingStrip
+          id="upcoming-title"
+          title={t("upcomingTitle")}
+          posts={stripPosts}
+          statusLabel={(s) => ts(s)}
+          aiLabel={t("aiLabel")}
+          moreHref="/app/calendar?view=list"
+          moreLabel={t("openGlobalCalendar")}
+          newHref={projectChoices.length === 1 ? `/app/p/${projectChoices[0].id}/posts/new` : undefined}
+          newLabel={t("newPostShort")}
+          emptyText={t("upcomingEmpty")}
+        />
       )}
 
       {/* HOY */}
       <section aria-labelledby="today-title" className="space-y-3">
-        <h2 id="today-title" className="label-mono">
+        <h2 id="today-title" className="section-title">
           {t("todayTitle")}
         </h2>
         <div className="grid gap-4 lg:grid-cols-3">
@@ -286,8 +330,8 @@ export default async function HomePage() {
             {tiles.map((x) => (
               <li key={x.key} className="surface flex flex-col gap-2 rounded-xl border p-4">
                 <span className="flex items-center justify-between gap-2">
-                  <span className="label-mono">{x.label}</span>
-                  <x.icon className={cn("size-4", x.total && x.tone !== "neutral" ? (x.tone === "destructive" ? "text-destructive" : "text-warning") : "text-muted-foreground")} aria-hidden />
+                  <span className="text-sm font-medium">{x.label}</span>
+                  <IconBubble icon={x.icon} size="sm" tone={x.total && x.tone !== "neutral" ? x.tone : "neutral"} />
                 </span>
                 {x.totalHref ? (
                   <Link href={x.totalHref} className="group inline-flex items-baseline gap-2 self-start rounded-sm" aria-label={`${x.label}: ${x.total}. ${x.hint}`}>
@@ -307,7 +351,7 @@ export default async function HomePage() {
                           aria-label={`${r.name}: ${r.count} · ${x.label}`}
                           className="flex min-h-8 items-center gap-2 rounded-md px-1.5 text-xs hover:bg-accent/40 pointer-coarse:min-h-11"
                         >
-                          <ProjectDot index={r.index} />
+                          <ProjectDot id={r.id} />
                           <span className="min-w-0 flex-1 truncate">{r.name}</span>
                           <span className="font-mono font-semibold tabular-nums">{r.count}</span>
                         </Link>
@@ -336,12 +380,13 @@ export default async function HomePage() {
                 <ul className="-mx-2 divide-y">
                   {todayPosts.slice(0, 8).map((p) => (
                     <li key={p.id}>
-                      <Link href={`/app/p/${p.project_id}/posts/${p.id}`} className="flex min-h-11 flex-wrap items-center gap-x-3 gap-y-1 rounded-md px-2 py-2 hover:bg-accent/40 sm:flex-nowrap">
+                      <Link href={`/app/p/${p.project_id}/posts/${p.id}`} className="flex min-h-11 flex-wrap items-center gap-x-3 gap-y-1 rounded-xl px-2 py-2 hover:bg-accent/40 sm:flex-nowrap">
+                        <PostThumb cover={covers.get(p.id)} className="size-12 shrink-0 rounded-xl" />
                         <time dateTime={p.scheduled_at!} className="w-12 shrink-0 font-mono text-xs text-muted-foreground tabular-nums">
                           {p.time}
                         </time>
                         <span className="inline-flex max-w-40 shrink-0 items-center gap-1.5 text-xs text-muted-foreground">
-                          <ProjectDot index={colorOf.get(p.project_id) ?? 0} />
+                          <ProjectDot id={p.project_id} />
                           <span className="truncate">{nameOf.get(p.project_id)}</span>
                         </span>
                         <span className="flex shrink-0 gap-1">
@@ -365,7 +410,7 @@ export default async function HomePage() {
       {projects.length > 0 && (
         <section aria-labelledby="projects-title" className="space-y-3">
           <div className="flex flex-wrap items-baseline justify-between gap-2">
-            <h2 id="projects-title" className="label-mono">
+            <h2 id="projects-title" className="section-title">
               {t("projectsTitle")}
             </h2>
             <Link href="/app/projects" className="link inline-flex min-h-11 items-center text-sm sm:min-h-0">
@@ -373,17 +418,17 @@ export default async function HomePage() {
             </Link>
           </div>
           <ul className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
-            {projects.map((project, index) => {
+            {projects.map((project) => {
               const pAccs = accs.filter((a) => a.project_id === project.id);
               const next = nextPost.get(project.id);
               const pending = pendingCounts.get(project.id) ?? 0;
               const base = `/app/p/${project.id}`;
               return (
                 <li key={project.id}>
-                  <article className="surface flex h-full flex-col rounded-xl border" aria-labelledby={`p-${project.id}`}>
-                    <header className="flex items-center gap-2 p-4 pb-3">
-                      <ProjectDot index={index} className="size-2.5" />
-                      <h3 id={`p-${project.id}`} className="min-w-0 flex-1 truncate text-base font-medium">
+                  <article className="surface lift flex h-full flex-col rounded-xl border" aria-labelledby={`p-${project.id}`}>
+                    <header className="flex items-center gap-3 p-4 pb-3">
+                      <ProjectAvatar id={project.id} name={project.name} />
+                      <h3 id={`p-${project.id}`} className="min-w-0 flex-1 truncate text-lg">
                         <Link href={base} className="hover:underline">
                           {project.name}
                         </Link>
@@ -513,7 +558,7 @@ export default async function HomePage() {
                     minute: zonedParts(new Date(p.scheduled_at!), DEFAULT_DAY.timezone).minutes,
                     node: (
                       <Link href={`/app/p/${p.project_id}/posts/${p.id}`} className="flex min-w-0 items-center gap-1.5 rounded-md border px-1.5 py-1 text-xs hover:border-border-strong" title={`${nameOf.get(p.project_id)} · ${p.label}`}>
-                        <ProjectDot index={colorOf.get(p.project_id) ?? 0} />
+                        <ProjectDot id={p.project_id} />
                         <span className="font-mono text-muted-foreground tabular-nums">{p.time}</span>
                         {p.platforms[0] && <PlatformIcon platform={p.platforms[0]} className="size-3.5 shrink-0" />}
                         <span className="min-w-0 truncate md:sr-only">{p.label}</span>

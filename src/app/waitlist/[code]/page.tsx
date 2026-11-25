@@ -33,7 +33,7 @@ export default async function WaitlistStatusPage({ params }: { params: Promise<{
     return (
       <Shell>
         <Icon className="mx-auto size-10 text-muted-foreground" strokeWidth={1.5} aria-hidden />
-        <h1 className="text-[28px] leading-tight font-medium">{invalid ? t("invalidTitle") : t("unsubscribedTitle")}</h1>
+        <h1 className="page-title">{invalid ? t("invalidTitle") : t("unsubscribedTitle")}</h1>
         <p className="text-muted-foreground">{invalid ? t("invalidBody") : t("unsubscribedBody")}</p>
         <Link href="/" className="link text-sm font-medium">
           {t("home")}
@@ -53,7 +53,7 @@ export default async function WaitlistStatusPage({ params }: { params: Promise<{
   return (
     <Shell>
       <CircleCheck className="mx-auto size-10 text-success" strokeWidth={1.5} aria-hidden />
-      <h1 className="text-[28px] leading-tight font-medium">{t("confirmedTitle")}</h1>
+      <h1 className="page-title">{t("confirmedTitle")}</h1>
       <p className="font-mono text-3xl tabular-nums">{t("position", { position: status.rank_position, total: status.total })}</p>
       <p className="text-sm text-muted-foreground">{t("referrals", { count: status.referrals })}</p>
       <div className="space-y-2 border-t pt-4 text-left">

@@ -34,7 +34,7 @@ function clean<T extends object>(props: WithNode<T>): T {
 }
 
 const components: Components = {
-  h2: (props) => <h2 className="mt-10 mb-3 text-[28px] leading-tight font-medium" {...clean(props)} />,
+  h2: (props) => <h2 className="mt-10 mb-3 page-title" {...clean(props)} />,
   h3: (props) => <h3 className="mt-8 mb-2 text-lg font-semibold" {...clean(props)} />,
   p: (props) => <p className="my-4 leading-7 text-foreground/90" {...clean(props)} />,
   ul: (props) => <ul className="my-4 list-disc space-y-2 pl-6 marker:text-primary-ink" {...clean(props)} />,

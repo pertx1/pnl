@@ -1,0 +1,65 @@
+{
+  "shell": {
+    "nav": {
+      "main": "Navigation",
+      "home": "Home",
+      "panel": "Overview",
+      "calendar": "Calendar",
+      "inbox": "Inbox",
+      "studio": "Studio",
+      "clipper": "Clipper",
+      "agenda": "My schedule",
+      "more": "More",
+      "moreTools": "More tools",
+      "account": "Your account",
+      "pendingBadge": "{count, plural, one {# to approve} other {# to approve}}",
+      "unreadBadge": "{count, plural, one {# unread} other {# unread}}",
+      "post": "Post"
+    },
+    "create": {
+      "button": "Create",
+      "title": "What do you want to create?",
+      "inProject": "In {name}",
+      "noProject": "Create a project to get started.",
+      "post": "Post",
+      "postHint": "Text, photo or video for your socials",
+      "ai": "Generate with AI",
+      "aiHint": "Image, video or voice · uses credits",
+      "clip": "Clips from a video",
+      "clipHint": "Upload a video and get short clips",
+      "agenda": "Block in my schedule",
+      "agendaHint": "Set time aside to create",
+      "template": "From a template",
+      "templateHint": "Reuse a saved format",
+      "project": "New project"
+    },
+    "switcher": {
+      "trigger": "Switch project. Now: {name}",
+      "triggerEmpty": "Create your first project",
+      "title": "Switch project",
+      "description": "Type to filter. Arrow keys to move, Enter to open, Escape to close.",
+      "search": "Search projects…",
+      "recent": "Recent",
+      "all": "All",
+      "empty": "No project is called “{query}”.",
+      "current": "Current",
+      "newProject": "New project",
+      "manage": "See all",
+      "workspace": "Workspace",
+      "attention": "Has things to review",
+      "allClear": "All clear",
+      "hint": "Alt + 1…9 switches project · G then P opens this picker",
+      "label": "Project"
+    },
+    "crumb": {
+      "label": "You are in"
+    },
+    "palette": {
+      "switchGroup": "Switch project",
+      "switchTo": "Switch to {name}"
+    },
+    "mobile": {
+      "search": "Search"
+    }
+  }
+}

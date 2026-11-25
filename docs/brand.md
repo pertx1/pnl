@@ -1,6 +1,6 @@
 # Kreo · Guía de marca y design system
 
-**Nombre:** Kreo ("creo" / crear). **Dirección visual:** A · Terminal de crecimiento (elegida en Fase 0, 2026-11-18).
+**Nombre:** Kreo ("creo" / crear). **Dirección visual:** C · Creador (elegida por Oier el 2026-11-25) sobre la paleta de la dirección A · Terminal de crecimiento (Fase 0, 2026-11-18): mismos colores, formas y tipografía nuevas.
 **Claim:** *Crea, programa y crece.*
 
 > Pendiente por parte de Oier: comprobar dominio (kreo.com / .io / .app) y marca en EUIPO, OEPM y TMview
@@ -8,8 +8,10 @@
 > la opinión de un agente de propiedad industrial antes de registrar.
 
 ## Personalidad
-Herramienta de pro: oscura, precisa, orientada a datos. Se siente como un terminal de crecimiento.
-Fuerte con dropshippers, growth y creadores que viven en las métricas.
+Dirección «Creador»: colorida dentro de la paleta, visual y centrada en los vídeos. Formas redondeadas, botones grandes,
+títulos con carácter y publicaciones vistas como miniaturas, como en el móvil. Todo a mano: «Crear» siempre visible,
+selector de proyectos arriba y contadores de lo que necesita atención. Sigue siendo precisa con los datos
+(cifras en mono), pero la primera impresión es la del contenido, no la de un terminal.
 
 ## Logo
 | Archivo | Uso |
@@ -58,15 +60,36 @@ En Tailwind: `bg-background`, `text-muted-foreground`, `bg-primary`, `text-prima
 ## Tipografía (Google Fonts, licencia SIL OFL, auto-alojadas con `next/font`)
 | Rol | Fuente | Clase | Uso |
 |---|---|---|---|
-| Títulos y texto | Space Grotesk | `font-heading` / `font-sans` | Toda la interfaz |
+| Títulos | **Bricolage Grotesque** (variable) | `font-heading`, `page-title`, `section-title`, `h1`–`h4` | Títulos de página, de sección y de tarjeta |
+| Texto | Space Grotesk | `font-sans` | Cuerpo, botones, formularios |
 | Datos | JetBrains Mono | `font-mono` + `tabular-nums` | Métricas, KPIs, horas, créditos, IDs |
 | Etiquetas | JetBrains Mono, MAYÚSCULAS, +12 % tracking | `label-mono` | Títulos de sección y de tarjeta |
 
-## Forma, espacio e iconos
-- Radio base `--radius: 0.375rem` (6 px): esquinas casi rectas. Botones `rounded-md`, badges `rounded-sm`.
-- Iconos: **Lucide**, trazo 1.5 px, sin relleno. 16 px en interfaz, 20 px en navegación.
-- Espaciado en múltiplos de 4 px. Elemento activo del menú lateral: barra lima de 2 px a la izquierda.
-- Gráficas con rejilla discontinua.
+## Forma, espacio e iconos (dirección «Creador», 2026-11-25)
+- Radio base `--radius: 0.875rem` (14 px). Tarjetas `rounded-xl` (≈ 20 px), diálogos y hojas `rounded-2xl`/`rounded-3xl`,
+  campos `rounded-lg`. **Botones, chips, pestañas y badges en píldora** (`rounded-full`).
+- Botones: por defecto 40 px; la acción principal de cada pantalla en `size="lg"` (48 px). En táctil, todo control ≥ 44 px.
+- Tarjetas con más aire (24 px de relleno desde `sm`). Utilidad `lift`: se elevan 2 px al pasar el ratón (sin movimiento con «reducir movimiento»).
+- Iconos: **Lucide**, trazo 1.75 px, **con fondo suave** (`<IconBubble tone=…>`: neutro, lima, ámbar, info, éxito, aviso, error).
+  Navegación con iconos grandes (32 px de burbuja); el elemento activo lleva la burbuja en lima.
+- Estados vacíos ilustrados: `<EmptyState icon=…>` (icono grande con fondo suave, una frase y la acción que lo resuelve).
+- Animaciones sutiles: `animate-rise` (entrada de página, **fill `backwards`**, nunca `both`: rompería los `position: fixed`),
+  `animate-pop` (menús y hojas). Todas se anulan con `prefers-reduced-motion`.
+- Espaciado en múltiplos de 4 px. Gráficas con rejilla discontinua.
+
+### Proyectos
+- Cada proyecto tiene color y avatar (iniciales) **derivados del id** (`src/lib/projects/identity.ts`, sin columna en la BD),
+  con los colores de las series de gráficas. `<ProjectAvatar>` y `<ProjectDot id>`: siempre junto al nombre (decorativos).
+- Selector de proyectos arriba de la barra lateral (y en la cabecera en móvil, como hoja inferior): buscar, recientes y todos,
+  con punto de estado (ámbar = algo por aprobar o sin leer). Atajos: **Alt + 1…9** y **G, P**; en Ctrl/Cmd + K, «Cambiar a X».
+  Al cambiar se mantiene la sección (del Calendario de A al Calendario de B).
+- Cookie de preferencia `kreo_recent_projects` (ids de los últimos proyectos, 1 año, solo interfaz).
+
+### Publicaciones como miniaturas
+- `<PostThumb>`: imagen, póster (miniatura de YouTube) o primer fotograma del vídeo (`<video preload="metadata">`, URL firmada).
+- `<PostCard>`: tarjeta vertical 9:16 con estado (chip de fondo sólido), logo de la red y «Generado con IA» si aplica.
+- `<UpcomingStrip>`: tira «Próximas publicaciones» (carrusel) en el Inicio y en el panel del proyecto.
+- Las URL se firman **por lotes** (`getPostCovers` en `src/lib/server/post-media.ts`: una consulta de assets y un `createSignedUrls`).
 
 ## Componentes
 - Base: shadcn/ui (estilo *radix-nova*) en `src/components/ui/`, personalizados con los tokens anteriores.
@@ -107,7 +130,12 @@ La lima solo significa tres cosas:
 Todo lo demás es neutro: enlaces de texto (`link`: color del texto + subrayado), iconos decorativos (`text-muted-foreground`),
 barras de progreso y datos (`bg-foreground/70`), insignias por defecto (neutras). Confirmaciones y "listo" usan `success`.
 
-## Navegación en móvil
-Barra de pestañas inferior (`md:hidden`): en un proyecto, Panel · Estudio · Calendario · Bandeja · Más; fuera de un proyecto,
-Proyectos · Calendario · Equipo · Ajustes · Más. "Más" abre el menú completo y se marca activa cuando la sección actual
-no tiene pestaña propia. Respeta la zona segura del iPhone (`viewport-fit=cover` + `env(safe-area-inset-bottom)`).
+## Navegación
+- **Escritorio**: barra lateral con selector de proyecto, botón **Crear** (relleno de texto, no lima: la lima queda para la acción
+  principal de la pantalla) y búsqueda. Día a día arriba con iconos grandes: Inicio · Resumen · Calendario (por aprobar) ·
+  Bandeja (sin leer) · Estudio · Clipper · Mi agenda. El resto en «Más» (plegable). Migas «[avatar] Proyecto › Sección» arriba del contenido.
+- **Crear** abre: Publicación, Generar con IA, Clips de un vídeo, Bloque en mi agenda, Desde plantilla (+ Nuevo proyecto),
+  siempre en el proyecto actual (el de la URL o el último usado), que se indica en el menú.
+- **Móvil**: cabecera con el proyecto actual (abre el selector en hoja inferior), buscar y avisos. Barra inferior:
+  Inicio · Calendario · **Crear** (botón central flotante) · Bandeja · Más. «Más» abre el menú completo.
+  Respeta las zonas seguras del iPhone (`viewport-fit=cover` + `env(safe-area-inset-*)`).

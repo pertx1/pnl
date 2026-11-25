@@ -96,7 +96,7 @@ export function PlansGrid({
                 {current ? <Badge variant="secondary">{t("current")}</Badge> : p.highlight ? <Badge>{t("recommended")}</Badge> : null}
               </div>
               <p>
-                <span className="text-[28px] leading-tight font-medium">{p.price}</span>
+                <span className="page-title">{p.price}</span>
                 {!p.isFree && <span className="text-sm text-muted-foreground"> {t("perMonth")}</span>}
               </p>
               <ul className="space-y-1.5 text-sm">

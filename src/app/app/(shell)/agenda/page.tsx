@@ -5,6 +5,7 @@ import { loadAgenda, loadPlanCandidates } from "@/lib/agenda/server";
 import { isIsoDay, zonedToUtc } from "@/lib/mcp/calendar";
 import { getCurrentWorkspace, getProjects, requireUser } from "@/lib/server/dal";
 import { createClient } from "@/lib/supabase/server";
+import { projectColorIndex } from "@/lib/projects/identity";
 
 export async function generateMetadata() {
   const t = await getTranslations("agenda");
@@ -90,7 +91,7 @@ export default async function AgendaPage({ searchParams }: PageProps<"/app/agend
       occurrences={occurrences}
       free={free}
       posts={agendaPosts}
-      projects={projects.map((p, i) => ({ id: p.id, name: p.name, color: i }))}
+      projects={projects.map((p) => ({ id: p.id, name: p.name, color: projectColorIndex(p.id) }))}
       candidates={candidates}
       openNew={openNew}
       openPlan={openPlan}

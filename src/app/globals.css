@@ -5,7 +5,7 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
-  --font-heading: var(--font-space-grotesk);
+  --font-heading: var(--font-bricolage), var(--font-space-grotesk);
   --font-sans: var(--font-space-grotesk);
   --font-mono: var(--font-jetbrains-mono);
   --color-primary-ink: var(--primary-ink);
@@ -69,7 +69,8 @@
    :root = modo claro (lienzo blanco tipo "papel") · .dark = modo oscuro (por defecto)
    ========================================================================= */
 :root {
-  --radius: 0.75rem;
+  /* Dirección «Creador»: formas redondeadas. lg = 14 px · xl ≈ 20 px (tarjetas) · 2xl ≈ 25 px (diálogos). */
+  --radius: 0.875rem;
 
   --background: #ffffff;
   --foreground: #171717;
@@ -185,8 +186,8 @@
   }
   h1, h2, h3, h4 {
     @apply font-heading;
-    font-weight: 500;
-    letter-spacing: -0.025em;
+    font-weight: 600;
+    letter-spacing: -0.02em;
   }
   ::selection {
     background: color-mix(in srgb, var(--primary) 35%, transparent);
@@ -212,6 +213,57 @@
   font-weight: 500;
   letter-spacing: -0.035em;
   line-height: 1;
+}
+
+/* Título de página (dirección «Creador»): Bricolage Grotesque, grande y con carácter. */
+@utility page-title {
+  font-family: var(--font-heading);
+  font-size: 1.75rem;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  line-height: 1.1;
+  @media (width >= 40rem) {
+    font-size: 2.125rem;
+  }
+}
+
+/* Título de sección humano (sustituye a las etiquetas en mayúsculas para los bloques principales). */
+@utility section-title {
+  font-family: var(--font-heading);
+  font-size: 1.125rem;
+  font-weight: 650;
+  letter-spacing: -0.015em;
+  line-height: 1.25;
+}
+
+/* Tarjeta interactiva: se eleva un poco al pasar el ratón (sin movimiento si se pide reducirlo). */
+@utility lift {
+  transition:
+    transform 0.2s cubic-bezier(0.2, 0.7, 0.2, 1),
+    border-color 0.2s,
+    background-color 0.2s;
+  &:hover {
+    transform: translateY(-2px);
+    border-color: var(--border-strong);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    &:hover {
+      transform: none;
+    }
+  }
+}
+
+/* Carrusel horizontal con desplazamiento por tarjetas (sin barra visible en táctil). */
+@utility scroller {
+  display: flex;
+  overflow-x: auto;
+  scroll-snap-type: x proximity;
+  overscroll-behavior-x: contain;
+  scrollbar-width: thin;
+  & > * {
+    scroll-snap-align: start;
+    flex-shrink: 0;
+  }
 }
 
 /* Entrada suave de contenido (respeta reducir movimiento). */
@@ -242,6 +294,21 @@
   letter-spacing: 0.1em;
   text-transform: uppercase;
   color: var(--muted-foreground);
+}
+
+/* Aparición de menús y hojas (respeta reducir movimiento por la regla global). */
+@keyframes kreo-pop {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@utility animate-pop {
+  animation: kreo-pop 0.18s cubic-bezier(0.2, 0.7, 0.2, 1) backwards;
 }
 
 @keyframes kreo-blink {
@@ -292,6 +359,10 @@
   }
   [data-slot="button"][data-size^="icon"] {
     min-width: 2.75rem;
+  }
+  [data-slot="tabs-trigger"],
+  [data-slot="textarea"] {
+    min-height: 2.75rem;
   }
 }
 

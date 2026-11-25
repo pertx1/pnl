@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { JetBrains_Mono, Space_Grotesk } from "next/font/google";
+import { Bricolage_Grotesque, JetBrains_Mono, Space_Grotesk } from "next/font/google";
 import { NextIntlClientProvider } from "next-intl";
 import { getLocale } from "next-intl/server";
 import { CookieBanner } from "@/components/cookie-banner";
@@ -11,6 +11,8 @@ import "./globals.css";
 // Google Fonts con licencia SIL OFL, auto-alojadas por next/font (sin peticiones a Google desde el navegador).
 const spaceGrotesk = Space_Grotesk({ subsets: ["latin"], variable: "--font-space-grotesk" });
 const jetbrainsMono = JetBrains_Mono({ subsets: ["latin"], variable: "--font-jetbrains-mono" });
+// Dirección «Creador»: títulos con carácter (Bricolage Grotesque, variable). El cuerpo sigue en Space Grotesk.
+const bricolage = Bricolage_Grotesque({ subsets: ["latin", "latin-ext"], variable: "--font-bricolage" });
 
 // viewport-fit=cover habilita env(safe-area-inset-*) para la barra de pestañas en iPhone.
 export const viewport: Viewport = {
@@ -34,7 +36,7 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
     <html
       lang={locale}
       suppressHydrationWarning
-      className={cn("h-full antialiased", spaceGrotesk.variable, jetbrainsMono.variable)}
+      className={cn("h-full antialiased", spaceGrotesk.variable, jetbrainsMono.variable, bricolage.variable)}
     >
       <body className="min-h-full">
         <NextIntlClientProvider>

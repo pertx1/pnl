@@ -33,6 +33,7 @@ Variables de entorno: lista completa en `.env.example`; estado de cada una en Ve
 - **Publicación programada** a varias redes (Instagram y YouTube comprobados el 2026-11-23, tras arreglar que solo salía la primera red).
 - **Subida directa a YouTube** de vídeos grandes (265 MB probado, programado con `publishAt`).
 - Diseño v2, móvil con barra inferior, ordenador con ancho unificado, accesibilidad (HIG).
+- (Rama del agente, sin fusionar) **Dirección «Creador»**: selector de proyectos, «Crear» siempre visible, miniaturas de publicaciones. Ver `docs/brand.md`.
 
 ## Hecho pero SIN comprobar en real
 (Todas las migraciones hasta `20261125100000_tiktok_inbox.sql` están aplicadas en producción.)

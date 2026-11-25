@@ -1,6 +1,7 @@
 import "server-only";
 import type { CalendarPost } from "@/components/calendar/calendar-view";
 import { createClient } from "@/lib/supabase/server";
+import { getPostCovers } from "./post-media";
 
 /** Publicaciones de un rango amplio alrededor del día pedido (la vista agrupa por día en la zona horaria del navegador). */
 export async function getCalendarPosts(filter: { projectId?: string; workspaceId?: string }, day?: string): Promise<CalendarPost[]> {
@@ -11,13 +12,15 @@ export async function getCalendarPosts(filter: { projectId?: string; workspaceId
   const supabase = await createClient();
   let q = supabase
     .from("posts")
-    .select("id, project_id, title, caption, status, scheduled_at, ai_generated, projects(name), post_targets(social_accounts(platform))")
+    .select("id, project_id, title, caption, status, scheduled_at, ai_generated, asset_ids, projects(name), post_targets(platform_options, social_accounts(platform))")
     .or(`scheduled_at.is.null,and(scheduled_at.gte.${from},scheduled_at.lt.${to})`)
     .order("scheduled_at", { ascending: true, nullsFirst: false })
     .limit(500);
   if (filter.projectId) q = q.eq("project_id", filter.projectId);
   if (filter.workspaceId) q = q.eq("workspace_id", filter.workspaceId);
   const { data } = await q;
+  // Miniaturas: una consulta de assets y una firma por lotes para todo el rango.
+  const covers = await getPostCovers(supabase, data ?? []);
 
   return (data ?? []).map((p) => ({
     id: p.id,
@@ -29,6 +32,7 @@ export async function getCalendarPosts(filter: { projectId?: string; workspaceId
     scheduledAt: p.scheduled_at,
     aiGenerated: p.ai_generated,
     platforms: (p.post_targets ?? []).map((t) => t.social_accounts?.platform).filter(Boolean) as string[],
+    cover: covers.get(p.id) ?? null,
   }));
 }
 
@@ -44,12 +48,13 @@ export async function getPostsByStatus(projectId: string, status: FilterableStat
   const supabase = await createClient();
   const { data } = await supabase
     .from("posts")
-    .select("id, project_id, title, caption, status, scheduled_at, ai_generated, post_targets(social_accounts(platform))")
+    .select("id, project_id, title, caption, status, scheduled_at, ai_generated, asset_ids, post_targets(platform_options, social_accounts(platform))")
     .eq("project_id", projectId)
     .eq("status", status)
     .order("scheduled_at", { ascending: true, nullsFirst: false })
     .order("updated_at", { ascending: false })
     .limit(200);
+  const covers = await getPostCovers(supabase, data ?? []);
   return (data ?? []).map((p) => ({
     id: p.id,
     projectId: p.project_id,
@@ -59,5 +64,6 @@ export async function getPostsByStatus(projectId: string, status: FilterableStat
     scheduledAt: p.scheduled_at,
     aiGenerated: p.ai_generated,
     platforms: [...new Set((p.post_targets ?? []).map((t) => t.social_accounts?.platform).filter(Boolean) as string[])],
+    cover: covers.get(p.id) ?? null,
   }));
 }

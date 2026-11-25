@@ -362,7 +362,7 @@ export function AgendaView(p: Props) {
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div className="min-w-0">
           <p className="label-mono">{t("private")}</p>
-          <h1 className="text-[28px] leading-tight font-medium">{t("title")}</h1>
+          <h1 className="page-title">{t("title")}</h1>
           <p className="text-sm text-muted-foreground">{t("subtitle")}</p>
         </div>
         <div className="flex flex-wrap gap-2">
@@ -372,7 +372,7 @@ export function AgendaView(p: Props) {
           <Button variant="outline" onClick={() => setPlanOpen(true)} disabled={!p.available}>
             <Wand2 /> {p.view === "day" ? t("planDay") : t("planWeek")}
           </Button>
-          <Button onClick={() => openNewAt(newDay, defaultStart(newDay))} disabled={!p.available}>
+          <Button size="lg" onClick={() => openNewAt(newDay, defaultStart(newDay))} disabled={!p.available}>
             <Plus /> {t("newBlock")}
           </Button>
         </div>

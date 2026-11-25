@@ -9,12 +9,12 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel,
 import { ProjectDot } from "./project-dot";
 
 /** «Nueva publicación» en cualquier proyecto: con uno solo va directo; con varios, se elige en un menú. */
-export function QuickCreatePost({ projects }: { projects: { id: string; name: string; color: number }[] }) {
+export function QuickCreatePost({ projects }: { projects: { id: string; name: string }[] }) {
   const t = useTranslations("home");
   if (projects.length === 0) return null;
   if (projects.length === 1) {
     return (
-      <Button asChild>
+      <Button asChild size="lg">
         <Link href={createHrefs.newPost(projects[0].id)}>
           <Plus /> {t("newPost")}
         </Link>
@@ -24,7 +24,7 @@ export function QuickCreatePost({ projects }: { projects: { id: string; name: st
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button>
+        <Button size="lg">
           <Plus /> {t("newPost")} <ChevronDown aria-hidden />
         </Button>
       </DropdownMenuTrigger>
@@ -33,7 +33,7 @@ export function QuickCreatePost({ projects }: { projects: { id: string; name: st
         {projects.map((p) => (
           <DropdownMenuItem key={p.id} asChild className="min-h-9 pointer-coarse:min-h-11">
             <Link href={createHrefs.newPost(p.id)}>
-              <ProjectDot index={p.color} />
+              <ProjectDot id={p.id} />
               <span className="truncate">{p.name}</span>
             </Link>
           </DropdownMenuItem>
