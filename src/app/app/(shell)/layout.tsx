@@ -15,7 +15,7 @@ function countBy(rows: { project_id: string }[] | null): Record<string, number> 
 
 export default async function ShellLayout({ children }: LayoutProps<"/app">) {
   const [workspace, workspaces, user, supabase, jar] = await Promise.all([getCurrentWorkspace(), getWorkspaces(), getUser(), createClient(), cookies()]);
-  const [projects, credits, plan, unread, { data: pendingRows }, { data: unreadRows }] = await Promise.all([
+  const [projects, credits, plan, unread, { data: pendingRows }, { data: unreadRows }, { data: unreadComments }] = await Promise.all([
     getProjects(workspace.id),
     getCreditBalance(workspace.id),
     getPlan(workspace.planId),
@@ -25,12 +25,14 @@ export default async function ShellLayout({ children }: LayoutProps<"/app">) {
     supabase.from("posts").select("project_id").eq("workspace_id", workspace.id).eq("status", "pending_approval").limit(1000),
     // (Con error, p. ej. sin la migración de la Bandeja, `data` llega a null y el contador queda a 0.)
     supabase.from("inbox_threads").select("project_id").eq("workspace_id", workspace.id).eq("unread", true).limit(1000),
+    // Comentarios de Instagram sin leer (sin la migración de comentarios, `data` llega a null y no suma).
+    supabase.from("inbox_comments").select("project_id").eq("workspace_id", workspace.id).eq("unread", true).limit(1000),
   ]);
 
   const ids = new Set(projects.map((p) => p.id));
   const recent = parseRecentProjects(jar.get(RECENT_PROJECTS_COOKIE)?.value).filter((id) => ids.has(id));
   const pending = countBy(pendingRows);
-  const unreadInbox = countBy(unreadRows);
+  const unreadInbox = countBy([...(unreadRows ?? []), ...(unreadComments ?? [])]);
   const sidebarProjects = projects.map((p) => ({ id: p.id, name: p.name, pending: pending[p.id] ?? 0, unread: unreadInbox[p.id] ?? 0 }));
 
   return (

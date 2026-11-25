@@ -28,7 +28,7 @@
 | `instagram_business_basic` | Perfil de la cuenta profesional conectada (`/me`: user_id, @, nombre, foto, seguidores, nº de publicaciones) y requisito del refresco del token | 1 |
 | `instagram_business_content_publish` | Publicar posts/reels/carruseles aprobados (`/media`, `/media_publish`, reel de prueba con `trial_params`) | 1 |
 | `instagram_business_manage_messages` | Bandeja: leer conversaciones (`/me/conversations`), responder dentro de la ventana de 24 h (`/me/messages`) y suscribir la cuenta al webhook `messages` (`/{ig-id}/subscribed_apps`) | 3 |
-| ~~`instagram_business_manage_comments`~~ | **No se pide**: Kreo no lee ni responde comentarios | — |
+| ~~`instagram_business_manage_comments`~~ | No se pide con Instagram Login: los comentarios van por Unified Login (`instagram_manage_comments`, ver «Actualización 2026-11-26») | — |
 
 - Alternativa (solo si no hay `INSTAGRAM_APP_ID`; también la usan las cuentas ya conectadas así hasta que se reconecten):
   **Instagram API con Facebook Login** (necesaria para Business Discovery = análisis de competencia). **App Review → Advanced Access** para:
@@ -197,3 +197,41 @@ Sustituye `<dominio>` por tu dominio (o `kreo-nine.vercel.app` para pruebas):
 - Business Discovery (Competencia) **no existe** con Instagram Login: solo funciona con cuentas conectadas por Facebook Login.
 - Sin migración de base de datos: la variante se guarda en `social_accounts.metadata.login = "instagram"` (y en
   `inbox_connections.metadata`); las de Facebook Login conservan `page_id`.
+
+## Actualización 2026-11-26 (Bandeja con Instagram API with Unified Login + comentarios)
+- En la app `29288275864162154` no aparece «API setup with Instagram login» (las apps nuevas ya no pueden usarla: "Newly
+  created apps can't set up the Instagram API with Instagram Login",
+  [guía de migración](https://developers.facebook.com/documentation/instagram-platform/instagram-api-with-instagram-login/migration-guide)).
+  El código de Instagram Login queda latente (sin `INSTAGRAM_APP_ID` no se activa). **Si algún día se pone `INSTAGRAM_APP_ID`,
+  la Bandeja vuelve a Instagram Login y deja de usar Unified Login.**
+- La Bandeja usa la configuración **1203482298883759** (`META_INBOX_LOGIN_CONFIG_ID`), creada con «Create new configuration»
+  en *Use cases → Manage messaging & content on Instagram → API setup with Unified login* (app del portfolio «Akerra»).
+  Es Facebook Login for Business y devuelve un **Business Integration System User Access Token** (BISU):
+  "Your app receives a Business Integration System User Access Token… This access token belongs to your client's business
+  portfolio" ([Authentication](https://developers.facebook.com/documentation/instagram-platform/instagram-api-with-unified-login/authentication)).
+- Flujo implementado (`src/lib/inbox/instagram-facebook.ts`): code → `GET /oauth/access_token` → `GET /debug_token`
+  (permisos y caducidad) → `GET /me/assigned_instagram_accounts` (debe incluir la cuenta conectada en Cuentas) →
+  `POST /<IG_ID>/subscribed_apps?subscribed_fields=messages,comments` → `GET /me?fields=client_business_id`.
+  Luego todo contra `graph.facebook.com/<IG_ID>/…`: `conversations`, `messages`, `media`, `/<MEDIA_ID>/comments`,
+  `/<COMMENT_ID>/replies`, `/<COMMENT_ID>?hide=`. Sin página de Facebook. Si `/me/assigned_instagram_accounts` no
+  responde (token de usuario de una configuración clásica), se usa el flujo antiguo con página.
+
+| Permiso (config 1203482298883759) | ¿Lo usa la Bandeja? | Para qué |
+|---|---|---|
+| `instagram_basic` | **Sí (obligatorio)** | `/me/assigned_instagram_accounts`, `/<IG_ID>/media` (publicaciones propias con comentarios) |
+| `instagram_manage_messages` | **Sí (obligatorio)** | `/<IG_ID>/conversations`, `/<IG_ID>/messages` (respuesta en la ventana de 24 h), webhook `messages` |
+| `instagram_manage_comments` | **Sí (opcional: activa «Comentarios»)** | `/<MEDIA_ID>/comments`, `/<COMMENT_ID>/replies`, ocultar/mostrar, webhook `comments` |
+| `instagram_content_publish` | No (la publicación usa `META_LOGIN_CONFIG_ID`) | — **se puede quitar** de esta configuración |
+| `ads_management` | No | — **se puede quitar** (en Unified Login, comentarios solo piden `instagram_basic` + `instagram_manage_comments`) |
+| `ads_read` | No | — **se puede quitar** |
+| `pages_show_list`, `pages_manage_metadata` | No hacen falta | Solo para el Facebook Login clásico con página. Excepción documentada: "Temporary limitation for messaging webhooks" (si el cliente no comparte la página, puede que no lleguen los webhooks de `messages`; solución temporal: otra configuración que pida la página + `pages_show_list`). En modo desarrollo no llegan webhooks de todas formas: la Bandeja sondea cada 30 min. |
+
+- Consola de Meta: (1) en *API setup with Unified login → Configure your app*, **Redirect URL** =
+  `https://kreo-nine.vercel.app/api/inbox/oauth/instagram/callback` (y en *Facebook Login for Business → Valid OAuth Redirect
+  URIs*); (2) *Webhooks* de la app → objeto **Instagram** → campos `messages` y `comments` (mismo callback y verify token);
+  (3) quitar `instagram_content_publish`, `ads_management` y `ads_read` de la configuración (*Edit permissions*) para la
+  revisión; (4) la cuenta `akerra.nortasuna` es *Instagram Tester* (Standard Access basta para probar).
+- Caducidad del BISU: depende de la configuración (se ve en su vista previa); si caduca, la conexión pasa a «caducada» y se
+  reconecta. `client_business_id` se guarda en `inbox_connections.metadata` para la futura API de gestión de BISU.
+- Gmail/Outlook «marcar como leído» en el propio buzón exigiría `gmail.modify` (restringido) y `Mail.ReadWrite`: **no se piden**;
+  el código lo haría solo si ese permiso ya estuviera concedido (`src/lib/inbox/read-state.ts`).

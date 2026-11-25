@@ -20,7 +20,8 @@ export const IG_SCOPE_PUBLISH = "instagram_business_content_publish";
 export const IG_SCOPE_MESSAGES = "instagram_business_manage_messages";
 /**
  * Se piden de una vez al conectar en Cuentas: perfil (basic), publicar (content_publish) y mensajes de la Bandeja
- * (manage_messages). NO se pide `instagram_business_manage_comments`: Kreo no lee ni responde comentarios.
+ * (manage_messages). NO se pide `instagram_business_manage_comments`: los comentarios solo se leen con Unified Login
+ * (`instagram_manage_comments`, src/lib/inbox/meta-scopes.ts).
  */
 export const IG_LOGIN_SCOPES = [IG_SCOPE_BASIC, IG_SCOPE_PUBLISH, IG_SCOPE_MESSAGES];
 /** Lo imprescindible para publicar (si falta alguno, la cuenta queda como «faltan permisos»). */

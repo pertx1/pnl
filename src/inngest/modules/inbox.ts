@@ -35,21 +35,35 @@ export const inboxRetention = inngest.createFunction(
       const { count } = await admin().from("inbox_drafts").delete({ count: "exact" }).lt("updated_at", cutoff);
       return count ?? 0;
     });
-    return { messages, threads, drafts };
+    // Comentarios de Instagram: cada uno caduca a los 30 días de escribirse; las publicaciones sin comentarios
+    // recientes (ni actividad en 30 días) se borran con lo que quede (en cascada).
+    const comments = await step.run("delete-expired-comments", async () => {
+      const { count } = await admin().from("inbox_comments").delete({ count: "exact" }).lt("expires_at", new Date().toISOString());
+      return count ?? 0;
+    });
+    const commentMedia = await step.run("expire-comment-media", async () => {
+      const cutoff = new Date(Date.now() - RETENTION_DAYS * 86400000).toISOString();
+      const { count } = await admin()
+        .from("inbox_comment_media")
+        .delete({ count: "exact" })
+        .lt("updated_at", cutoff)
+        .or(`last_comment_at.is.null,last_comment_at.lt.${cutoff}`);
+      return count ?? 0;
+    });
+    return { messages, threads, drafts, comments, commentMedia };
   },
 );
 
-// 2) Cada 30 min: sincronizar los buzones de email activos. Instagram llega por webhook; las conexiones de Instagram
-//    Login se sincronizan también aquí como red de seguridad (Meta solo envía webhooks a apps en modo Live).
+// 2) Cada 30 min: sincronizar los buzones de email activos y TODAS las conexiones de Instagram (DMs y comentarios).
+//    Instagram también llega por webhook, pero Meta solo envía webhooks a apps en modo Live ("Your app must be published
+//    or Live to receive notifications for app users") y, con Unified Login sin página vinculada, los de mensajes pueden
+//    no llegar (limitación temporal documentada): el sondeo es la red de seguridad.
 export const inboxSyncDispatch = inngest.createFunction(
   { id: "inbox-sync-dispatch", triggers: [{ cron: "*/30 * * * *" }], concurrency: 1 },
   async ({ step }) => {
     const ids = await step.run("list", async () => {
-      const [{ data: mail }, { data: ig }] = await Promise.all([
-        admin().from("inbox_connections").select("id").in("channel", ["gmail", "outlook"]).eq("status", "active").limit(1000),
-        admin().from("inbox_connections").select("id").eq("channel", "instagram").eq("status", "active").eq("metadata->>login", IG_LOGIN_MARK).limit(1000),
-      ]);
-      return [...(mail ?? []), ...(ig ?? [])].map((c) => c.id);
+      const { data } = await admin().from("inbox_connections").select("id").in("channel", ["gmail", "outlook", "instagram"]).eq("status", "active").limit(2000);
+      return (data ?? []).map((c) => c.id);
     });
     if (ids.length) await step.sendEvent("sync", ids.map((connectionId) => ({ name: "inbox/connection.sync", data: { connectionId } })));
     return { dispatched: ids.length };

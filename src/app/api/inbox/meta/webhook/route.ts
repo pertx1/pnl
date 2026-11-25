@@ -3,6 +3,7 @@ import { inngest } from "@/inngest/client";
 import { channelConfigured } from "@/lib/inbox/config";
 import { parseIgWebhookPayload } from "@/lib/inbox/ig-webhook";
 import { verifyMetaSignatureAny, verifySubscription } from "@/lib/inbox/meta-signature";
+import { ingestIgComment } from "@/lib/inbox/comments-sync";
 import { ingestIgEvent } from "@/lib/inbox/sync";
 
 /**
@@ -10,7 +11,8 @@ import { ingestIgEvent } from "@/lib/inbox/sync";
  *  - Instagram API with Instagram Login (producto «Instagram» → webhooks) y
  *  - Instagram API con Facebook Login (producto «Webhooks», objeto Instagram).
  * Configurar en el panel de la app (mismos valores en ambos):
- *   URL: https://<dominio>/api/inbox/meta/webhook · Verify token: META_WEBHOOK_VERIFY_TOKEN · Campo: messages
+ *   URL: https://<dominio>/api/inbox/meta/webhook · Verify token: META_WEBHOOK_VERIFY_TOKEN · Campos: messages y comments
+ *   (comments solo se guarda en conexiones de Unified Login con instagram_manage_comments).
  * - GET: verificación de la suscripción (hub.mode / hub.verify_token / hub.challenge).
  * - POST: firma X-Hub-Signature-256 obligatoria (HMAC-SHA256 del cuerpo crudo) con META_APP_SECRET o con
  *   INSTAGRAM_APP_SECRET (Instagram Login): se acepta si coincide con cualquiera de los dos.
@@ -32,7 +34,15 @@ export async function POST(request: NextRequest) {
   if (!channelConfigured("instagram")) return NextResponse.json({ received: true });
 
   const toEnrich = new Set<string>();
+  const toSync = new Set<string>();
   for (const batch of parseIgWebhookPayload(raw)) {
+    for (const change of batch.comments) {
+      try {
+        (await ingestIgComment(batch.accountId, change)).forEach((id) => toSync.add(id));
+      } catch {
+        console.error("[inbox-webhook] no se pudo guardar un comentario");
+      }
+    }
     for (const ev of batch.events) {
       try {
         const ids = await ingestIgEvent(batch.accountId, ev);
@@ -47,6 +57,10 @@ export async function POST(request: NextRequest) {
     await inngest
       .send([...toEnrich].map((threadId) => ({ id: `ig-enrich-${threadId}`, name: "inbox/thread.enrich", data: { threadId } })))
       .catch(() => undefined);
+  }
+  if (toSync.size) {
+    // Publicación nueva para Kreo: una sincronización completa su miniatura y enlace (limitada a 1 cada 5 min).
+    await inngest.send([...toSync].map((connectionId) => ({ name: "inbox/connection.sync", data: { connectionId } }))).catch(() => undefined);
   }
   return NextResponse.json({ received: true });
 }

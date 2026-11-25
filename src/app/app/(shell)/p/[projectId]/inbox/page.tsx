@@ -1,15 +1,22 @@
 import Link from "next/link";
 import { getFormatter, getTranslations } from "next-intl/server";
-import { ArrowLeft, Inbox, MailOpen, MessagesSquare, ShieldCheck } from "lucide-react";
+import { ArrowLeft, Inbox, MailOpen, MessageCircle, MessagesSquare, ShieldCheck } from "lucide-react";
+import { EmptyState } from "@/components/kreo/empty-state";
+import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { isAgentsConfigured } from "@/lib/agents";
+import { nestComments } from "@/lib/inbox/comments";
 import { channelConfigured, humanAgentEnabled, INBOX_CHANNELS } from "@/lib/inbox/config";
+import { commentsEnabled } from "@/lib/inbox/meta-scopes";
+import type { ReadScope } from "@/lib/inbox/read-state";
 import { getCreditBalance, getProject, roleAtLeast } from "@/lib/server/dal";
 import { createClient } from "@/lib/supabase/server";
 import type { InboxChannel } from "@/lib/supabase/types/inbox";
 import { cn } from "@/lib/utils";
 import { ChannelIcon } from "./channel-icon";
+import { CommentsView, type MediaGroup } from "./comments-view";
 import { ConnectionsPanel } from "./connections-panel";
+import { MarkAllRead } from "./mark-all-read";
 import { ThreadView } from "./thread-view";
 
 export const maxDuration = 60;
@@ -25,6 +32,7 @@ const KNOWN_ERRORS = [
   "not_configured", "denied", "invalid_state", "forbidden", "missing_scopes", "no_matching_account", "profile_failed",
   "token_exchange_failed", "subscribe_failed", "rate_limited", "unavailable",
 ];
+const VIEWS = ["messages", "comments"] as const;
 
 export default async function InboxPage({
   params,
@@ -43,12 +51,13 @@ export default async function InboxPage({
   const isAdmin = roleAtLeast(project.workspace.role, "admin");
   const supabase = await createClient();
 
+  const view: (typeof VIEWS)[number] = str("view") === "comments" ? "comments" : "messages";
   const filter: Filter = (FILTERS as readonly string[]).includes(str("status") ?? "") ? (str("status") as Filter) : "all";
   const connFilter = /^[0-9a-f-]{36}$/i.test(str("conn") ?? "") ? str("conn") : undefined;
   const selectedId = /^[0-9a-f-]{36}$/i.test(str("t") ?? "") ? str("t") : undefined;
 
   const [{ data: connections }, { data: igAccounts }, balance] = await Promise.all([
-    supabase.from("inbox_connections").select("id, channel, external_id, display_name, status, last_synced_at, social_account_id").eq("project_id", projectId).order("created_at"),
+    supabase.from("inbox_connections").select("id, channel, external_id, display_name, status, last_synced_at, social_account_id, metadata").eq("project_id", projectId).order("created_at"),
     supabase.from("social_accounts").select("id, handle, display_name, status").eq("project_id", projectId).eq("platform", "instagram").order("created_at"),
     getCreditBalance(project.workspace_id),
   ]);
@@ -68,10 +77,79 @@ export default async function InboxPage({
   if (filter === "replied") q = q.eq("needs_reply", false).not("replied_at", "is", null);
   const { data: threads } = await q;
 
-  const [{ count: unreadCount }, { count: pendingCount }] = await Promise.all([
+  const [{ count: unreadCount }, { count: pendingCount }, { data: unreadThreads }, { count: unreadComments }] = await Promise.all([
     supabase.from("inbox_threads").select("id", { count: "exact", head: true }).eq("project_id", projectId).eq("status", "open").eq("unread", true),
     supabase.from("inbox_threads").select("id", { count: "exact", head: true }).eq("project_id", projectId).eq("status", "open").eq("needs_reply", true),
+    // Sin leer por canal (para «Marcar como leído»; incluye archivados, igual que el contador de la barra lateral).
+    supabase.from("inbox_threads").select("connection_id").eq("project_id", projectId).eq("unread", true).limit(1000),
+    // Sin la migración de comentarios, `count` llega a null y cuenta como 0.
+    supabase.from("inbox_comments").select("id", { count: "exact", head: true }).eq("project_id", projectId).eq("unread", true),
   ]);
+  const commentConns = conns.filter((c) => c.channel === "instagram" && commentsEnabled(c.metadata));
+  const channelOf = new Map(conns.map((c) => [c.id, c.channel]));
+  const unreadBy: Record<InboxChannel, number> = { instagram: 0, gmail: 0, outlook: 0 };
+  for (const r of unreadThreads ?? []) {
+    const ch = channelOf.get(r.connection_id);
+    if (ch) unreadBy[ch]++;
+  }
+  const readOptions: { scope: ReadScope; count: number }[] = [];
+  if (conns.length) {
+    readOptions.push({ scope: "all", count: unreadBy.instagram + unreadBy.gmail + unreadBy.outlook + (unreadComments ?? 0) });
+    if (conns.some((c) => c.channel === "instagram")) readOptions.push({ scope: "instagram", count: unreadBy.instagram });
+    if (commentConns.length) readOptions.push({ scope: "comments", count: unreadComments ?? 0 });
+    if (conns.some((c) => c.channel === "gmail")) readOptions.push({ scope: "gmail", count: unreadBy.gmail });
+    if (conns.some((c) => c.channel === "outlook")) readOptions.push({ scope: "outlook", count: unreadBy.outlook });
+  }
+
+  // Comentarios de Instagram: publicaciones con comentarios recientes y sus hilos.
+  let commentGroups: MediaGroup[] = [];
+  if (view === "comments" && commentConns.length) {
+    const { data: media } = await supabase
+      .from("inbox_comment_media")
+      .select("id, connection_id, caption_snippet, permalink, thumbnail_url, media_type, posted_at, last_comment_at")
+      .eq("project_id", projectId)
+      .order("last_comment_at", { ascending: false, nullsFirst: false })
+      .limit(25);
+    const ids = (media ?? []).map((m) => m.id);
+    const { data: comments } = ids.length
+      ? await supabase
+          .from("inbox_comments")
+          .select("id, media_id, external_comment_id, parent_external_id, author_username, is_own, body_text, commented_at, hidden, unread, replied_at, ai_assisted, sent_by")
+          .in("media_id", ids)
+          .order("commented_at", { ascending: true })
+          .limit(1500)
+      : { data: [] };
+    const byMedia = new Map<string, NonNullable<typeof comments>>();
+    for (const c of comments ?? []) byMedia.set(c.media_id, [...(byMedia.get(c.media_id) ?? []), c]);
+    const toItem = (c: NonNullable<typeof comments>[number]) => ({
+      id: c.id,
+      username: c.author_username,
+      isOwn: c.is_own,
+      body: c.body_text,
+      commentedAt: c.commented_at,
+      hidden: c.hidden,
+      unread: c.unread,
+      repliedAt: c.replied_at,
+      aiAssisted: c.ai_assisted,
+      viaKreo: Boolean(c.sent_by),
+    });
+    commentGroups = (media ?? [])
+      .map((m) => {
+        const conn = conns.find((c) => c.id === m.connection_id);
+        return {
+          id: m.id,
+          caption: m.caption_snippet,
+          permalink: m.permalink,
+          thumbnailUrl: m.thumbnail_url,
+          isVideo: m.media_type === "VIDEO",
+          postedAt: m.posted_at,
+          connectionLabel: conn?.display_name ?? conn?.external_id ?? "instagram",
+          connectionActive: conn?.status === "active",
+          threads: nestComments(byMedia.get(m.id) ?? []).map((g) => ({ top: toItem(g.top), replies: g.replies.map(toItem) })),
+        };
+      })
+      .filter((g) => g.threads.length > 0);
+  }
 
   // Hilo seleccionado (mensajes + borrador).
   let selected = null as null | {
@@ -145,7 +223,51 @@ export default async function InboxPage({
         igAccounts={(igAccounts ?? []).map((a) => ({ id: a.id, handle: a.handle ?? a.display_name ?? "instagram" }))}
       />
 
-      {conns.length === 0 ? (
+      {conns.length > 0 && (
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <nav aria-label={t("viewsLabel")} className="flex gap-1 rounded-full border p-1">
+            {VIEWS.map((v) => (
+              <Link
+                key={v}
+                href={v === "comments" ? `/app/p/${projectId}/inbox?view=comments` : `/app/p/${projectId}/inbox`}
+                aria-current={view === v ? "page" : undefined}
+                className={cn(
+                  "inline-flex min-h-9 items-center gap-1.5 rounded-full px-4 text-sm transition-colors",
+                  view === v ? "bg-primary font-medium text-primary-foreground" : "text-muted-foreground hover:text-foreground",
+                )}
+              >
+                {v === "comments" ? <MessageCircle className="size-4" aria-hidden /> : <MessagesSquare className="size-4" aria-hidden />}
+                {t(`views.${v}`)}
+                {v === "messages" && unreadBy.instagram + unreadBy.gmail + unreadBy.outlook > 0 && (
+                  <span className="font-mono text-xs tabular-nums">{unreadBy.instagram + unreadBy.gmail + unreadBy.outlook}</span>
+                )}
+                {v === "comments" && (unreadComments ?? 0) > 0 && <span className="font-mono text-xs tabular-nums">{unreadComments}</span>}
+              </Link>
+            ))}
+          </nav>
+          {canEdit && <MarkAllRead projectId={projectId} options={readOptions} />}
+        </div>
+      )}
+
+      {conns.length > 0 && view === "comments" ? (
+        commentConns.length === 0 ? (
+          <EmptyState icon={MessageCircle} title={t("comments.notEnabled.title")} body={t("comments.notEnabled.body")}>
+            {canEdit &&
+              conns
+                .filter((c) => c.channel === "instagram" && c.social_account_id)
+                .map((c) => (
+                  <Button key={c.id} asChild variant="secondary" className="rounded-full">
+                    {/* Navegación completa: el OAuth oficial sale a Meta. */}
+                    <a href={`/api/inbox/oauth/instagram/start?project=${projectId}&account=${c.social_account_id}`}>
+                      {t("comments.notEnabled.reconnect", { account: c.display_name ?? c.external_id })}
+                    </a>
+                  </Button>
+                ))}
+          </EmptyState>
+        ) : (
+          <CommentsView groups={commentGroups} canEdit={canEdit} balance={balance} agentsConfigured={isAgentsConfigured()} />
+        )
+      ) : conns.length === 0 ? (
         <Card>
           <CardContent className="flex flex-col items-center gap-3 py-12 text-center">
             <MessagesSquare className="size-8 text-muted-foreground" strokeWidth={1.5} aria-hidden />
@@ -278,6 +400,7 @@ export default async function InboxPage({
                   }}
                   messages={selected.messages.map((m) => ({ id: m.id, direction: m.direction, sender: m.sender_name, body: m.body_text, sentAt: m.sent_at, aiAssisted: m.ai_assisted, viaKreo: Boolean(m.sent_by) }))}
                   draft={selected.draft}
+                  listHref={href({ t: undefined })}
                 />
               </div>
             ) : (

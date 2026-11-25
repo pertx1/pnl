@@ -15,6 +15,10 @@ Por prioridad. Claude: tacha `[x]` al terminar y anota el commit.
   - [ ] Separar la configuración de login de Meta en dos (publicar / bandeja).
 - [ ] Mostrar en el editor los avisos `warn:` de pasos opcionales (miniatura o lista de YouTube que no se aplicaron).
 
+- [ ] Bandeja Unified Login + comentarios + «marcar como leído» (2026-11-26, rama del agente): aplicar `20261126110000_inbox_comments.sql`,
+  pasar `seguridad-legal` y `qa-tester`, y probar en real (conexión con la config 1203482298883759, DMs, responder, comentarios:
+  responder/ocultar/mostrar, borrador IA, marcar todo como leído, contador de la barra lateral).
+
 ## Media
 - [ ] Pedir `youtube.force-ssl` solo cuando el usuario use listas (permiso incremental).
 - [x] Subtítulos de YouTube (captions.insert) reutilizando los `.srt` del Clipper — 2026-11-24 (convención en `src/lib/social/captions.ts`; probar en real).

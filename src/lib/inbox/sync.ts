@@ -5,6 +5,8 @@ import { InboxError } from "./config";
 import { clip } from "./mime";
 import { gmailListThreads } from "./providers/gmail";
 import { isInstagramLogin } from "@/lib/social/instagram-login";
+import { syncComments } from "./comments-sync";
+import { commentsEnabled, isUnifiedLogin } from "./meta-scopes";
 import { igListThreads, igUserProfile } from "./providers/instagram";
 import { igLoginListThreads, igLoginUserProfile } from "./providers/instagram-login";
 import { outlookListThreads } from "./providers/outlook";
@@ -49,12 +51,24 @@ export async function syncConnection(connectionId: string): Promise<number> {
       threads = await outlookListThreads(token);
     } else if (isInstagramLogin(conn.metadata)) {
       threads = await igLoginListThreads(token, conn.external_id);
+    } else if (isUnifiedLogin(conn.metadata)) {
+      threads = await igListThreads({ igId: conn.external_id }, token, conn.external_id);
     } else {
       const pageId = String((conn.metadata as { page_id?: string } | null)?.page_id ?? "");
       if (!pageId) throw new InboxError("missing_page");
-      threads = await igListThreads(pageId, token, conn.external_id);
+      threads = await igListThreads({ pageId }, token, conn.external_id);
     }
     for (const t of threads) await storeThread(conn, t, { emailUnread: conn.channel !== "instagram" });
+    // Comentarios (solo Unified Login con instagram_manage_comments). Un fallo aquí no invalida los DMs ya guardados.
+    if (commentsEnabled(conn.metadata)) {
+      try {
+        await syncComments(conn, token);
+      } catch (e) {
+        const code = e instanceof InboxError ? e.code : "unknown";
+        console.error(`[inbox] sync comentarios falló: ${code}`);
+        if (code === "token_expired") throw e;
+      }
+    }
     await db.from("inbox_connections").update({ last_synced_at: new Date().toISOString() }).eq("id", conn.id);
     return threads.length;
   } catch (e) {
@@ -107,7 +121,9 @@ export async function storeThread(conn: Conn, t: SyncedThread, opts: { emailUnre
         ...fields,
         // Un mensaje nuevo reabre un hilo archivado y lo marca como no leído.
         status: newInbound ? "open" : existing.status,
-        unread: opts.emailUnread ? t.unread : existing.unread || newInbound,
+        // Email: lo marcado como leído en Kreo se respeta hasta que llegue un mensaje nuevo (Kreo no puede quitar la
+        // etiqueta UNREAD sin gmail.modify / Mail.ReadWrite); si se lee en el buzón, también queda leído en Kreo.
+        unread: opts.emailUnread ? (newInbound ? t.unread : existing.unread && t.unread) : existing.unread || newInbound,
         metadata: { ...((existing.metadata as Record<string, unknown>) ?? {}), ...(t.metadata ?? {}) } as Json,
       })
       .eq("id", existing.id);

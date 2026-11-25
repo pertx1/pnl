@@ -4,6 +4,7 @@ import { humanAgentEnabled, InboxError } from "./config";
 import { isValidEmail } from "./mime";
 import { gmailSendReply } from "./providers/gmail";
 import { isInstagramLogin } from "@/lib/social/instagram-login";
+import { isUnifiedLogin } from "./meta-scopes";
 import { igSendReply } from "./providers/instagram";
 import { igLoginSendReply } from "./providers/instagram-login";
 import { outlookSendReply } from "./providers/outlook";
@@ -62,7 +63,9 @@ export async function sendReply(o: { threadId: string; body: string; userId: str
     if (!fitsInstagram(o.body)) throw new InboxError("too_long");
     const igsid = String((th.metadata as { igsid?: string } | null)?.igsid ?? th.external_thread_id.replace(/^ig:/, ""));
     const reply = { igsid, text: o.body, humanAgent: win.mode === "human_agent" };
-    ({ externalId } = isInstagramLogin(conn.metadata) ? await igLoginSendReply(token, reply) : await igSendReply(token, reply));
+    ({ externalId } = isInstagramLogin(conn.metadata)
+      ? await igLoginSendReply(token, reply)
+      : await igSendReply(token, { ...reply, sender: isUnifiedLogin(conn.metadata) ? conn.external_id : undefined }));
   } else if (conn.channel === "gmail") {
     if (!isValidEmail(th.counterpart_handle)) throw new InboxError("no_recipient");
     const meta = (lastIn?.metadata ?? {}) as { messageId?: string | null; references?: string | null };

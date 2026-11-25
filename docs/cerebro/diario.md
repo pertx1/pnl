@@ -2,6 +2,12 @@
 
 Una entrada por sesión, lo más reciente arriba. 3-6 líneas: qué se hizo, qué quedó a medias, qué toca después.
 
+## 2026-11-26 · Bandeja: Unified Login, comentarios y «marcar como leído» (rama del agente, sin desplegar)
+- Verificado en la doc de Meta: la config 1203482298883759 es «Instagram API (Unified Login)» → token BISU, `/me/assigned_instagram_accounts`, todo en `graph.facebook.com/<IG_ID>`; no hacen falta `pages_*`. Callback adaptado (exige solo `instagram_basic` + `instagram_manage_messages`; registra los permisos que faltan); el flujo clásico con página sigue como alternativa.
+- Comentarios de Instagram: pestaña «Comentarios» agrupada por publicación (miniatura), responder en el hilo, ocultar/mostrar, borrador IA (1 crédito), sondeo cada 30 min + webhook `comments`; retención 30 días. Migración `20261126110000_inbox_comments.sql` SIN aplicar.
+- «Marcar como leído»: todo, por canal (DMs, comentarios, Gmail, Outlook) y por conversación («Marcar como no leído»); contador de la barra lateral con comentarios. Solo en Kreo.
+- Toca: Oier limpia la config (quitar `ads_*` e `instagram_content_publish`), webhooks `comments`, aplicar migración, reconectar Instagram; `seguridad-legal` y `qa-tester`.
+
 ## 2026-11-26
 - Rediseño «Creador» en producción (selector de proyectos, botón Crear, miniaturas).
 - Instagram Login (publicar + DMs sin página de Facebook) desplegado; se activa al poner `INSTAGRAM_APP_ID`/`INSTAGRAM_APP_SECRET` en Vercel. Sin probar en real.

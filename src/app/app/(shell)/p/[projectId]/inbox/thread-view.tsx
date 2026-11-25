@@ -3,7 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useRef, useState, useTransition } from "react";
 import { useFormatter, useTranslations } from "next-intl";
-import { Archive, ArchiveRestore, Clock, Info, Send, Sparkles, TriangleAlert } from "lucide-react";
+import { Archive, ArchiveRestore, Clock, Info, MailWarning, Send, Sparkles, TriangleAlert } from "lucide-react";
 import { toast } from "sonner";
 import { CreditCost } from "@/components/kreo/credit-cost";
 import { Button } from "@/components/ui/button";
@@ -32,6 +32,7 @@ export function ThreadView({
   thread,
   messages,
   draft,
+  listHref,
 }: {
   canEdit: boolean;
   balance: number;
@@ -43,6 +44,8 @@ export function ThreadView({
   thread: { id: string; subject: string | null; name: string | null; handle: string | null; status: "open" | "archived"; unread: boolean; lastInboundAt: string | null };
   messages: Msg[];
   draft: { body: string; ai_generated: boolean } | null;
+  /** Lista de conversaciones (al marcar como no leído se vuelve a ella). */
+  listHref: string;
 }) {
   const t = useTranslations("inbox");
   const format = useFormatter();
@@ -58,10 +61,15 @@ export function ThreadView({
   const [archiving, startArchive] = useTransition();
   const endRef = useRef<HTMLDivElement>(null);
 
-  // Al abrir un hilo no leído, se marca como leído (solo en Kreo: no cambia nada en Gmail/Outlook/Instagram).
+  // Al abrir un hilo no leído, se marca como leído UNA vez (solo en Kreo, salvo que Gmail/Outlook ya tengan permiso de
+  // modificar el buzón). Una vez por apertura: así «Marcar como no leído» no se deshace solo.
+  const autoMarked = useRef(false);
   useEffect(() => {
-    if (thread.unread && canEdit) void markRead(thread.id);
+    if (autoMarked.current || !thread.unread || !canEdit) return;
+    autoMarked.current = true;
+    void markRead(thread.id);
   }, [thread.id, thread.unread, canEdit]);
+  const [marking, startMarking] = useTransition();
   useEffect(() => {
     endRef.current?.scrollIntoView({ block: "nearest" });
   }, [messages.length]);
@@ -97,6 +105,26 @@ export function ThreadView({
           </p>
           {thread.subject && <p className="mt-1 truncate text-sm">{thread.subject}</p>}
         </div>
+        {canEdit && (
+          <Button
+            variant="ghost"
+            size="sm"
+            disabled={marking}
+            onClick={() =>
+              startMarking(async () => {
+                const res = await markRead(thread.id, true);
+                if (!res.ok) {
+                  toast.error(errText(res.error));
+                  return;
+                }
+                toast.success(t("markedUnread"));
+                router.push(listHref);
+              })
+            }
+          >
+            <MailWarning aria-hidden /> {t("markUnread")}
+          </Button>
+        )}
         {canEdit && (
           <Button
             variant="ghost"

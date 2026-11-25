@@ -5,7 +5,8 @@ import type { InboxChannel } from "@/lib/supabase/types/inbox";
 import { InboxError } from "./config";
 import { gmailRevoke } from "./providers/gmail";
 import { isInstagramLogin } from "@/lib/social/instagram-login";
-import { igUnsubscribePage } from "./providers/instagram";
+import { isUnifiedLogin } from "./meta-scopes";
+import { igUnsubscribeAccount, igUnsubscribePage } from "./providers/instagram";
 import { igLoginUnsubscribe } from "./providers/instagram-login";
 import { loadInboxTokens, saveInboxTokens } from "./tokens";
 import type { InboxTokenSet } from "./types";
@@ -57,7 +58,8 @@ export async function upsertConnection(o: {
 
 /**
  * Desconecta: revoca/da de baja en el proveedor cuando es posible y borra la conexión (en cascada: tokens, hilos,
- * mensajes y borradores). Llamar SOLO tras comprobar que el usuario es admin del workspace.
+ * mensajes, borradores, publicaciones y comentarios). Unified Login: el token BISU pertenece al portfolio del cliente;
+ * para retirarlo del todo, el cliente quita la app en la configuración de su portfolio empresarial. Llamar SOLO tras comprobar que el usuario es admin del workspace.
  */
 export async function disconnectConnection(connectionId: string) {
   const db = admin();
@@ -72,6 +74,7 @@ export async function disconnectConnection(connectionId: string) {
       const pageId = String((conn.metadata as { page_id?: string } | null)?.page_id ?? "");
       const { count } = await db.from("inbox_connections").select("id", { count: "exact", head: true }).eq("channel", "instagram").eq("external_id", conn.external_id).neq("id", conn.id);
       if (!count && isInstagramLogin(conn.metadata)) await igLoginUnsubscribe(conn.external_id, tokens.accessToken);
+      else if (!count && isUnifiedLogin(conn.metadata)) await igUnsubscribeAccount(conn.external_id, tokens.accessToken);
       else if (pageId && !count) await igUnsubscribePage(pageId, tokens.accessToken);
     }
     // Microsoft no ofrece revocación de un refresh token delegado concreto: lo borramos y la UI indica dónde retirar el permiso.

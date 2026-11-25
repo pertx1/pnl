@@ -1,7 +1,7 @@
 {
   "inbox": {
     "title": "Inbox",
-    "subtitle": "Instagram DMs plus Gmail and Outlook email in one place. AI suggests; you decide what gets sent.",
+    "subtitle": "Instagram DMs and comments plus Gmail and Outlook email in one place. AI suggests; you decide what gets sent.",
     "channels": "Channels",
     "channelNames": {
       "instagram": "Instagram",
@@ -73,7 +73,7 @@
       "title": "Pick a conversation",
       "body": "Read the thread, ask the AI for a draft if you like, and send the reply yourself."
     },
-    "retention": "Kreo keeps message content for 30 days and then deletes it automatically. Marking as read or archiving only affects Kreo, not Gmail, Outlook or Instagram.",
+    "retention": "Kreo keeps message and comment content for 30 days and then deletes it automatically. Marking as read or archiving only affects Kreo, not Gmail, Outlook or Instagram.",
     "via": "via {account}",
     "archive": "Archive",
     "unarchive": "Unarchive",
@@ -120,7 +120,7 @@
       "rate_limited": "Too many requests. Wait a few minutes.",
       "unavailable": "The platform isn't responding. Try again later.",
       "window_closed": "Instagram's reply window is closed.",
-      "too_long": "The message is too long for Instagram (max 1,000 characters).",
+      "too_long": "The text is too long (Instagram: 1,000 characters for DMs and 2,200 for comments).",
       "no_recipient": "There's no valid address to reply to in this thread.",
       "no_inbound": "You can only reply to conversations where the other person has written to you.",
       "connection_inactive": "The connection has expired. Reconnect it.",
@@ -136,8 +136,69 @@
       "invalid_input": "Check the text.",
       "not_found": "We couldn't find the conversation.",
       "db_error": "We couldn't save the connection.",
+      "comment_failed": "Instagram didn't accept the action on this comment. Nothing was changed.",
+      "comments_failed": "We couldn't read your Instagram comments.",
+      "comment_hidden": "You can't reply to a hidden comment. Show it first.",
+      "comment_own": "That comment is from your own account.",
+      "comments_not_enabled": "Comments aren't enabled for this connection. Reconnect Instagram.",
+      "bad_id": "Invalid identifier.",
       "generic": "Something went wrong.",
       "default": "Something went wrong. Try again."
+    },
+    "markUnread": "Mark as unread",
+    "markedUnread": "Marked as unread.",
+    "viewsLabel": "Conversation type",
+    "views": {
+      "messages": "Messages",
+      "comments": "Comments"
+    },
+    "markRead": {
+      "label": "Mark as read",
+      "done": "{count, plural, =0 {Nothing was unread.} one {# item marked as read.} other {# items marked as read.}}",
+      "scopes": {
+        "all": "Everything",
+        "instagram": "Instagram DMs",
+        "comments": "Comments",
+        "gmail": "Gmail",
+        "outlook": "Outlook"
+      }
+    },
+    "comments": {
+      "label": "Instagram comments",
+      "filtersLabel": "Filter comments",
+      "filters": {
+        "all": "All",
+        "unread": "Unread",
+        "pending": "Unanswered"
+      },
+      "empty": {
+        "all": "No recent comments.",
+        "unread": "All caught up.",
+        "pending": "Nothing waiting for a reply.",
+        "hint": "We show comments from the last 30 days on your 25 most recent posts. Tap ↻ on Instagram to sync."
+      },
+      "noCaption": "Post without caption",
+      "openPost": "View on Instagram",
+      "markPostRead": "Mark read ({count})",
+      "hiddenTag": "Hidden",
+      "reply": "Reply",
+      "hide": "Hide",
+      "show": "Show",
+      "hidden": "Comment hidden on Instagram.",
+      "shown": "Comment visible again.",
+      "markRead": "Mark as read",
+      "markUnread": "Mark as unread",
+      "replyLabel": "Public reply to {user}",
+      "replyPlaceholder": "Write your reply…",
+      "publicNote": "Posted as a visible reply in the comment thread. Only when you press Reply.",
+      "instructionsPlaceholder": "e.g. thank them and ask them to DM us about the order",
+      "send": "Reply",
+      "replied": "Reply posted.",
+      "notEnabled": {
+        "title": "Turn on Instagram comments",
+        "body": "Reconnect Instagram in the Inbox and accept the “Manage comments” permission (instagram_manage_comments). We only read recent comments on your posts; replying or hiding is always your call.",
+        "reconnect": "Reconnect {account}"
+      }
     }
   },
   "studioAudio": {

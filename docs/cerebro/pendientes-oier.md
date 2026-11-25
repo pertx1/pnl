@@ -11,11 +11,20 @@ Lo que solo puedes hacer tú (consolas, pagos, decisiones). En orden. Tacha con 
 - [x] Publicación real probada (Instagram + YouTube, 2026-11-23). TikTok: hay que poner la cuenta en privado mientras no esté auditada.
 - [ ] **Conectar Gmail u Outlook** en la Bandeja (opcional).
 
-## Instagram con inicio de sesión de Instagram (2026-11-26)
-- [ ] Meta → caso de uso Instagram con «Instagram login»: permisos `instagram_business_basic`, `_content_publish`, `_manage_messages` (NO `_manage_comments`), las 2 URI de redirección, webhook `messages`.
-- [ ] Vercel: `INSTAGRAM_APP_SECRET` (lo pega Oier) e `INSTAGRAM_APP_ID` (se lo pasa a Claude).
-- [ ] Aceptar la invitación de tester en Instagram y permitir el acceso a los mensajes (Herramientas conectadas).
-- [ ] Reconectar Instagram en Cuentas y pulsar «Activar mensajes» en la Bandeja (proyecto Akerra).
+## Instagram: mensajes y comentarios con Unified Login (2026-11-26)
+> «Instagram API with Instagram Login» no está disponible en la app: se usa la configuración **1203482298883759** (ya en Vercel).
+- [ ] Meta → *API setup with Unified login*: comprobar que la **Redirect URL** es `https://kreo-nine.vercel.app/api/inbox/oauth/instagram/callback`
+  (y que está también en *Facebook Login for Business → Valid OAuth Redirect URIs*).
+- [ ] Meta → configuración 1203482298883759 → *Edit permissions*: **quitar `ads_management`, `ads_read` e `instagram_content_publish`**
+  (la Bandeja no los usa; dejarlos complica la revisión). Mantener `instagram_basic`, `instagram_manage_messages` e `instagram_manage_comments`.
+  No hace falta añadir `pages_show_list` ni `pages_manage_metadata`.
+- [ ] Meta → *Webhooks* → objeto **Instagram**: suscribir los campos `messages` y **`comments`** (mismo callback y verify token).
+- [ ] Aplicar la migración `20261126110000_inbox_comments.sql` (o decirle a Claude que la aplique) antes de desplegar la rama.
+- [ ] En la Bandeja (proyecto Akerra): **Reconectar** Instagram, entrar con `akerra.nortasuna`, elegir el portfolio «Akerra» y la
+  cuenta, aceptar todo y activar «Permitir acceso a los mensajes» en Instagram si lo pide.
+- [ ] No poner `INSTAGRAM_APP_ID` en Vercel: si se pone, la Bandeja vuelve a Instagram Login (que la app no tiene).
+- [ ] Decidir si se piden `gmail.modify` / `Mail.ReadWrite` para que «marcar como leído» se refleje también en Gmail/Outlook
+  (recomendación: **no** por ahora; ver decisiones).
 
 ## Limpieza de consolas (5 min)
 - [ ] Google: añadir el scope `youtube.force-ssl` en [Data access](https://console.cloud.google.com/auth/scopes?project=kreo-515218) y quitar `yt-analytics.readonly`.

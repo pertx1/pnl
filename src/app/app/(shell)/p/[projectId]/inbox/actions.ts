@@ -12,6 +12,8 @@ import { activateIgLoginInbox } from "@/lib/inbox/instagram-activate";
 import { getFreshTokens, TokenUnavailableError } from "@/lib/social/fresh-tokens";
 import { IG_SCOPE_MESSAGES, instagramLoginEnabled, isInstagramLogin } from "@/lib/social/instagram-login";
 import { disconnectConnection } from "@/lib/inbox/connections";
+import { markReadInProvider } from "@/lib/inbox/provider-read";
+import { includesComments, isReadScope, threadChannelsFor, type ReadScope } from "@/lib/inbox/read-state";
 import { sendReply } from "@/lib/inbox/send";
 import { syncConnection } from "@/lib/inbox/sync";
 import { createAdminClient } from "@/lib/supabase/admin";
@@ -126,12 +128,54 @@ export async function setThreadStatus(threadId: string, status: "open" | "archiv
   return { ok: true };
 }
 
+/**
+ * Marca un hilo como leído o no leído. En Kreo siempre; en Gmail/Outlook solo si la conexión ya tiene permiso de
+ * modificar el buzón (hoy no se pide: ver src/lib/inbox/read-state.ts). Instagram no se toca.
+ */
 export async function markRead(threadId: string, unread = false): Promise<Result> {
+  if (typeof unread !== "boolean") return { error: "invalid_input" };
   const a = await authorize("thread", threadId, "editor");
   if (!a) return { error: "forbidden" };
-  await a.supabase.from("inbox_threads").update({ unread }).eq("id", threadId);
+  const { error } = await a.supabase.from("inbox_threads").update({ unread }).eq("id", threadId);
+  if (error) return { error: "forbidden" };
+  if (!unread) await markReadInProvider([threadId]);
   revalidate(a.project_id);
   return { ok: true };
+}
+
+/**
+ * «Marcar todo como leído» del proyecto: todo, o un canal (DMs de Instagram, comentarios, Gmail u Outlook).
+ * Con la sesión del usuario (RLS: rol editor; los triggers solo dejan cambiar `unread`). Devuelve cuántos se marcaron.
+ */
+export async function markAllRead(projectId: string, scope: ReadScope): Promise<Result<number>> {
+  if (!uuid.safeParse(projectId).success || !isReadScope(scope)) return { error: "invalid_input" };
+  const supabase = await createClient();
+  const { data: auth } = await supabase.auth.getUser();
+  if (!auth.user) return { error: "forbidden" };
+  const { data: project } = await supabase.from("projects").select("workspace_id").eq("id", projectId).maybeSingle();
+  if (!project) return { error: "forbidden" };
+  const { data: ok } = await supabase.rpc("has_workspace_role", { p_workspace_id: project.workspace_id, p_min_role: "editor" });
+  if (!ok) return { error: "forbidden" };
+
+  let total = 0;
+  const channels = threadChannelsFor(scope);
+  if (channels.length) {
+    const { data: conns } = await supabase.from("inbox_connections").select("id").eq("project_id", projectId).in("channel", channels);
+    const ids = (conns ?? []).map((c) => c.id);
+    if (ids.length) {
+      const { data: rows, error } = await supabase.from("inbox_threads").update({ unread: false }).eq("project_id", projectId).eq("unread", true).in("connection_id", ids).select("id");
+      if (error) return { error: "forbidden" };
+      total += rows?.length ?? 0;
+      if (rows?.length) await markReadInProvider(rows.map((r) => r.id));
+    }
+  }
+  if (includesComments(scope)) {
+    const { data: rows, error } = await supabase.from("inbox_comments").update({ unread: false }).eq("project_id", projectId).eq("unread", true).select("id");
+    if (error) return { error: "forbidden" };
+    total += rows?.length ?? 0;
+  }
+  revalidate(projectId);
+  return { ok: true, data: total };
 }
 
 export async function saveDraft(threadId: string, body: string): Promise<Result> {

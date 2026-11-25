@@ -1,6 +1,6 @@
 # Estado de Kreo
 
-_Última actualización: 2026-11-24_
+_Última actualización: 2026-11-26_
 
 ## Qué es
 SaaS todo-en-uno para creadores, dropshippers, marcas y agencias: crear con IA, programar y publicar en
@@ -43,9 +43,14 @@ Variables de entorno: lista completa en `.env.example`; estado de cada una en Ve
 - **Clipper v2** (viralidad, formatos, 5 plantillas de subtítulos, editar, ZIP sin marca de agua, «Programar clips»).
 - **Plantillas, series y textos guardados**; **reel de prueba** de Instagram.
 - Bandeja (DMs de Instagram, Gmail, Outlook), audio (ElevenLabs), informes PDF, Shopify, equipo, planes, afiliados.
+- (Rama del agente, sin fusionar) **Bandeja con Instagram API with Unified Login** (config `1203482298883759`, token BISU, sin
+  página de Facebook), **Comentarios de Instagram** (pestaña «Comentarios»: responder, ocultar/mostrar, borrador con IA) y
+  **«Marcar como leído»** (todo, por canal y por conversación). Migración `20261126110000_inbox_comments.sql` SIN aplicar.
 
 ## Límites actuales
 - TikTok sin auditar: Direct Post solo publica si la **cuenta de TikTok es privada** (error `unaudited_client_can_only_post_to_private_accounts`, comprobado el 2026-11-23). Desplegado (2026-11-24): por defecto **se envía a los borradores de TikTok** y Oier lo publica desde la app de TikTok (o «subir a mano» si no se puede); necesita `video.upload` en la consola y reconectar.
 - YouTube ya publica en **público** (cambio de YouTube del 2026-11-02); el token caduca cada 7 días mientras Google esté «En prueba».
 - Instagram/Meta en modo desarrollo: funciona para las cuentas con rol en la app (la de Oier).
+- Meta: la app no ofrece «Instagram API with Instagram Login» (apps nuevas). La Bandeja usa Unified Login; en modo desarrollo
+  no llegan webhooks → DMs y comentarios por sondeo cada 30 min (o «Sincronizar ahora»).
 - Revisiones de apps bloqueadas por: dominio propio, textos legales sin rellenar ni revisar, y (Meta/Microsoft) empresa registrada. Detalle en `docs/app-review/README.md`.

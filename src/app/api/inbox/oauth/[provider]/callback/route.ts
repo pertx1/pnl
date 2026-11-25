@@ -5,7 +5,7 @@ import { InboxError } from "@/lib/inbox/config";
 import { upsertConnection } from "@/lib/inbox/connections";
 import { INBOX_COOKIE_PATH, inboxStateCookie, readInboxState } from "@/lib/inbox/oauth-state";
 import { GMAIL_SCOPES, gmailExchange, gmailProfile, gmailRevoke } from "@/lib/inbox/providers/gmail";
-import { igExchange, igPages, igSubscribePage, IG_INBOX_SCOPES } from "@/lib/inbox/providers/instagram";
+import { connectInstagramFacebook } from "@/lib/inbox/instagram-facebook";
 import { activateIgLoginInbox } from "@/lib/inbox/instagram-activate";
 import { outlookExchange } from "@/lib/inbox/providers/outlook";
 import { IG_PUBLISH_SCOPES, IG_SCOPE_MESSAGES, instagramLoginEnabled, isInstagramLogin } from "@/lib/social/instagram-login";
@@ -120,32 +120,10 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
         console.error("[inbox-oauth] instagram: el proyecto no tiene esa cuenta de Instagram conectada");
         return finish("error=no_matching_account");
       }
-      const t = await igExchange(code, redirectUri);
-      const missingScopes = IG_INBOX_SCOPES.filter((s) => !t.grantedScopes.includes(s));
-      if (missingScopes.length) {
-        // Solo nombres de permisos (sin datos personales): suele ser la configuración de login de Meta sin permisos de mensajes.
-        console.error(`[inbox-oauth] instagram: faltan permisos ${missingScopes.join(",")}`);
-        return finish("error=missing_scopes");
-      }
-      const pages = await igPages(t.accessToken);
-      const page = pages.find((p) => p.igId === acc.external_id);
-      // No revocamos permisos aquí: es la misma app de Meta que usa el módulo de publicación.
-      if (!page) {
-        console.error(`[inbox-oauth] instagram: ninguna de las ${pages.length} páginas autorizadas tiene vinculada esa cuenta de Instagram`);
-        return finish("error=no_matching_account");
-      }
-      await igSubscribePage(page.pageId, page.pageToken);
-      // Guardamos SOLO el token de la página (no caduca si procede de un token de usuario de larga duración).
-      connectionId = await upsertConnection({
-        ...base,
-        channel,
-        externalId: page.igId,
-        displayName: page.username ? `@${page.username}` : (acc.handle ? `@${acc.handle}` : page.name),
-        socialAccountId: acc.id,
-        grantedScopes: t.grantedScopes,
-        metadata: { page_id: page.pageId },
-        tokens: { accessToken: page.pageToken },
-      });
+      // Facebook Login for Business: Unified Login (token BISU, sin página) o Facebook Login clásico (token de página).
+      const r = await connectInstagramFacebook({ ...base, code, redirectUri, account: acc });
+      if (!r.ok) return finish(`error=${r.error}`);
+      connectionId = r.connectionId;
     }
     // Primera sincronización en segundo plano (el evento solo lleva el id).
     await inngest.send({ name: "inbox/connection.sync", data: { connectionId } }).catch(() => undefined);

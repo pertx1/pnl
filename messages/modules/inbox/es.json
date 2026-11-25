@@ -1,7 +1,7 @@
 {
   "inbox": {
     "title": "Bandeja",
-    "subtitle": "DMs de Instagram y emails de Gmail y Outlook en un solo sitio. La IA propone; tú decides qué se envía.",
+    "subtitle": "DMs y comentarios de Instagram y emails de Gmail y Outlook en un solo sitio. La IA propone; tú decides qué se envía.",
     "channels": "Canales",
     "channelNames": {
       "instagram": "Instagram",
@@ -73,7 +73,7 @@
       "title": "Elige una conversación",
       "body": "Lee el hilo, pide un borrador a la IA si quieres y envía tú la respuesta."
     },
-    "retention": "Kreo guarda el contenido de los mensajes 30 días y después lo borra automáticamente. Marcar como leído o archivar solo afecta a Kreo, no a Gmail, Outlook ni Instagram.",
+    "retention": "Kreo guarda el contenido de mensajes y comentarios 30 días y después lo borra automáticamente. Marcar como leído o archivar solo afecta a Kreo, no a Gmail, Outlook ni Instagram.",
     "via": "vía {account}",
     "archive": "Archivar",
     "unarchive": "Desarchivar",
@@ -120,7 +120,7 @@
       "rate_limited": "Demasiadas peticiones. Espera unos minutos.",
       "unavailable": "La plataforma no responde. Inténtalo más tarde.",
       "window_closed": "La ventana de respuesta de Instagram está cerrada.",
-      "too_long": "El mensaje es demasiado largo para Instagram (máx. 1.000 caracteres).",
+      "too_long": "El texto es demasiado largo (Instagram: 1.000 caracteres en DMs y 2.200 en comentarios).",
       "no_recipient": "No hay una dirección válida para responder en este hilo.",
       "no_inbound": "Solo puedes responder a conversaciones en las que la otra persona te ha escrito.",
       "connection_inactive": "La conexión ha caducado. Vuelve a conectarla.",
@@ -136,8 +136,69 @@
       "invalid_input": "Revisa el texto.",
       "not_found": "No encontramos la conversación.",
       "db_error": "No pudimos guardar la conexión.",
+      "comment_failed": "Instagram no aceptó la acción sobre el comentario. No se ha hecho nada.",
+      "comments_failed": "No pudimos leer los comentarios de Instagram.",
+      "comment_hidden": "No se puede responder a un comentario oculto. Muéstralo primero.",
+      "comment_own": "Es un comentario de tu cuenta.",
+      "comments_not_enabled": "Los comentarios no están activados en esta conexión. Vuelve a conectar Instagram.",
+      "bad_id": "Identificador no válido.",
       "generic": "Algo ha fallado.",
       "default": "Algo ha fallado. Vuelve a intentarlo."
+    },
+    "markUnread": "Marcar como no leído",
+    "markedUnread": "Marcada como no leída.",
+    "viewsLabel": "Tipo de conversación",
+    "views": {
+      "messages": "Mensajes",
+      "comments": "Comentarios"
+    },
+    "markRead": {
+      "label": "Marcar como leído",
+      "done": "{count, plural, =0 {No había nada sin leer.} one {# elemento marcado como leído.} other {# elementos marcados como leídos.}}",
+      "scopes": {
+        "all": "Todo",
+        "instagram": "DMs de Instagram",
+        "comments": "Comentarios",
+        "gmail": "Gmail",
+        "outlook": "Outlook"
+      }
+    },
+    "comments": {
+      "label": "Comentarios de Instagram",
+      "filtersLabel": "Filtrar comentarios",
+      "filters": {
+        "all": "Todos",
+        "unread": "Sin leer",
+        "pending": "Sin responder"
+      },
+      "empty": {
+        "all": "No hay comentarios recientes.",
+        "unread": "Todo leído.",
+        "pending": "Nada pendiente de respuesta.",
+        "hint": "Mostramos los comentarios de los últimos 30 días en tus 25 publicaciones más recientes. Pulsa ↻ en Instagram para sincronizar."
+      },
+      "noCaption": "Publicación sin texto",
+      "openPost": "Ver en Instagram",
+      "markPostRead": "Marcar leídos ({count})",
+      "hiddenTag": "Oculto",
+      "reply": "Responder",
+      "hide": "Ocultar",
+      "show": "Mostrar",
+      "hidden": "Comentario ocultado en Instagram.",
+      "shown": "Comentario visible de nuevo.",
+      "markRead": "Marcar como leído",
+      "markUnread": "Marcar como no leído",
+      "replyLabel": "Respuesta pública a {user}",
+      "replyPlaceholder": "Escribe tu respuesta…",
+      "publicNote": "Se publica como respuesta visible en el hilo del comentario. Solo cuando pulses Responder.",
+      "instructionsPlaceholder": "p. ej. agradece y pide que escriba por DM para el pedido",
+      "send": "Responder",
+      "replied": "Respuesta publicada.",
+      "notEnabled": {
+        "title": "Activa los comentarios de Instagram",
+        "body": "Vuelve a conectar Instagram en la Bandeja y acepta el permiso «Gestionar comentarios» (instagram_manage_comments). Solo leemos los comentarios recientes de tus publicaciones; responder u ocultar siempre lo decides tú.",
+        "reconnect": "Reconectar {account}"
+      }
     }
   },
   "studioAudio": {

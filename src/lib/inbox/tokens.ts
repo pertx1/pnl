@@ -45,7 +45,8 @@ export async function loadInboxTokens(connectionId: string) {
 
 /**
  * Token de acceso vigente; refresca si caduca en < 2 min. Si no se puede, marca la conexión como caducada.
- * Instagram: con Facebook Login se guarda el token de página (no caduca); con Instagram Login, el token de usuario de
+ * Instagram: con Facebook Login se guarda el token de página (no caduca) o, con Unified Login, el token BISU (su caducidad
+ * depende de la configuración de Meta; si caduca, hay que reconectar); con Instagram Login, el token de usuario de
  * Instagram (60 días), que se refresca cuando quedan < 10 días (igRefreshDue) — también desde la tarea diaria.
  */
 export async function freshAccessToken(conn: { id: string; channel: string; metadata?: unknown }): Promise<string> {
@@ -53,7 +54,14 @@ export async function freshAccessToken(conn: { id: string; channel: string; meta
   if (!t) throw new InboxError("missing_tokens");
   const expired = t.accessExpiresAt && t.accessExpiresAt.getTime() <= Date.now();
   if (conn.channel === "instagram") {
-    if (!isInstagramLogin(conn.metadata)) return t.accessToken; // token de página de Meta: no caduca
+    if (!isInstagramLogin(conn.metadata)) {
+      // Token de página (no caduca) o token BISU de Unified Login (caduca o no según la configuración de Meta).
+      if (expired) {
+        await markExpired(conn.id);
+        throw new InboxError("token_expired");
+      }
+      return t.accessToken;
+    }
     if (expired) {
       await markExpired(conn.id);
       throw new InboxError("token_expired");

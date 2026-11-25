@@ -676,6 +676,41 @@ Comprobado con `npx tsc --noEmit`, `npx eslint` sobre lo tocado y `npx vitest ru
   3. Business Discovery (Competencia) solo con cuentas de Facebook Login.
   4. Textos de privacidad: mencionar Instagram Login y los permisos `instagram_business_*` (abogado).
 
+## Bandeja · Instagram con Unified Login, comentarios y «marcar como leído» — 2026-11-26 — Estado: ⏳ pendiente de `seguridad-legal`
+- APIs usadas (oficiales, OAuth oficial de Meta: Facebook Login for Business con `config_id` 1203482298883759):
+  `GET /oauth/access_token`, `GET /debug_token`, `GET /me/assigned_instagram_accounts`, `GET /me?fields=client_business_id`,
+  `POST|DELETE /<IG_ID>/subscribed_apps` (campos `messages`, `comments`), `GET /<IG_ID>/conversations`, `POST /<IG_ID>/messages`,
+  `GET /<IG_ID>/media`, `GET /<MEDIA_ID>/comments` (con `replies`), `POST /<COMMENT_ID>/replies`, `POST /<COMMENT_ID>?hide=`.
+  Docs: Unified Login (get-started, authentication, permissions), Comment Moderation, IG Comment, webhooks (setup, fields, examples).
+- Permisos usados: `instagram_basic` y `instagram_manage_messages` (obligatorios), `instagram_manage_comments` (opcional,
+  activa «Comentarios»). La configuración también pide `instagram_content_publish`, `ads_management` y `ads_read`, que la Bandeja
+  **no usa**: hay que quitarlos de la configuración antes de la revisión. Sin `pages_*`.
+- Datos guardados: token BISU cifrado (AES-256-GCM) en `inbox_connection_tokens`; `client_business_id` y marcas técnicas en
+  `inbox_connections.metadata`. Comentarios (tablas nuevas `inbox_comment_media` e `inbox_comments`, migración
+  `20261126110000_inbox_comments.sql`): de terceros solo @usuario, texto (≤ 2.200) y fecha; sin IGSID, foto ni «me gusta».
+  Publicaciones: id, tipo, pie de foto propio recortado (140), enlace y URL temporal de la miniatura del CDN de Instagram.
+  **Retención**: cada comentario caduca a los 30 días (`expires_at`, purga diaria `inbox-retention`); publicaciones sin
+  actividad en 30 días se borran; los comentarios borrados en Instagram se borran de Kreo en la siguiente lectura completa.
+  Desconectar borra todo en cascada y da de baja el webhook.
+- Sin automatización de interacción: responder, ocultar/mostrar y marcar como leído son acciones humanas (botón); nada de
+  respuestas automáticas, «me gusta» ni seguir cuentas. La IA solo propone un borrador (1 crédito, con reembolso si falla),
+  que la persona edita y publica; en `ai_generations` no se guarda el contenido. Freno: 30 respuestas a comentarios por
+  conexión y hora; solo comentarios de primer nivel, nunca ocultos ni propios (límites de la API).
+- Límites de la API respetados: 1 llamada para las 25 últimas publicaciones y 1 por publicación solo si cambió su número de
+  comentarios (máx. 50 por lectura); sondeo cada 30 min y como mucho 1 sincronización cada 5 min por conexión.
+- «Marcar como leído»: en Kreo siempre (todo, por canal o por conversación). En la plataforma solo si el permiso ya
+  concedido lo permite (Gmail `gmail.modify`, Outlook `Mail.ReadWrite`); hoy no se piden, así que no cambia nada fuera de Kreo.
+  En Instagram no se usa `mark_seen` (mostraría «Visto» a la otra persona).
+- RLS: lectura para miembros (viewer), solo editores cambian `unread` (trigger `guard_inbox_comment_update`), escrituras de
+  contenido solo con service_role tras comprobar el rol con la sesión; política restrictiva `mfa_required`.
+- Riesgos / pendientes:
+  1. Webhooks: "Your app must be published or Live to receive notifications for app users"; `comments` exige Advanced Access y
+     cuentas públicas. Con Unified Login sin página vinculada, los webhooks de `messages` pueden no llegar (limitación temporal
+     documentada) → hasta entonces la Bandeja depende del sondeo cada 30 min.
+  2. App Review: Advanced Access de `instagram_manage_comments` (nuevo) además de `instagram_basic` y `instagram_manage_messages`.
+  3. Privacidad (abogado): añadir comentarios de terceros (qué, para qué, 30 días) y Unified Login/BISU a la política y al RoPA.
+  4. Callback de desautorización/eliminación de datos de Meta (B4), también para BISU.
+
 ## Pendientes para Oier (de esta revisión)
 1. Aplicar `supabase/migrations/20261124150000_security_fixes.sql` en producción.
 2. Firmar/aceptar el DPA de fal.ai y pedir su lista de subencargados (ElevenLabs para `auto-subtitle`).

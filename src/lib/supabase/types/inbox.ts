@@ -45,6 +45,23 @@ export type InboxTables = {
     Update: { body?: string; ai_generated?: boolean; prompt_version?: string | null; updated_by?: string | null; updated_at?: string };
     Relationships: [];
   };
+  inbox_comment_media: {
+    Row: { id: string; workspace_id: string; project_id: string; connection_id: string; external_media_id: string; media_type: string | null; product_type: string | null; caption_snippet: string | null; permalink: string | null; thumbnail_url: string | null; posted_at: string | null; comments_count: number; comments_synced_count: number | null; last_comment_at: string | null; created_at: string; updated_at: string };
+    Insert: { id?: string; workspace_id: string; project_id: string; connection_id: string; external_media_id: string; media_type?: string | null; product_type?: string | null; caption_snippet?: string | null; permalink?: string | null; thumbnail_url?: string | null; posted_at?: string | null; comments_count?: number; comments_synced_count?: number | null; last_comment_at?: string | null };
+    Update: { media_type?: string | null; product_type?: string | null; caption_snippet?: string | null; permalink?: string | null; thumbnail_url?: string | null; posted_at?: string | null; comments_count?: number; comments_synced_count?: number | null; last_comment_at?: string | null };
+    Relationships: [
+      { foreignKeyName: "inbox_comment_media_connection_id_fkey"; columns: ["connection_id"]; isOneToOne: false; referencedRelation: "inbox_connections"; referencedColumns: ["id"] },
+    ];
+  };
+  inbox_comments: {
+    Row: { id: string; workspace_id: string; project_id: string; connection_id: string; media_id: string; external_comment_id: string; parent_external_id: string | null; author_username: string | null; is_own: boolean; body_text: string; commented_at: string; hidden: boolean; unread: boolean; replied_at: string | null; sent_by: string | null; ai_assisted: boolean; expires_at: string; created_at: string; updated_at: string };
+    Insert: { id?: string; workspace_id: string; project_id: string; connection_id: string; media_id: string; external_comment_id: string; parent_external_id?: string | null; author_username?: string | null; is_own?: boolean; body_text?: string; commented_at: string; hidden?: boolean; unread?: boolean; replied_at?: string | null; sent_by?: string | null; ai_assisted?: boolean; expires_at?: string };
+    Update: { body_text?: string; hidden?: boolean; unread?: boolean; replied_at?: string | null; author_username?: string | null };
+    Relationships: [
+      { foreignKeyName: "inbox_comments_media_id_fkey"; columns: ["media_id"]; isOneToOne: false; referencedRelation: "inbox_comment_media"; referencedColumns: ["id"] },
+      { foreignKeyName: "inbox_comments_connection_id_fkey"; columns: ["connection_id"]; isOneToOne: false; referencedRelation: "inbox_connections"; referencedColumns: ["id"] },
+    ];
+  };
   clip_jobs: {
     Row: { id: string; workspace_id: string; project_id: string; source_asset_id: string | null; title: string | null; status: ClipJobStatus; declared_duration_s: number; duration_s: number | null; language: string | null; transcript: Json | null; generation_id: string | null; provider_state: Json; error_code: string | null; rights_confirmed_at: string; created_by: string | null; created_at: string; updated_at: string };
     Insert: { id?: string; workspace_id: string; project_id: string; source_asset_id?: string | null; title?: string | null; status?: ClipJobStatus; declared_duration_s: number; duration_s?: number | null; language?: string | null; transcript?: Json | null; generation_id?: string | null; provider_state?: Json; error_code?: string | null; rights_confirmed_at: string; created_by?: string | null };
