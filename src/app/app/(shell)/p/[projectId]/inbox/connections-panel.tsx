@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import type { InboxChannel } from "@/lib/supabase/types/inbox";
 import { cn } from "@/lib/utils";
-import { disconnect, syncNow } from "./actions";
+import { activateInstagramInbox, disconnect, syncNow } from "./actions";
 import { ChannelIcon } from "./channel-icon";
 
 type Conn = { id: string; channel: InboxChannel; label: string; status: string; lastSyncedAt: string | null; socialAccountId: string | null };
@@ -58,7 +58,7 @@ export function ConnectionsPanel({
                     {c ? (
                       <ConnectionRow conn={c} canEdit={canEdit} isAdmin={isAdmin} reconnectHref={start("instagram", a.id)} />
                     ) : (
-                      <ConnectLink href={start("instagram", a.id)} disabled={!canEdit || !configured.instagram} label={t("activateIg", { handle: a.handle })} />
+                      <ActivateIgButton projectId={projectId} accountId={a.id} disabled={!canEdit || !configured.instagram} label={t("activateIg", { handle: a.handle })} />
                     )}
                   </li>
                 );
@@ -131,6 +131,38 @@ function ConnectLink({ href, disabled, label }: { href: string; disabled: boolea
       <a href={href}>
         <Plus aria-hidden /> {label}
       </a>
+    </Button>
+  );
+}
+
+/**
+ * «Activar mensajes» de Instagram: un solo botón. Si la cuenta ya dio el permiso de mensajes al conectarla en Cuentas
+ * (Instagram Login), se activa sin salir de Kreo; si no, el servidor devuelve la URL del login oficial de Instagram.
+ */
+function ActivateIgButton({ projectId, accountId, disabled, label }: { projectId: string; accountId: string; disabled: boolean; label: string }) {
+  const t = useTranslations("inbox");
+  const router = useRouter();
+  const [busy, startTransition] = useTransition();
+  return (
+    <Button
+      variant="secondary"
+      size="sm"
+      className="w-full"
+      disabled={disabled || busy}
+      onClick={() =>
+        startTransition(async () => {
+          const res = await activateInstagramInbox(projectId, accountId);
+          if (res.ok && res.data?.redirect) {
+            window.location.assign(res.data.redirect); // navegación completa: el OAuth sale a Instagram/Meta
+            return;
+          }
+          if (res.ok) toast.success(t("connectedOk", { channel: t("channelNames.instagram") }));
+          else toast.error(t.has(`errors.${res.error}`) ? t(`errors.${res.error}`) : t("errors.default"));
+          router.refresh();
+        })
+      }
+    >
+      <Plus aria-hidden /> {label}
     </Button>
   );
 }

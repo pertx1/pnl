@@ -2,6 +2,7 @@ import { NonRetriableError } from "inngest";
 import type { PlatformOptions } from "@/lib/posts/rules";
 import { getAdapter } from "@/lib/social";
 import { getFreshTokens, TokenUnavailableError } from "@/lib/social/fresh-tokens";
+import { isInstagramLogin } from "@/lib/social/instagram-login";
 import { deliverTikTok, publishTo } from "@/lib/social/publish";
 import { AWAITING_USER_PUBLISH, handoffCode, resolveTikTokMode, tiktokDirectPostAudited } from "@/lib/social/tiktok-core";
 import { loadYouTubeThumbnail } from "@/lib/social/youtube-direct";
@@ -147,7 +148,7 @@ export const publishTarget = inngest.createFunction(
         db.from("posts").select("id, caption, asset_ids, ai_generated").eq("id", claimed.postId).single(),
       ]);
       if (!target || !post) throw new NonRetriableError("post_not_found");
-      const { data: account } = await db.from("social_accounts").select("id, platform, external_id, status").eq("id", claimed.socialAccountId).single();
+      const { data: account } = await db.from("social_accounts").select("id, platform, external_id, status, metadata").eq("id", claimed.socialAccountId).single();
       if (!account || account.status !== "active") throw new NonRetriableError("account_not_active");
       const platform = account.platform as Platform;
       const tokens = await freshTokens(account.id, platform);
@@ -189,6 +190,7 @@ export const publishTarget = inngest.createFunction(
         aiDisclosure: AI_DISCLOSURE,
         thumbnail,
         captions,
+        instagramLogin: platform === "instagram" && isInstagramLogin(account.metadata),
       };
       try {
         if (platform === "tiktok") {

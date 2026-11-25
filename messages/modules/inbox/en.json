@@ -17,7 +17,7 @@
     },
     "igNeedsAccount": "First connect your Instagram professional account in Accounts.",
     "goAccounts": "Go to Accounts",
-    "activateIg": "Turn on DMs for @{handle}",
+    "activateIg": "Turn on messages for @{handle}",
     "connect": {
       "gmail": "Connect Gmail",
       "outlook": "Connect Outlook"
@@ -113,7 +113,7 @@
       "invalid_state": "The connection expired or is invalid. Try again.",
       "forbidden": "You don't have permission to do this in this project.",
       "missing_scopes": "Some permissions are missing. Reconnect and accept all requested permissions.",
-      "no_matching_account": "We couldn't find that Instagram account among the authorized pages. Make sure it's the same account connected in Accounts.",
+      "no_matching_account": "The Instagram account you authorized doesn't match the one connected in Accounts. Sign in with that same account.",
       "profile_failed": "We couldn't identify the connected mailbox.",
       "token_exchange_failed": "The platform rejected the connection. Try again.",
       "subscribe_failed": "We couldn't turn on Instagram message notifications. Make sure the account allows message access (Settings → Messages → Connected tools).",

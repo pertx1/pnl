@@ -12,15 +12,15 @@ export async function revokeAllForWorkspaces(workspaceIds: string[]): Promise<vo
   if (!workspaceIds.length) return;
   const admin = createAdminClient();
   if (!admin) return;
-  const { data: accounts } = await admin.from("social_accounts").select("id, platform").in("workspace_id", workspaceIds);
-  for (const a of accounts ?? []) await revokeAccount(a.id, a.platform);
+  const { data: accounts } = await admin.from("social_accounts").select("id, platform, metadata").in("workspace_id", workspaceIds);
+  for (const a of accounts ?? []) await revokeAccount(a.id, a.platform, (a.metadata ?? null) as Record<string, unknown> | null);
 }
 
-export async function revokeAccount(socialAccountId: string, platform: string) {
+export async function revokeAccount(socialAccountId: string, platform: string, metadata?: Record<string, unknown> | null) {
   const adapter = getAdapter(platform);
   try {
     const tokens = await loadTokens(socialAccountId);
-    if (adapter && tokens) await adapter.revoke(tokens.accessToken);
+    if (adapter && tokens) await adapter.revoke(tokens.accessToken, { metadata });
   } catch {
     console.error(`[social] No se pudo revocar en ${platform}`);
   }

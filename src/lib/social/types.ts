@@ -20,6 +20,8 @@ export type ConnectedProfile = {
   tokens?: TokenSet;
 };
 
+export type AccountContext = { metadata?: Record<string, unknown> | null };
+
 export type ProfileStats = { followers?: number; views?: number; likes?: number; posts?: number };
 
 /**
@@ -35,8 +37,9 @@ export interface PlatformAdapter {
   usesPkce: boolean;
   authorizeUrl(opts: { state: string; redirectUri: string; codeChallenge?: string }): string;
   exchangeCode(opts: { code: string; redirectUri: string; codeVerifier?: string }): Promise<TokenSet>;
-  refresh(refreshToken: string): Promise<TokenSet>;
-  revoke(accessToken: string): Promise<void>;
+  /** `ctx.metadata` = `social_accounts.metadata` (p. ej. Instagram distingue Instagram Login de Facebook Login). */
+  refresh(refreshToken: string, ctx?: AccountContext): Promise<TokenSet>;
+  revoke(accessToken: string, ctx?: AccountContext): Promise<void>;
   fetchProfiles(tokens: TokenSet): Promise<ConnectedProfile[]>;
   fetchStats(tokens: TokenSet, profile: { externalId: string; metadata: Record<string, unknown> }): Promise<ProfileStats>;
 }

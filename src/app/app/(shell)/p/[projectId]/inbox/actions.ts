@@ -6,7 +6,11 @@ import { z } from "zod";
 import { AgentRefusalError, isAgentsConfigured } from "@/lib/agents";
 import { COMMUNITY_VERSION, suggestReply } from "@/lib/agents/community";
 import { getBrandContext } from "@/lib/ai/brand-context";
-import { InboxError } from "@/lib/inbox/config";
+import { inngest } from "@/inngest/client";
+import { channelConfigured, InboxError } from "@/lib/inbox/config";
+import { activateIgLoginInbox } from "@/lib/inbox/instagram-activate";
+import { getFreshTokens, TokenUnavailableError } from "@/lib/social/fresh-tokens";
+import { IG_SCOPE_MESSAGES, instagramLoginEnabled, isInstagramLogin } from "@/lib/social/instagram-login";
 import { disconnectConnection } from "@/lib/inbox/connections";
 import { sendReply } from "@/lib/inbox/send";
 import { syncConnection } from "@/lib/inbox/sync";
@@ -57,6 +61,57 @@ export async function disconnect(connectionId: string): Promise<Result> {
     revalidate(a.project_id);
     return { ok: true };
   } catch (e) {
+    return { error: errorOf(e) };
+  }
+}
+
+/**
+ * «Activar mensajes» de una cuenta de Instagram conectada en Cuentas.
+ * - Instagram Login y la cuenta ya concedió `instagram_business_manage_messages`: REUTILIZA su token (sin otro login),
+ *   suscribe la cuenta al webhook de mensajes y lanza la primera sincronización.
+ * - Si no (falta el permiso, token caducado o cuenta de Facebook Login): devuelve `redirect` al OAuth oficial.
+ * Acción de servidor (POST con comprobación de origen): no se puede disparar desde otra web con un enlace.
+ */
+export async function activateInstagramInbox(projectId: string, accountId: string): Promise<Result<{ redirect?: string }>> {
+  if (!uuid.safeParse(projectId).success || !uuid.safeParse(accountId).success) return { error: "invalid_input" };
+  if (!channelConfigured("instagram")) return { error: "not_configured" };
+  const supabase = await createClient();
+  const { data: auth } = await supabase.auth.getUser();
+  if (!auth.user) return { error: "forbidden" };
+  const { data: project } = await supabase.from("projects").select("workspace_id").eq("id", projectId).maybeSingle();
+  if (!project) return { error: "forbidden" };
+  const { data: ok } = await supabase.rpc("has_workspace_role", { p_workspace_id: project.workspace_id, p_min_role: "editor" });
+  if (!ok) return { error: "forbidden" };
+  const { data: acc } = await supabase
+    .from("social_accounts")
+    .select("id, external_id, handle, status, granted_scopes, metadata")
+    .eq("id", accountId)
+    .eq("project_id", projectId)
+    .eq("platform", "instagram")
+    .maybeSingle();
+  if (!acc) return { error: "no_matching_account" };
+
+  const oauth = { ok: true as const, data: { redirect: `/api/inbox/oauth/instagram/start?project=${projectId}&account=${accountId}` } };
+  const reusable = instagramLoginEnabled() && isInstagramLogin(acc.metadata) && acc.status === "active" && acc.granted_scopes.includes(IG_SCOPE_MESSAGES);
+  if (!reusable) return oauth;
+
+  try {
+    const tokens = await getFreshTokens(acc.id, "instagram");
+    const connectionId = await activateIgLoginInbox({
+      workspaceId: project.workspace_id,
+      projectId,
+      userId: auth.user.id,
+      account: { id: acc.id, external_id: acc.external_id, handle: acc.handle },
+      token: tokens,
+      grantedScopes: acc.granted_scopes,
+    });
+    await inngest.send({ name: "inbox/connection.sync", data: { connectionId } }).catch(() => undefined);
+    revalidate(projectId);
+    return { ok: true, data: {} };
+  } catch (e) {
+    // Token caducado o retirado → login de Instagram para volver a concederlo.
+    if (e instanceof TokenUnavailableError || (e instanceof InboxError && e.code === "token_expired")) return oauth;
+    console.error(`[inbox] activar instagram falló: ${errorOf(e)}`);
     return { error: errorOf(e) };
   }
 }

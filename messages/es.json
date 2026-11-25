@@ -384,7 +384,7 @@
       "invalid_state": "La conexión ha caducado. Vuelve a intentarlo.",
       "forbidden": "No tienes permisos para conectar cuentas en este proyecto.",
       "plan_limit_accounts": "Has llegado al límite de cuentas de tu plan.",
-      "no_business_account": "No encontramos ninguna cuenta de Instagram profesional (business o creator) vinculada a tus páginas de Facebook.",
+      "no_business_account": "No encontramos una cuenta de Instagram profesional (business o creator). Pásala a profesional en la app de Instagram y vuelve a intentarlo.",
       "no_channel": "Tu cuenta de Google no tiene canal de YouTube.",
       "rate_limited": "La plataforma está limitando las peticiones. Prueba en unos minutos.",
       "default": "No se pudo conectar la cuenta. Inténtalo de nuevo."
@@ -402,7 +402,7 @@
     },
     "platformHints": {
       "tiktok": "Cuenta personal o de empresa.",
-      "instagram": "Cuenta profesional (business o creator) vinculada a una página de Facebook.",
+      "instagram": "Cuenta profesional (business o creator). Entras con tu usuario de Instagram.",
       "youtube": "Tu canal de YouTube."
     },
     "emailOpenInbox": "Ir a la Bandeja"

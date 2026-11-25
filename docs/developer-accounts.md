@@ -19,8 +19,19 @@
 ## 1. Meta (Instagram + Ad Library) — https://developers.facebook.com
 - [ ] Cuenta de Meta for Developers + **Meta Business portfolio** con **Business Verification** (documentos de empresa)
 - [ ] App de tipo **Business**
-- [ ] Producto: **Instagram API con Facebook Login** (necesario para Business Discovery = análisis de competencia)
-- [ ] **App Review → Advanced Access** para:
+- [ ] Producto por defecto (desde 2026-11-26): **Instagram API with Instagram Login** (Business Login for Instagram,
+  host `graph.instagram.com`, sin página de Facebook). Variables `INSTAGRAM_APP_ID` / `INSTAGRAM_APP_SECRET`.
+- [ ] **App Review → Advanced Access** para (Instagram Login):
+
+| Permiso | Para qué | Fase |
+|---|---|---|
+| `instagram_business_basic` | Perfil de la cuenta profesional conectada (`/me`: user_id, @, nombre, foto, seguidores, nº de publicaciones) y requisito del refresco del token | 1 |
+| `instagram_business_content_publish` | Publicar posts/reels/carruseles aprobados (`/media`, `/media_publish`, reel de prueba con `trial_params`) | 1 |
+| `instagram_business_manage_messages` | Bandeja: leer conversaciones (`/me/conversations`), responder dentro de la ventana de 24 h (`/me/messages`) y suscribir la cuenta al webhook `messages` (`/{ig-id}/subscribed_apps`) | 3 |
+| ~~`instagram_business_manage_comments`~~ | **No se pide**: Kreo no lee ni responde comentarios | — |
+
+- Alternativa (solo si no hay `INSTAGRAM_APP_ID`; también la usan las cuentas ya conectadas así hasta que se reconecten):
+  **Instagram API con Facebook Login** (necesaria para Business Discovery = análisis de competencia). **App Review → Advanced Access** para:
 
 | Permiso | Para qué | Fase |
 |---|---|---|
@@ -98,7 +109,7 @@
 ## URLs de redirección OAuth (para configurar en cada app de desarrollador)
 Sustituye `<dominio>` por tu dominio (o `kreo-nine.vercel.app` para pruebas):
 - TikTok: `https://<dominio>/api/oauth/tiktok/callback`
-- Meta: `https://<dominio>/api/oauth/instagram/callback`
+- Instagram (Instagram Login y Facebook Login): `https://<dominio>/api/oauth/instagram/callback` y `https://<dominio>/api/inbox/oauth/instagram/callback`
 - Google: `https://<dominio>/api/oauth/youtube/callback`
 
 ## 6. Pagos y otros (cuando toque; todos 💶 por uso)
@@ -148,3 +159,41 @@ Sustituye `<dominio>` por tu dominio (o `kreo-nine.vercel.app` para pruebas):
 - Hay que **marcar `video.upload` en la consola de TikTok** (Kreo Sandbox → Scopes) y **reconectar** cada cuenta de TikTok.
   Hasta reconectar, Kreo deja el destino «listo para subir a mano» (nunca «fallido»).
 - Variable nueva `TIKTOK_DIRECT_POST_AUDITED` (solo `true` cuando TikTok apruebe la auditoría).
+
+## Actualización 2026-11-26 (Instagram API with Instagram Login)
+- Instagram pasa por defecto a **Instagram API with Instagram Login** (publicar + mensajes, sin página de Facebook). Se activa
+  poniendo `INSTAGRAM_APP_ID` e `INSTAGRAM_APP_SECRET` (los de *Instagram → API setup with Instagram login → Business login
+  settings*, no los de Configuración → Básica). Sin ellas, sigue Facebook Login for Business como hasta ahora.
+- Verificado en la documentación oficial (2026-11-26):
+  - Autorización `https://www.instagram.com/oauth/authorize` (client_id, redirect_uri, response_type=code, scope, state);
+    `POST https://api.instagram.com/oauth/access_token` (grant_type=authorization_code; respuesta con `permissions`);
+    token largo `GET https://graph.instagram.com/access_token` (grant_type=ig_exchange_token, "valid for 60 days");
+    refresco `GET https://graph.instagram.com/refresh_access_token` (grant_type=ig_refresh_token; "at least 24 hours old",
+    sin caducar). Fuente: [Business Login for Instagram](https://developers.facebook.com/docs/instagram-platform/instagram-api-with-instagram-login/business-login).
+  - Permisos vigentes: `instagram_business_basic`, `instagram_business_content_publish`, `instagram_business_manage_messages`,
+    `instagram_business_manage_comments` (los antiguos `business_*` "deprecated on January 27, 2025").
+  - Publicación en `graph.instagram.com/<v>/<IG_ID>/media` y `/media_publish` ([Content publishing](https://developers.facebook.com/docs/instagram-platform/content-publishing)).
+  - Mensajes: `/<IG_ID>/messages` o `/me/messages`, `Authorization: Bearer <INSTAGRAM_USER_ACCESS_TOKEN>`, texto ≤ 1000 bytes
+    ([Messaging API](https://developers.facebook.com/docs/instagram-platform/instagram-api-with-instagram-login/messaging-api));
+    conversaciones `/<IG_ID>/conversations` (o `/me/conversations?platform=instagram`), solo los 20 mensajes más recientes
+    ([Conversations API](https://developers.facebook.com/docs/instagram-platform/instagram-api-with-instagram-login/conversations-api)).
+  - Webhooks: `POST graph.instagram.com/<v>/<INSTAGRAM_ACCOUNT_ID>/subscribed_apps?subscribed_fields=…` con el token de
+    usuario de Instagram; "Your app must be published or Live to receive notifications for app users"
+    ([Set up webhooks](https://developers.facebook.com/documentation/instagram-platform/webhooks/setup)). `entry.id` = "The
+    Instagram professional account ID of your app user" ([ejemplos](https://developers.facebook.com/documentation/instagram-platform/webhooks/examples)).
+  - La doc dice que la firma `X-Hub-Signature-256` usa "your app's App Secret" sin aclarar si en Instagram Login es el
+    *Instagram app secret*: el webhook acepta cualquiera de los dos (`META_APP_SECRET` o `INSTAGRAM_APP_SECRET`).
+- Consola de Meta (app `29288275864162154`): producto **Instagram** → *API setup with Instagram login*:
+  1. Business login settings → **OAuth redirect URIs**: `https://kreo-nine.vercel.app/api/oauth/instagram/callback` y
+     `https://kreo-nine.vercel.app/api/inbox/oauth/instagram/callback`. Copiar *Instagram app ID* y *Instagram app secret* a Vercel.
+  2. **Webhooks** (dentro del producto Instagram): URL `https://kreo-nine.vercel.app/api/inbox/meta/webhook`, el mismo verify
+     token (`META_WEBHOOK_VERIFY_TOKEN`) y suscribir el campo **`messages`**.
+  3. **Roles → Instagram testers**: añadir la cuenta de Instagram y **aceptar la invitación** desde Instagram
+     (Configuración → Apps y sitios web → Invitaciones de tester). Sin aceptar, el login falla en modo desarrollo.
+  4. Permisos: `instagram_business_basic`, `instagram_business_content_publish`, `instagram_business_manage_messages`.
+     `instagram_business_manage_comments` **no hace falta** (no se usa; no añadirlo a la revisión).
+  5. En la cuenta de Instagram: Configuración → Mensajes → **Herramientas conectadas → permitir acceso a los mensajes**.
+- Tokens: 60 días; Kreo los refresca solo (tarea diaria `instagram-token-refresh` + ciclo de métricas) cuando quedan < 10 días.
+- Business Discovery (Competencia) **no existe** con Instagram Login: solo funciona con cuentas conectadas por Facebook Login.
+- Sin migración de base de datos: la variante se guarda en `social_accounts.metadata.login = "instagram"` (y en
+  `inbox_connections.metadata`); las de Facebook Login conservan `page_id`.

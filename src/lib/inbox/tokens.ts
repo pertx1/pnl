@@ -2,6 +2,9 @@ import "server-only";
 import { decryptToken, encryptToken } from "@/lib/crypto/tokens";
 import { notifyInboxIssue } from "@/lib/notifications/notify";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { igLoginRefresh } from "@/lib/social/platforms/instagram";
+import { igRefreshDue, isInstagramLogin } from "@/lib/social/instagram-login";
+import { PlatformError } from "@/lib/social/types";
 import { InboxError } from "./config";
 import { gmailRefresh } from "./providers/gmail";
 import { outlookRefresh } from "./providers/outlook";
@@ -40,12 +43,35 @@ export async function loadInboxTokens(connectionId: string) {
   };
 }
 
-/** Token de acceso vigente; refresca si caduca en < 2 min. Si no se puede, marca la conexión como caducada. */
-export async function freshAccessToken(conn: { id: string; channel: string }): Promise<string> {
+/**
+ * Token de acceso vigente; refresca si caduca en < 2 min. Si no se puede, marca la conexión como caducada.
+ * Instagram: con Facebook Login se guarda el token de página (no caduca); con Instagram Login, el token de usuario de
+ * Instagram (60 días), que se refresca cuando quedan < 10 días (igRefreshDue) — también desde la tarea diaria.
+ */
+export async function freshAccessToken(conn: { id: string; channel: string; metadata?: unknown }): Promise<string> {
   const t = await loadInboxTokens(conn.id);
   if (!t) throw new InboxError("missing_tokens");
+  const expired = t.accessExpiresAt && t.accessExpiresAt.getTime() <= Date.now();
+  if (conn.channel === "instagram") {
+    if (!isInstagramLogin(conn.metadata)) return t.accessToken; // token de página de Meta: no caduca
+    if (expired) {
+      await markExpired(conn.id);
+      throw new InboxError("token_expired");
+    }
+    if (igRefreshDue(t.accessExpiresAt)) {
+      try {
+        const r = await igLoginRefresh(t.accessToken);
+        await saveInboxTokens(conn.id, { accessToken: r.accessToken, accessExpiresAt: r.accessExpiresAt });
+        return r.accessToken;
+      } catch (e) {
+        // El token sigue vigente: se usa y se reintenta en la siguiente pasada. Solo el código (nunca el token).
+        console.error(`[inbox] refresco anticipado de instagram falló: ${e instanceof PlatformError ? e.code : "unknown"}`);
+      }
+    }
+    return t.accessToken;
+  }
   const soon = t.accessExpiresAt && t.accessExpiresAt.getTime() < Date.now() + 2 * 60_000;
-  if (!soon || conn.channel === "instagram") return t.accessToken; // el token de página de Meta no caduca
+  if (!soon) return t.accessToken;
   if (!t.refreshToken) {
     await markExpired(conn.id);
     throw new InboxError("token_expired");

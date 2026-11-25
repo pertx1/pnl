@@ -4,7 +4,9 @@ import type { Json } from "@/lib/supabase/database.types";
 import { InboxError } from "./config";
 import { clip } from "./mime";
 import { gmailListThreads } from "./providers/gmail";
+import { isInstagramLogin } from "@/lib/social/instagram-login";
 import { igListThreads, igUserProfile } from "./providers/instagram";
+import { igLoginListThreads, igLoginUserProfile } from "./providers/instagram-login";
 import { outlookListThreads } from "./providers/outlook";
 import { freshAccessToken, markExpired } from "./tokens";
 import type { SyncedMessage, SyncedThread } from "./types";
@@ -45,6 +47,8 @@ export async function syncConnection(connectionId: string): Promise<number> {
       threads = await gmailListThreads(token, conn.external_id, map);
     } else if (conn.channel === "outlook") {
       threads = await outlookListThreads(token);
+    } else if (isInstagramLogin(conn.metadata)) {
+      threads = await igLoginListThreads(token, conn.external_id);
     } else {
       const pageId = String((conn.metadata as { page_id?: string } | null)?.page_id ?? "");
       if (!pageId) throw new InboxError("missing_page");
@@ -222,7 +226,7 @@ export async function enrichIgThread(threadId: string) {
   const conn = await loadConnection(th.connection_id);
   if (!conn || !igsid) return;
   const token = await freshAccessToken(conn);
-  const p = await igUserProfile(igsid, token);
+  const p = isInstagramLogin(conn.metadata) ? await igLoginUserProfile(igsid, token) : await igUserProfile(igsid, token);
   await db
     .from("inbox_threads")
     .update({ counterpart_handle: p.username ?? null, counterpart_name: p.username ? `@${p.username}` : (p.name ?? null) })

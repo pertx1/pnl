@@ -1,7 +1,10 @@
 import { NonRetriableError } from "inngest";
 import { advanceJob, advanceSegment } from "@/lib/clipper/pipeline";
 import { InboxError } from "@/lib/inbox/config";
-import { RETENTION_DAYS, enrichIgThread, syncConnection } from "@/lib/inbox/sync";
+import { RETENTION_DAYS, enrichIgThread, loadConnection, syncConnection } from "@/lib/inbox/sync";
+import { freshAccessToken } from "@/lib/inbox/tokens";
+import { getFreshTokens, TokenUnavailableError } from "@/lib/social/fresh-tokens";
+import { IG_LOGIN_MARK } from "@/lib/social/instagram-login";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { inngest } from "../client";
 
@@ -36,13 +39,17 @@ export const inboxRetention = inngest.createFunction(
   },
 );
 
-// 2) Cada 30 min: sincronizar los buzones de email activos (Instagram llega por webhook).
+// 2) Cada 30 min: sincronizar los buzones de email activos. Instagram llega por webhook; las conexiones de Instagram
+//    Login se sincronizan también aquí como red de seguridad (Meta solo envía webhooks a apps en modo Live).
 export const inboxSyncDispatch = inngest.createFunction(
   { id: "inbox-sync-dispatch", triggers: [{ cron: "*/30 * * * *" }], concurrency: 1 },
   async ({ step }) => {
     const ids = await step.run("list", async () => {
-      const { data } = await admin().from("inbox_connections").select("id").in("channel", ["gmail", "outlook"]).eq("status", "active").limit(1000);
-      return (data ?? []).map((c) => c.id);
+      const [{ data: mail }, { data: ig }] = await Promise.all([
+        admin().from("inbox_connections").select("id").in("channel", ["gmail", "outlook"]).eq("status", "active").limit(1000),
+        admin().from("inbox_connections").select("id").eq("channel", "instagram").eq("status", "active").eq("metadata->>login", IG_LOGIN_MARK).limit(1000),
+      ]);
+      return [...(mail ?? []), ...(ig ?? [])].map((c) => c.id);
     });
     if (ids.length) await step.sendEvent("sync", ids.map((connectionId) => ({ name: "inbox/connection.sync", data: { connectionId } })));
     return { dispatched: ids.length };
@@ -100,4 +107,47 @@ export const clipperSweep = inngest.createFunction(
   },
 );
 
-export const inboxFunctions = [inboxRetention, inboxSyncDispatch, inboxSyncConnection, inboxEnrichThread, clipperSweep] as const;
+// 6) Cada día: refrescar los tokens de Instagram Login (60 días) de Cuentas y de la Bandeja antes de que caduquen.
+//    Solo refresca los que caducan en < 10 días (igRefreshDue). Logs sin tokens: solo códigos.
+export const instagramTokenRefresh = inngest.createFunction(
+  { id: "instagram-token-refresh", triggers: [{ cron: "TZ=Europe/Madrid 17 5 * * *" }], concurrency: 1 },
+  async ({ step }) => {
+    const list = await step.run("list", async () => {
+      const [{ data: accounts }, { data: conns }] = await Promise.all([
+        admin().from("social_accounts").select("id").eq("platform", "instagram").eq("status", "active").eq("metadata->>login", IG_LOGIN_MARK).limit(1000),
+        admin().from("inbox_connections").select("id").eq("channel", "instagram").eq("status", "active").eq("metadata->>login", IG_LOGIN_MARK).limit(1000),
+      ]);
+      return { accounts: (accounts ?? []).map((a) => a.id), conns: (conns ?? []).map((c) => c.id) };
+    });
+    let failed = 0;
+    for (const id of list.accounts) {
+      const ok = await step.run(`account-${id}`, async () => {
+        try {
+          await getFreshTokens(id, "instagram");
+          return true;
+        } catch (e) {
+          console.error(`[instagram-token-refresh] cuenta: ${e instanceof TokenUnavailableError ? e.code : "unknown"}`);
+          return false;
+        }
+      });
+      if (!ok) failed++;
+    }
+    for (const id of list.conns) {
+      const ok = await step.run(`inbox-${id}`, async () => {
+        const conn = await loadConnection(id);
+        if (!conn) return true;
+        try {
+          await freshAccessToken(conn);
+          return true;
+        } catch (e) {
+          console.error(`[instagram-token-refresh] bandeja: ${e instanceof InboxError ? e.code : "unknown"}`);
+          return false;
+        }
+      });
+      if (!ok) failed++;
+    }
+    return { accounts: list.accounts.length, inbox: list.conns.length, failed };
+  },
+);
+
+export const inboxFunctions = [inboxRetention, inboxSyncDispatch, inboxSyncConnection, inboxEnrichThread, clipperSweep, instagramTokenRefresh] as const;

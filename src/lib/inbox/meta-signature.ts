@@ -27,6 +27,15 @@ export function verifySubscription(params: URLSearchParams, verifyToken: string)
   return challenge;
 }
 
+/**
+ * Firma válida con ALGUNO de los secretos (vacíos ignorados). Con Instagram Login, Meta puede firmar con el
+ * «Instagram app secret» (Instagram → API setup with Instagram login → Business login settings) en lugar del
+ * App Secret de Configuración → Básica: la doc solo dice "your app's App Secret", así que aceptamos los dos.
+ */
+export function verifyMetaSignatureAny(rawBody: string, header: string | null, secrets: (string | undefined | null)[]): boolean {
+  return secrets.some((s) => Boolean(s) && verifyMetaSignature(rawBody, header, s!));
+}
+
 /** appsecret_proof para llamadas a la Graph API (protege el token si se filtrase). */
 export function appSecretProof(accessToken: string, appSecret: string) {
   return createHmac("sha256", appSecret).update(accessToken).digest("hex");

@@ -17,7 +17,7 @@
     },
     "igNeedsAccount": "Primero conecta tu cuenta de Instagram profesional en Cuentas.",
     "goAccounts": "Ir a Cuentas",
-    "activateIg": "Activar DMs de @{handle}",
+    "activateIg": "Activar mensajes de @{handle}",
     "connect": {
       "gmail": "Conectar Gmail",
       "outlook": "Conectar Outlook"
@@ -113,7 +113,7 @@
       "invalid_state": "La conexión ha caducado o no es válida. Vuelve a intentarlo.",
       "forbidden": "No tienes permiso para hacer esto en este proyecto.",
       "missing_scopes": "Faltan permisos. Vuelve a conectar y acepta todos los permisos solicitados.",
-      "no_matching_account": "No encontramos esa cuenta de Instagram en las páginas autorizadas. Revisa que sea la misma cuenta conectada en Cuentas.",
+      "no_matching_account": "La cuenta de Instagram autorizada no coincide con la conectada en Cuentas. Entra con esa misma cuenta.",
       "profile_failed": "No pudimos identificar el buzón conectado.",
       "token_exchange_failed": "La plataforma rechazó la conexión. Vuelve a intentarlo.",
       "subscribe_failed": "No pudimos activar las notificaciones de mensajes de Instagram. Revisa que la cuenta permita el acceso a mensajes (Ajustes → Mensajes → Herramientas conectadas).",
@@ -129,7 +129,7 @@
       "send_failed": "La plataforma no aceptó el mensaje. No se ha enviado.",
       "list_failed": "No pudimos leer las conversaciones.",
       "thread_failed": "No pudimos leer una conversación.",
-      "missing_page": "Falta la página de Facebook vinculada. Vuelve a conectar.",
+      "missing_page": "Falta la página de Facebook vinculada. Vuelve a conectar la cuenta.",
       "insufficient_credits": "No tienes créditos suficientes.",
       "refusal": "La IA no ha podido proponer una respuesta para este mensaje. Escríbela tú.",
       "provider_error": "La IA no está disponible ahora mismo. No se te ha cobrado.",

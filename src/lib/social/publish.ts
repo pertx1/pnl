@@ -1,6 +1,7 @@
 import "server-only";
 import type { PlatformOptions } from "@/lib/posts/rules";
 import { jsonOrThrow, platformFetch } from "./http";
+import { igGraph } from "./instagram-login";
 import { fetchTikTokPublishStatus, queryCreatorInfo, uploadTikTokInbox } from "./tiktok-api";
 import { directFallsBackToInbox, inboxFallsBackToManual, manualReason, platformCode, type TikTokHandoff, type TikTokMode } from "./tiktok-core";
 import { PlatformError, type Platform, type TokenSet } from "./types";
@@ -23,6 +24,8 @@ export type PublishInput = {
   thumbnail?: PublishMedia;
   /** Subtítulos .srt para YouTube (captions.insert). Ver la convención en src/lib/social/captions.ts. */
   captions?: { srt: string; language: string; draft?: boolean };
+  /** Instagram: la cuenta se conectó con Instagram Login → graph.instagram.com (si no, Facebook Login → graph.facebook.com). */
+  instagramLogin?: boolean;
 };
 /** `warnings`: pasos opcionales que fallaron sin impedir la publicación (p. ej. la miniatura). */
 export type PublishResult = { externalPostId: string; url?: string; warnings?: string[] };
@@ -31,8 +34,13 @@ const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
 // ------------------------------------------------------------------- Instagram (Content Publishing API)
 async function publishInstagram(tokens: TokenSet, input: PublishInput): Promise<PublishResult> {
-  const graph = `https://graph.facebook.com/${process.env.META_GRAPH_VERSION ?? "v27.0"}`;
-  const token = encodeURIComponent(tokens.accessToken);
+  // Mismos endpoints (/media, /media_publish, ?fields=status_code) en los dos hosts oficiales.
+  // Instagram Login: graph.instagram.com con el token en la cabecera Authorization (nunca en la URL).
+  const igLogin = Boolean(input.instagramLogin);
+  const graph = igLogin ? igGraph() : `https://graph.facebook.com/${process.env.META_GRAPH_VERSION ?? "v27.0"}`;
+  const authQuery = igLogin ? "" : `access_token=${encodeURIComponent(tokens.accessToken)}`;
+  const headers: Record<string, string> = igLogin ? { Authorization: `Bearer ${tokens.accessToken}` } : {};
+  const withAuth = (path: string) => `${graph}${path}${authQuery ? `${path.includes("?") ? "&" : "?"}${authQuery}` : ""}`;
   const caption = input.aiGenerated ? `${input.caption}\n\n${input.aiDisclosure}` : input.caption;
 
   async function container(media: PublishMedia, carouselItem: boolean) {
@@ -45,13 +53,13 @@ async function publishInstagram(tokens: TokenSet, input: PublishInput): Promise<
         ? { trial_params: JSON.stringify({ graduation_strategy: input.options.ig_trial_reel === "auto" ? "SS_PERFORMANCE" : "MANUAL" }) }
         : {}),
     });
-    const res = await platformFetch("instagram", `${graph}/${input.externalId}/media?access_token=${token}`, { method: "POST", body });
+    const res = await platformFetch("instagram", withAuth(`/${input.externalId}/media`), { method: "POST", body, headers });
     return (await jsonOrThrow<{ id: string }>("instagram", res, "container_failed")).id;
   }
 
   async function waitReady(id: string) {
     for (let i = 0; i < 30; i++) {
-      const res = await platformFetch("instagram", `${graph}/${id}?fields=status_code&access_token=${token}`);
+      const res = await platformFetch("instagram", withAuth(`/${id}?fields=status_code`), { headers });
       const { status_code } = await jsonOrThrow<{ status_code?: string }>("instagram", res, "status_failed");
       if (!status_code || status_code === "FINISHED") return;
       if (status_code === "ERROR" || status_code === "EXPIRED") throw new PlatformError("instagram", "media_processing_failed");
@@ -69,15 +77,16 @@ async function publishInstagram(tokens: TokenSet, input: PublishInput): Promise<
       children.push(id);
     }
     const body = new URLSearchParams({ media_type: "CAROUSEL", children: children.join(","), caption });
-    const res = await platformFetch("instagram", `${graph}/${input.externalId}/media?access_token=${token}`, { method: "POST", body });
+    const res = await platformFetch("instagram", withAuth(`/${input.externalId}/media`), { method: "POST", body, headers });
     creationId = (await jsonOrThrow<{ id: string }>("instagram", res, "container_failed")).id;
   } else {
     creationId = await container(input.media[0], false);
   }
   await waitReady(creationId);
 
-  const res = await platformFetch("instagram", `${graph}/${input.externalId}/media_publish?access_token=${token}`, {
+  const res = await platformFetch("instagram", withAuth(`/${input.externalId}/media_publish`), {
     method: "POST",
+    headers,
     body: new URLSearchParams({ creation_id: creationId }),
   });
   const { id } = await jsonOrThrow<{ id: string }>("instagram", res, "publish_failed");

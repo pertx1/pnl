@@ -384,7 +384,7 @@
       "invalid_state": "The connection expired. Please try again.",
       "forbidden": "You don't have permission to connect accounts in this project.",
       "plan_limit_accounts": "You've reached your plan's account limit.",
-      "no_business_account": "We couldn't find a professional Instagram account (business or creator) linked to your Facebook pages.",
+      "no_business_account": "We couldn't find a professional Instagram account (business or creator). Switch it to professional in the Instagram app and try again.",
       "no_channel": "Your Google account has no YouTube channel.",
       "rate_limited": "The platform is rate-limiting requests. Try again in a few minutes.",
       "default": "Couldn't connect the account. Please try again."
@@ -402,7 +402,7 @@
     },
     "platformHints": {
       "tiktok": "Personal or business account.",
-      "instagram": "Professional account (business or creator) linked to a Facebook page.",
+      "instagram": "Professional account (business or creator). You sign in with your Instagram username.",
       "youtube": "Your YouTube channel."
     },
     "emailOpenInbox": "Go to Inbox"

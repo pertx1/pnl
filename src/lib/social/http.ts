@@ -36,7 +36,13 @@ export async function jsonOrThrow<T>(platform: Platform, res: Response, code = "
 /** Código de error que devuelve la plataforma (TikTok `error.code`, Google `error.errors[0].reason`, Meta `error.code/subcode`). */
 export function platformErrorDetail(body: unknown): string | null {
   const e = (body as { error?: { code?: unknown; error_subcode?: unknown; errors?: { reason?: unknown }[]; status?: unknown } } | null)?.error;
-  if (!e) return null;
+  if (!e) {
+    // api.instagram.com (intercambio del code de Instagram Login): { error_type, code, error_message }.
+    const ig = body as { error_type?: unknown; code?: unknown } | null;
+    if (!ig?.error_type) return null;
+    const clean = `${String(ig.error_type)}${ig.code !== undefined ? `_${String(ig.code)}` : ""}`.replace(/[^A-Za-z0-9_.-]/g, "").slice(0, 80);
+    return clean || null;
+  }
   const raw = e.errors?.[0]?.reason ?? (typeof e.code === "string" ? e.code : e.error_subcode ? `${e.code}_${e.error_subcode}` : (e.status ?? e.code));
   const clean = String(raw ?? "").replace(/[^A-Za-z0-9_.-]/g, "").slice(0, 80);
   return clean && clean !== "ok" ? clean : null;

@@ -3,7 +3,9 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { humanAgentEnabled, InboxError } from "./config";
 import { isValidEmail } from "./mime";
 import { gmailSendReply } from "./providers/gmail";
+import { isInstagramLogin } from "@/lib/social/instagram-login";
 import { igSendReply } from "./providers/instagram";
+import { igLoginSendReply } from "./providers/instagram-login";
 import { outlookSendReply } from "./providers/outlook";
 import { insertMessages, loadConnection } from "./sync";
 import { freshAccessToken } from "./tokens";
@@ -59,7 +61,8 @@ export async function sendReply(o: { threadId: string; body: string; userId: str
     if (!win.canSend) throw new InboxError("window_closed");
     if (!fitsInstagram(o.body)) throw new InboxError("too_long");
     const igsid = String((th.metadata as { igsid?: string } | null)?.igsid ?? th.external_thread_id.replace(/^ig:/, ""));
-    ({ externalId } = await igSendReply(token, { igsid, text: o.body, humanAgent: win.mode === "human_agent" }));
+    const reply = { igsid, text: o.body, humanAgent: win.mode === "human_agent" };
+    ({ externalId } = isInstagramLogin(conn.metadata) ? await igLoginSendReply(token, reply) : await igSendReply(token, reply));
   } else if (conn.channel === "gmail") {
     if (!isValidEmail(th.counterpart_handle)) throw new InboxError("no_recipient");
     const meta = (lastIn?.metadata ?? {}) as { messageId?: string | null; references?: string | null };

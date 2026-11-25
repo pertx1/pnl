@@ -5,6 +5,80 @@
 > `instagram_manage_insights`, `instagram_manage_messages`, `pages_show_list`, `pages_read_engagement`,
 > `pages_manage_metadata`, `business_management`. Webhook de Instagram (`messages`) en `/api/inbox/meta/webhook`.
 
+## ⭐ Desde 2026-11-26: Instagram API with Instagram Login (por defecto)
+
+Kreo conecta Instagram con **Business Login for Instagram** (host `graph.instagram.com`, sin página de Facebook) cuando
+`INSTAGRAM_APP_ID` / `INSTAGRAM_APP_SECRET` están configuradas. **La revisión se pide con estos permisos** (sección A); las
+secciones 2-5 de más abajo quedan como referencia para la variante con Facebook Login (alternativa y Business Discovery).
+
+### A.1 Permisos a solicitar (Advanced Access)
+
+| Permiso | Uso en Kreo | Llamadas |
+|---|---|---|
+| `instagram_business_basic` | Identificar la cuenta conectada y mostrar seguidores / nº de publicaciones; requisito del refresco del token | `GET /me?fields=user_id,username,name,profile_picture_url,account_type`, `GET /me?fields=followers_count,media_count`, `GET /refresh_access_token` |
+| `instagram_business_content_publish` | Publicar fotos, carruseles y reels aprobados por una persona (incl. reel de prueba) | `POST /{ig-id}/media`, `GET /{container}?fields=status_code`, `POST /{ig-id}/media_publish` |
+| `instagram_business_manage_messages` | Bandeja: leer DMs que otros iniciaron, responder dentro de 24 h tras el clic «Enviar», webhook de mensajes | `GET /me/conversations?platform=instagram`, `GET /{igsid}?fields=name,username`, `POST /me/messages`, `POST/DELETE /{ig-id}/subscribed_apps` |
+
+**No pedir** `instagram_business_manage_comments` (no se usa → motivo de rechazo). Webhook: solo el campo `messages`.
+
+### A.2 Justificaciones (pegar en inglés)
+
+`instagram_business_basic`
+```
+Kreo uses instagram_business_basic to identify the Instagram professional account the user connects with Business Login
+for Instagram (user_id, username, name, profile picture, account type) and to show its followers_count and media_count in
+Project > Accounts and Project > Analytics. The user_id is used to match incoming message webhooks to the right account.
+It is also required to refresh the 60-day Instagram user access token before it expires. Without it Kreo cannot show
+which account it publishes to.
+```
+
+`instagram_business_content_publish`
+```
+Kreo uses instagram_business_content_publish to publish the user's own photos, carousels and Reels (optionally as a trial
+reel chosen by the user) to their own Instagram professional account, only after a workspace admin reviews and approves
+the post in Kreo. At the scheduled time Kreo creates the media container(s), waits until status_code is FINISHED and calls
+media_publish. If the media is AI-generated, "AI-generated content" is appended to the caption automatically. Kreo enforces
+a conservative daily posting limit per account. Without this permission Kreo's core feature cannot work.
+```
+
+`instagram_business_manage_messages`
+```
+Kreo uses instagram_business_manage_messages to show, in Kreo's Inbox, the Instagram Direct conversations that other people
+started with the user's professional account (Conversations API + messages webhook, subscribed with
+/{ig-user-id}/subscribed_apps?subscribed_fields=messages when the user clicks "Turn on messages"), and to send one reply
+written or approved by the user, in that same conversation, when they click "Send". Enforced in code: replies only within
+the 24-hour standard messaging window (composer disabled and explained when closed); no message tags (HUMAN_AGENT only if
+Meta approves that feature); no unsolicited, bulk or automated messages; recipient fixed to the conversation; max 30 replies
+per hour per account; AI suggestions are drafts the user must edit/approve. Message content is deleted after 30 days.
+Disconnecting unsubscribes the webhook and deletes the messages.
+```
+
+### A.3 Instrucciones para el revisor (cambios respecto a la sección 4)
+- Paso 3: Accounts > Instagram > Connect → **pantalla de Instagram** (usuario de Instagram profesional de prueba) → aceptar.
+  Ya no se eligen Páginas de Facebook.
+- Paso 6: Inbox > Instagram > **"Turn on messages for @<account>"**: si el permiso de mensajes ya se concedió al conectar,
+  se activa sin otro login; si no, vuelve a abrir la pantalla de Instagram.
+
+### A.4 Screencasts (uno por permiso)
+Plano B (concesión) = pantalla de **Business Login for Instagram** con el nombre de la app y la lista de permisos (pausa 3 s).
+`instagram_business_basic` → tarjeta de la cuenta + Analytics. `instagram_business_content_publish` → igual que la fila de
+`instagram_content_publish` de la sección 5. `instagram_business_manage_messages` → igual que la fila de
+`instagram_manage_messages` (botón «Turn on messages», DM entrante, sugerencia, «Send», ventana de 24 h, desconectar).
+
+### A.5 Requisitos propios de Instagram Login
+- [ ] *Roles → Instagram testers*: la cuenta de prueba invitada **y aceptada** desde Instagram (modo desarrollo).
+- [ ] *Business login settings*: OAuth redirect URIs `https://<DOMINIO>/api/oauth/instagram/callback` y
+  `https://<DOMINIO>/api/inbox/oauth/instagram/callback`; **Deauthorize** y **Data deletion** callbacks (pendiente B4).
+- [ ] Webhooks del producto Instagram: `https://<DOMINIO>/api/inbox/meta/webhook`, verify token, campo `messages`.
+  Meta: "Your app must be published or Live to receive notifications for app users" → hasta pasar a Live, la Bandeja
+  se apoya en la sincronización cada 30 min (Conversations API).
+- [ ] Cuenta de prueba profesional con «Permitir acceso a los mensajes» (Configuración → Mensajes → Herramientas conectadas).
+- Fuentes: [Business Login for Instagram](https://developers.facebook.com/docs/instagram-platform/instagram-api-with-instagram-login/business-login) ·
+  [Content publishing](https://developers.facebook.com/docs/instagram-platform/content-publishing) ·
+  [Messaging API](https://developers.facebook.com/docs/instagram-platform/instagram-api-with-instagram-login/messaging-api) ·
+  [Conversations API](https://developers.facebook.com/docs/instagram-platform/instagram-api-with-instagram-login/conversations-api) ·
+  [Webhooks setup](https://developers.facebook.com/documentation/instagram-platform/webhooks/setup)
+
 ## 0. Bloqueante principal: Business Verification
 
 - Meta: "your app must complete App Review before it can request permissions with Advanced Access from any app user".

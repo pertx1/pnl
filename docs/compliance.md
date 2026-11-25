@@ -650,6 +650,32 @@ Comprobado con `npx tsc --noEmit`, `npx eslint` sobre lo tocado y `npx vitest ru
 - Retención del sondeo: `status/fetch` solo durante 7 días desde el envío.
 - Pendiente: textos de privacidad (scope `video.upload`), revisión `seguridad-legal`, `qa-tester`.
 
+## Instagram · Instagram API with Instagram Login (publicar + Bandeja) — 2026-11-26 — Estado: ⏳ pendiente de `seguridad-legal`
+- APIs usadas (oficiales, OAuth oficial de Meta): Business Login for Instagram (`www.instagram.com/oauth/authorize`,
+  `api.instagram.com/oauth/access_token`, `graph.instagram.com/access_token` y `/refresh_access_token`); Content Publishing
+  (`/media`, `/media_publish`, `trial_params`); Messaging (`/me/messages`), Conversations (`/me/conversations`), User Profile
+  (`/{igsid}?fields=name,username`) y `/{ig-id}/subscribed_apps` (campo `messages`). Facebook Login se mantiene como alternativa.
+- Permisos: `instagram_business_basic`, `instagram_business_content_publish`, `instagram_business_manage_messages`, pedidos de
+  una vez al conectar en Cuentas (el dueño lo pidió así para no repetir el login). **No** se pide `instagram_business_manage_comments`.
+  Minimización: el permiso de mensajes se concede al conectar aunque la Bandeja no se active; la suscripción al webhook y la
+  lectura de conversaciones solo ocurren tras pulsar «Activar mensajes» (acción de servidor con sesión y rol editor).
+- Datos guardados: token de usuario de Instagram (60 días) cifrado en `social_account_tokens` y, al activar la Bandeja, una
+  copia cifrada en `inbox_connection_tokens` (se refrescan por separado; se borran al desconectar). `metadata.login` y
+  `account_type`. Mensajes: sin cambios (30 días, solo texto y metadatos mínimos).
+- Ventana de 24 h (`src/lib/inbox/window.ts`) y límite de 1.000 bytes aplicados igual; sin etiquetas salvo HUMAN_AGENT aprobado.
+  Sin automatización de engagement: la IA solo propone borradores; enviar exige clic humano.
+- Etiqueta IA: Instagram no tiene campo nativo en la API → se sigue añadiendo «Contenido generado con IA · AI-generated content»
+  al texto, no desactivable.
+- Webhook: firma `X-Hub-Signature-256` obligatoria, válida con `META_APP_SECRET` o `INSTAGRAM_APP_SECRET`. Logs sin contenido.
+- Logs de errores: solo el código de la plataforma (`platformErrorDetail`, incl. `error_type`+`code` de api.instagram.com); nunca tokens.
+- Riesgos / pendientes:
+  1. Instagram Login no documenta revocación del token por API: al desconectar, Kreo borra el token y da de baja el webhook;
+     la persona retira la app en Instagram → Configuración → Apps y sitios web. Implementar el **callback de desautorización y
+     de eliminación de datos** (B4) también para el producto Instagram.
+  2. Modo desarrollo: Meta solo envía webhooks a apps Live → la Bandeja depende de la sincronización cada 30 min hasta la revisión.
+  3. Business Discovery (Competencia) solo con cuentas de Facebook Login.
+  4. Textos de privacidad: mencionar Instagram Login y los permisos `instagram_business_*` (abogado).
+
 ## Pendientes para Oier (de esta revisión)
 1. Aplicar `supabase/migrations/20261124150000_security_fixes.sql` en producción.
 2. Firmar/aceptar el DPA de fal.ai y pedir su lista de subencargados (ElevenLabs para `auto-subtitle`).

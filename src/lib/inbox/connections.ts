@@ -4,7 +4,9 @@ import type { Json } from "@/lib/supabase/database.types";
 import type { InboxChannel } from "@/lib/supabase/types/inbox";
 import { InboxError } from "./config";
 import { gmailRevoke } from "./providers/gmail";
+import { isInstagramLogin } from "@/lib/social/instagram-login";
 import { igUnsubscribePage } from "./providers/instagram";
+import { igLoginUnsubscribe } from "./providers/instagram-login";
 import { loadInboxTokens, saveInboxTokens } from "./tokens";
 import type { InboxTokenSet } from "./types";
 
@@ -69,7 +71,8 @@ export async function disconnectConnection(connectionId: string) {
       // Solo damos de baja el webhook si ningún otro proyecto usa esa misma cuenta en su bandeja.
       const pageId = String((conn.metadata as { page_id?: string } | null)?.page_id ?? "");
       const { count } = await db.from("inbox_connections").select("id", { count: "exact", head: true }).eq("channel", "instagram").eq("external_id", conn.external_id).neq("id", conn.id);
-      if (pageId && !count) await igUnsubscribePage(pageId, tokens.accessToken);
+      if (!count && isInstagramLogin(conn.metadata)) await igLoginUnsubscribe(conn.external_id, tokens.accessToken);
+      else if (pageId && !count) await igUnsubscribePage(pageId, tokens.accessToken);
     }
     // Microsoft no ofrece revocación de un refresh token delegado concreto: lo borramos y la UI indica dónde retirar el permiso.
   }

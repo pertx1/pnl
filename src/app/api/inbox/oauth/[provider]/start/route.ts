@@ -5,13 +5,14 @@ import { INBOX_COOKIE_PATH, inboxStateCookie, newInboxState } from "@/lib/inbox/
 import { gmailAuthorizeUrl } from "@/lib/inbox/providers/gmail";
 import { igAuthorizeUrl } from "@/lib/inbox/providers/instagram";
 import { outlookAuthorizeUrl } from "@/lib/inbox/providers/outlook";
+import { buildIgAuthorizeUrl, IG_LOGIN_SCOPES, instagramLoginEnabled } from "@/lib/social/instagram-login";
 import type { InboxChannel } from "@/lib/supabase/types/inbox";
 import { createClient } from "@/lib/supabase/server";
 
 const UUID = /^[0-9a-f-]{36}$/i;
 const PROVIDERS: InboxChannel[] = ["gmail", "outlook", "instagram"];
 
-/** Inicia el OAuth OFICIAL (Google, Microsoft o Meta) para conectar un buzón/cuenta a la bandeja de un proyecto. */
+/** Inicia el OAuth OFICIAL (Google, Microsoft, Instagram Login o Facebook Login) para conectar un buzón/cuenta a la bandeja de un proyecto. */
 export async function GET(request: NextRequest, { params }: { params: Promise<{ provider: string }> }) {
   const { provider } = await params;
   const sp = request.nextUrl.searchParams;
@@ -45,7 +46,11 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
       ? gmailAuthorizeUrl({ state: value.state, redirectUri, codeChallenge: challenge })
       : channel === "outlook"
         ? outlookAuthorizeUrl({ state: value.state, redirectUri, codeChallenge: challenge })
-        : igAuthorizeUrl({ state: value.state, redirectUri });
+        : instagramLoginEnabled()
+          ? // Instagram Login: se piden los mismos permisos que en Cuentas (publicar + mensajes) para que el token nuevo
+            // sirva para todo y no reduzca lo ya concedido; el que hace falta aquí es instagram_business_manage_messages.
+            buildIgAuthorizeUrl({ clientId: process.env.INSTAGRAM_APP_ID ?? "", redirectUri, state: value.state, scopes: IG_LOGIN_SCOPES })
+          : igAuthorizeUrl({ state: value.state, redirectUri });
   const res = NextResponse.redirect(url);
   res.cookies.set(inboxStateCookie(channel), cookie, { httpOnly: true, secure: true, sameSite: "lax", path: INBOX_COOKIE_PATH, maxAge: 600 });
   return res;

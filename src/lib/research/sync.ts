@@ -1,5 +1,6 @@
 import "server-only";
 import type { SupabaseClient } from "@supabase/supabase-js";
+import { isInstagramLogin } from "@/lib/social/instagram-login";
 import { loadTokens } from "@/lib/social/token-store";
 import type { Database } from "@/lib/supabase/database.types";
 import { youtubeDerivedAllowed } from "./config";
@@ -19,8 +20,10 @@ export function derivedAllowed(platform: string) {
 /** Contexto de Instagram: id de la cuenta business conectada + su token (descifrado solo en memoria). */
 export async function instagramContext(db: Db, socialAccountId: string | null): Promise<ProviderContext> {
   if (!socialAccountId) throw new ResearchError("instagram", "needs_connected_account");
-  const { data: acc } = await db.from("social_accounts").select("id, external_id, status, platform").eq("id", socialAccountId).maybeSingle();
+  const { data: acc } = await db.from("social_accounts").select("id, external_id, status, platform, metadata").eq("id", socialAccountId).maybeSingle();
   if (!acc || acc.platform !== "instagram" || acc.status !== "active") throw new ResearchError("instagram", "needs_connected_account");
+  // Business Discovery solo existe en la Instagram API con Facebook Login: las cuentas de Instagram Login no sirven.
+  if (isInstagramLogin(acc.metadata)) throw new ResearchError("instagram", "needs_connected_account");
   const tokens = await loadTokens(acc.id);
   if (!tokens) throw new ResearchError("instagram", "needs_connected_account");
   if (tokens.accessExpiresAt && tokens.accessExpiresAt.getTime() < Date.now()) throw new ResearchError("instagram", "token_invalid");
@@ -31,13 +34,14 @@ export async function instagramContext(db: Db, socialAccountId: string | null): 
 export async function pickInstagramAccount(db: Db, projectId: string): Promise<string | null> {
   const { data } = await db
     .from("social_accounts")
-    .select("id")
+    .select("id, metadata")
     .eq("project_id", projectId)
     .eq("platform", "instagram")
     .eq("status", "active")
     .order("created_at")
-    .limit(1);
-  return data?.[0]?.id ?? null;
+    .limit(20);
+  // Solo cuentas de Facebook Login (Business Discovery no está en la API con Instagram Login).
+  return data?.find((a) => !isInstagramLogin(a.metadata))?.id ?? null;
 }
 
 /**

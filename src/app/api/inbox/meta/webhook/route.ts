@@ -1,15 +1,20 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { inngest } from "@/inngest/client";
 import { channelConfigured } from "@/lib/inbox/config";
-import { verifyMetaSignature, verifySubscription } from "@/lib/inbox/meta-signature";
-import { ingestIgEvent, type IgWebhookEvent } from "@/lib/inbox/sync";
+import { parseIgWebhookPayload } from "@/lib/inbox/ig-webhook";
+import { verifyMetaSignatureAny, verifySubscription } from "@/lib/inbox/meta-signature";
+import { ingestIgEvent } from "@/lib/inbox/sync";
 
 /**
- * Webhook de Meta (Instagram Messaging). Configurar en el panel de la app:
+ * Webhook de Instagram (mensajes). Sirve para las dos variantes oficiales:
+ *  - Instagram API with Instagram Login (producto «Instagram» → webhooks) y
+ *  - Instagram API con Facebook Login (producto «Webhooks», objeto Instagram).
+ * Configurar en el panel de la app (mismos valores en ambos):
  *   URL: https://<dominio>/api/inbox/meta/webhook · Verify token: META_WEBHOOK_VERIFY_TOKEN · Campo: messages
  * - GET: verificación de la suscripción (hub.mode / hub.verify_token / hub.challenge).
- * - POST: firma X-Hub-Signature-256 (HMAC-SHA256 del cuerpo crudo con META_APP_SECRET) obligatoria.
- * Meta exige 200 en < 5 s y reintenta: la inserción es idempotente (único por hilo + id de mensaje).
+ * - POST: firma X-Hub-Signature-256 obligatoria (HMAC-SHA256 del cuerpo crudo) con META_APP_SECRET o con
+ *   INSTAGRAM_APP_SECRET (Instagram Login): se acepta si coincide con cualquiera de los dos.
+ * Meta exige 200 rápido y reintenta: la inserción es idempotente (único por hilo + id de mensaje).
  * Logs sin contenido de mensajes.
  */
 export async function GET(request: NextRequest) {
@@ -18,29 +23,19 @@ export async function GET(request: NextRequest) {
   return new NextResponse(challenge, { status: 200, headers: { "Content-Type": "text/plain" } });
 }
 
-type Payload = { object?: string; entry?: { id?: string; time?: number; messaging?: IgWebhookEvent[] }[] };
-
 export async function POST(request: NextRequest) {
   const raw = await request.text();
-  if (!verifyMetaSignature(raw, request.headers.get("x-hub-signature-256"), process.env.META_APP_SECRET ?? "")) {
+  const secrets = [process.env.META_APP_SECRET, process.env.INSTAGRAM_APP_SECRET];
+  if (!verifyMetaSignatureAny(raw, request.headers.get("x-hub-signature-256"), secrets)) {
     return new NextResponse("bad signature", { status: 401 });
   }
   if (!channelConfigured("instagram")) return NextResponse.json({ received: true });
 
-  let payload: Payload;
-  try {
-    payload = JSON.parse(raw) as Payload;
-  } catch {
-    return NextResponse.json({ received: true });
-  }
-  if (payload.object !== "instagram") return NextResponse.json({ received: true });
-
   const toEnrich = new Set<string>();
-  for (const entry of payload.entry?.slice(0, 50) ?? []) {
-    if (!entry.id) continue;
-    for (const ev of entry.messaging?.slice(0, 100) ?? []) {
+  for (const batch of parseIgWebhookPayload(raw)) {
+    for (const ev of batch.events) {
       try {
-        const ids = await ingestIgEvent(entry.id, ev);
+        const ids = await ingestIgEvent(batch.accountId, ev);
         if (!ev.message?.is_echo) ids.forEach((id) => toEnrich.add(id));
       } catch {
         console.error("[inbox-webhook] no se pudo guardar un evento");

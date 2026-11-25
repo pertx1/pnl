@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
+import { disconnectConnection } from "@/lib/inbox/connections";
 import { toErrorKey, type ActionState } from "@/lib/server/errors";
 import { revokeAccount } from "@/lib/social/revoke";
 import { createClient } from "@/lib/supabase/server";
@@ -10,12 +11,17 @@ import { createClient } from "@/lib/supabase/server";
 export async function disconnectAccount(accountId: string): Promise<ActionState> {
   if (!z.uuid().safeParse(accountId).success) return { error: "invalid_input" };
   const supabase = await createClient();
-  const { data: acc } = await supabase.from("social_accounts").select("id, platform, project_id, workspace_id").eq("id", accountId).maybeSingle();
+  const { data: acc } = await supabase.from("social_accounts").select("id, platform, project_id, workspace_id, metadata").eq("id", accountId).maybeSingle();
   if (!acc) return { error: "not_found" };
   const { data: isAdmin } = await supabase.rpc("has_workspace_role", { p_workspace_id: acc.workspace_id, p_min_role: "admin" });
   if (!isAdmin) return { error: "forbidden" };
 
-  await revokeAccount(acc.id, acc.platform);
+  if (acc.platform === "instagram") {
+    // Bandeja ligada a esta cuenta: se da de baja el webhook antes de borrarla (el borrado en cascada no lo hace).
+    const { data: conns } = await supabase.from("inbox_connections").select("id").eq("social_account_id", acc.id);
+    for (const c of conns ?? []) await disconnectConnection(c.id).catch(() => undefined);
+  }
+  await revokeAccount(acc.id, acc.platform, (acc.metadata ?? null) as Record<string, unknown> | null);
   const { error } = await supabase.from("social_accounts").delete().eq("id", accountId);
   if (error) return { error: toErrorKey(error) };
   revalidatePath(`/app/p/${acc.project_id}/accounts`);
